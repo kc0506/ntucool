@@ -1,0 +1,66 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/account_domain_lookups",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/accounts/search",
+      "description": "Returns a list of up to 5 matching account domains\n\nPartial match on name / domain are supported",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Search account domains",
+          "notes": "Returns a list of up to 5 matching account domains\n\nPartial match on name / domain are supported",
+          "nickname": "search_account_domains",
+          "parameters": [
+            {
+              "paramType": "query",
+              "name": "name",
+              "description": "campus name",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "domain",
+              "description": "no description",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "latitude",
+              "description": "no description",
+              "type": "number",
+              "format": "float",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "longitude",
+              "description": "no description",
+              "type": "number",
+              "format": "float",
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    }
+  ],
+  "models": {}
+}

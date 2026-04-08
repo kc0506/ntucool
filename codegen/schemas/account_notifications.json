@@ -1,0 +1,378 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/account_notifications",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/accounts/{account_id}/account_notifications",
+      "description": "Returns a list of all global notifications in the account for the current user\nAny notifications that have been closed by the user will not be returned, unless\na include_past parameter is passed in as true.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Index of active global notification for the user",
+          "notes": "Returns a list of all global notifications in the account for the current user\nAny notifications that have been closed by the user will not be returned, unless\na include_past parameter is passed in as true.",
+          "nickname": "index_of_active_global_notification_for_user",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "include_past",
+              "description": "Include past and dismissed global announcements.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "AccountNotification"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/account_notifications/{id}",
+      "description": "Returns a global notification for the current user\nA notification that has been closed by the user will not be returned",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Show a global notification",
+          "notes": "Returns a global notification for the current user\nA notification that has been closed by the user will not be returned",
+          "nickname": "show_global_notification",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "AccountNotification"
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/account_notifications/{id}",
+      "description": "If the current user no long wants to see this notification it can be excused with this call",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Close notification for user",
+          "notes": "If the current user no long wants to see this notification it can be excused with this call",
+          "nickname": "close_notification_for_user",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "AccountNotification"
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/account_notifications",
+      "description": "Create and return a new global notification for an account.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Create a global notification",
+          "notes": "Create and return a new global notification for an account.",
+          "nickname": "create_global_notification",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "account_notification[subject]",
+              "description": "The subject of the notification.",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "account_notification[message]",
+              "description": "The message body of the notification.",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "account_notification[start_at]",
+              "description": "The start date and time of the notification in ISO8601 format.\ne.g. 2014-01-01T01:00Z",
+              "type": "DateTime",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "account_notification[end_at]",
+              "description": "The end date and time of the notification in ISO8601 format.\ne.g. 2014-01-01T01:00Z",
+              "type": "DateTime",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "account_notification[icon]",
+              "description": "The icon to display with the notification.\nNote: Defaults to warning.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "warning",
+                "information",
+                "question",
+                "error",
+                "calendar"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "account_notification_roles",
+              "description": "The role(s) to send global notification to.  Note:  ommitting this field will send to everyone\nExample:\n  account_notification_roles: [\"StudentEnrollment\", \"TeacherEnrollment\"]",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/account_notifications/{id}",
+      "description": "Update global notification for an account.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update a global notification",
+          "notes": "Update global notification for an account.",
+          "nickname": "update_global_notification",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "account_notification[subject]",
+              "description": "The subject of the notification.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "account_notification[message]",
+              "description": "The message body of the notification.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "account_notification[start_at]",
+              "description": "The start date and time of the notification in ISO8601 format.\ne.g. 2014-01-01T01:00Z",
+              "type": "DateTime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "account_notification[end_at]",
+              "description": "The end date and time of the notification in ISO8601 format.\ne.g. 2014-01-01T01:00Z",
+              "type": "DateTime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "account_notification[icon]",
+              "description": "The icon to display with the notification.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "warning",
+                "information",
+                "question",
+                "error",
+                "calendar"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "account_notification_roles",
+              "description": "The role(s) to send global notification to.  Note:  ommitting this field will send to everyone\nExample:\n  account_notification_roles: [\"StudentEnrollment\", \"TeacherEnrollment\"]",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    }
+  ],
+  "models": {
+    "AccountNotification": {
+      "id": "AccountNotification",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "subject": {
+          "description": "The subject of the notifications",
+          "example": "Attention Students",
+          "type": "string"
+        },
+        "message": {
+          "description": "The message to be sent in the notification.",
+          "example": "This is a test of the notification system.",
+          "type": "string"
+        },
+        "start_at": {
+          "description": "When to send out the notification.",
+          "example": "2013-08-28T23:59:00-06:00",
+          "type": "datetime"
+        },
+        "end_at": {
+          "description": "When to expire the notification.",
+          "example": "2013-08-29T23:59:00-06:00",
+          "type": "datetime"
+        },
+        "icon": {
+          "description": "The icon to display with the message.  Defaults to warning.",
+          "example": "information",
+          "type": "string",
+          "allowableValues": {
+            "values": [
+              "warning",
+              "information",
+              "question",
+              "error",
+              "calendar"
+            ]
+          }
+        },
+        "roles": {
+          "description": "(Deprecated) The roles to send the notification to.  If roles is not passed it defaults to all roles",
+          "example": [
+            "StudentEnrollment"
+          ],
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "role_ids": {
+          "description": "The roles to send the notification to.  If roles is not passed it defaults to all roles",
+          "example": [
+            1
+          ],
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  }
+}

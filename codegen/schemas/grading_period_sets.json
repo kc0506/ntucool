@@ -1,0 +1,261 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/grading_period_sets",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/accounts/{account_id}/grading_period_sets",
+      "description": "Returns the paginated list of grading period sets",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List grading period sets",
+          "notes": "Returns the paginated list of grading period sets",
+          "nickname": "list_grading_period_sets",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/grading_period_sets",
+      "description": "Create and return a new grading period set",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Create a grading period set",
+          "notes": "Create and return a new grading period set",
+          "nickname": "create_grading_period_set",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "enrollment_term_ids",
+              "description": "A list of associated term ids for the grading period set",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "$ref": "Array"
+              }
+            },
+            {
+              "paramType": "form",
+              "name": "grading_period_set[title]",
+              "description": "The title of the grading period set",
+              "type": "array",
+              "format": null,
+              "required": true,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "form",
+              "name": "grading_period_set[weighted]",
+              "description": "A boolean to determine whether the grading periods in the set are weighted",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "boolean"
+              }
+            },
+            {
+              "paramType": "form",
+              "name": "grading_period_set[display_totals_for_all_grading_periods]",
+              "description": "A boolean to determine whether the totals for all grading periods in the set are displayed",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "boolean"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/grading_period_sets/{id}",
+      "description": "Update an existing grading period set\n\n<b>204 No Content</b> response code is returned if the update was\nsuccessful.",
+      "operations": [
+        {
+          "method": "PATCH",
+          "summary": "Update a grading period set",
+          "notes": "Update an existing grading period set\n\n<b>204 No Content</b> response code is returned if the update was\nsuccessful.",
+          "nickname": "update_grading_period_set",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "enrollment_term_ids",
+              "description": "A list of associated term ids for the grading period set",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "$ref": "Array"
+              }
+            },
+            {
+              "paramType": "form",
+              "name": "grading_period_set[title]",
+              "description": "The title of the grading period set",
+              "type": "array",
+              "format": null,
+              "required": true,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "form",
+              "name": "grading_period_set[weighted]",
+              "description": "A boolean to determine whether the grading periods in the set are weighted",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "boolean"
+              }
+            },
+            {
+              "paramType": "form",
+              "name": "grading_period_set[display_totals_for_all_grading_periods]",
+              "description": "A boolean to determine whether the totals for all grading periods in the set are displayed",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "boolean"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/grading_period_sets/{id}",
+      "description": "<b>204 No Content</b> response code is returned if the deletion was\nsuccessful.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Delete a grading period set",
+          "notes": "<b>204 No Content</b> response code is returned if the deletion was\nsuccessful.",
+          "nickname": "delete_grading_period_set",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    }
+  ],
+  "models": {
+    "GradingPeriodSets": {
+      "id": "GradingPeriodSets",
+      "description": "",
+      "required": [
+        "title"
+      ],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "title": {
+          "description": "The title of the grading period set.",
+          "example": "Hello World",
+          "type": "string"
+        },
+        "weighted": {
+          "description": "If true, the grading periods in the set are weighted.",
+          "example": true,
+          "type": "boolean"
+        },
+        "display_totals_for_all_grading_periods": {
+          "description": "If true, the totals for all grading periods in the set are displayed.",
+          "example": true,
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

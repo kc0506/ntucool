@@ -1,0 +1,232 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/admins",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/accounts/{account_id}/admins",
+      "description": "Flag an existing user as an admin within the account.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Make an account admin",
+          "notes": "Flag an existing user as an admin within the account.",
+          "nickname": "make_account_admin",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user_id",
+              "description": "The id of the user to promote.",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "role",
+              "description": "[DEPRECATED] The user's admin relationship with the account will be\ncreated with the given role. Defaults to 'AccountAdmin'.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "role_id",
+              "description": "The user's admin relationship with the account will be created with the given role. Defaults to the built-in role for 'AccountAdmin'.",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "send_confirmation",
+              "description": "Send a notification email to\nthe new admin if true. Default is true.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Admin"
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/admins/{user_id}",
+      "description": "Remove the rights associated with an account admin role from a user.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Remove account admin",
+          "notes": "Remove the rights associated with an account admin role from a user.",
+          "nickname": "remove_account_admin",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "role",
+              "description": "[DEPRECATED] Account role to remove from the user.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "role_id",
+              "description": "The id of the role representing the user's admin relationship with the account.",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Admin"
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/admins",
+      "description": "A paginated list of the admins in the account",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List account admins",
+          "notes": "A paginated list of the admins in the account",
+          "nickname": "list_account_admins",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "user_id",
+              "description": "Scope the results to those with user IDs equal to any of the IDs specified here.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "$ref": "[Integer]"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "Admin"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/admins/self",
+      "description": "A paginated list of the current user's roles in the account. The results are the same\nas those returned by the {api:AdminsController#index List account admins} endpoint with\n+user_id+ set to +self+, except the \"Admins - Add / Remove\" permission is not required.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List my admin roles",
+          "notes": "A paginated list of the current user's roles in the account. The results are the same\nas those returned by the {api:AdminsController#index List account admins} endpoint with\n+user_id+ set to +self+, except the \"Admins - Add / Remove\" permission is not required.",
+          "nickname": "list_my_admin_roles",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "Admin"
+          }
+        }
+      ]
+    }
+  ],
+  "models": {
+    "Admin": {
+      "id": "Admin",
+      "description": "",
+      "required": [
+        "id"
+      ],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "The unique identifier for the account role/user assignment.",
+          "example": 1023,
+          "type": "integer"
+        },
+        "role": {
+          "description": "The account role assigned. This can be 'AccountAdmin' or a user-defined role created by the Roles API.",
+          "example": "AccountAdmin",
+          "type": "string"
+        },
+        "user": {
+          "description": "The user the role is assigned to. See the Users API for details.",
+          "$ref": "User"
+        },
+        "workflow_state": {
+          "description": "The status of the account role/user assignment.",
+          "type": "string",
+          "example": "deleted"
+        }
+      }
+    }
+  }
+}

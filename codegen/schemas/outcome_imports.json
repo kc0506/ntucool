@@ -1,0 +1,355 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/outcome_imports",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/accounts/{account_id}/outcome_imports",
+      "description": "Import outcomes into Canvas.\n\nFor more information on the format that's expected here, please see the\n\"Outcomes CSV\" section in the API docs.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Import Outcomes",
+          "notes": "Import outcomes into Canvas.\n\nFor more information on the format that's expected here, please see the\n\"Outcomes CSV\" section in the API docs.",
+          "nickname": "import_outcomes_accounts",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "import_type",
+              "description": "Choose the data format for reading outcome data. With a standard Canvas\ninstall, this option can only be 'instructure_csv', and if unprovided,\nwill be assumed to be so. Can be part of the query string.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "attachment",
+              "description": "There are two ways to post outcome import data - either via a\nmultipart/form-data form-field-style attachment, or via a non-multipart\nraw post request.\n\n'attachment' is required for multipart/form-data style posts. Assumed to\nbe outcome data from a file upload form field named 'attachment'.\n\nExamples:\n  curl -F attachment=@<filename> -H \"Authorization: Bearer <token>\" \\\n      'https://<canvas>/api/v1/accounts/<account_id>/outcome_imports?import_type=instructure_csv'\n  curl -F attachment=@<filename> -H \"Authorization: Bearer <token>\" \\\n      'https://<canvas>/api/v1/courses/<course_id>/outcome_imports?import_type=instructure_csv'\n\nIf you decide to do a raw post, you can skip the 'attachment' argument,\nbut you will then be required to provide a suitable Content-Type header.\nYou are encouraged to also provide the 'extension' argument.\n\nExamples:\n  curl -H 'Content-Type: text/csv' --data-binary @<filename>.csv \\\n      -H \"Authorization: Bearer <token>\" \\\n      'https://<canvas>/api/v1/accounts/<account_id>/outcome_imports?import_type=instructure_csv'\n\n  curl -H 'Content-Type: text/csv' --data-binary @<filename>.csv \\\n      -H \"Authorization: Bearer <token>\" \\\n      'https://<canvas>/api/v1/courses/<course_id>/outcome_imports?import_type=instructure_csv'",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "extension",
+              "description": "Recommended for raw post request style imports. This field will be used to\ndistinguish between csv and other file format extensions that\nwould usually be provided with the filename in the multipart post request\nscenario. If not provided, this value will be inferred from the\nContent-Type, falling back to csv-file format if all else fails.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "OutcomeImport"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/outcome_imports",
+      "description": "Import outcomes into Canvas.\n\nFor more information on the format that's expected here, please see the\n\"Outcomes CSV\" section in the API docs.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Import Outcomes",
+          "notes": "Import outcomes into Canvas.\n\nFor more information on the format that's expected here, please see the\n\"Outcomes CSV\" section in the API docs.",
+          "nickname": "import_outcomes_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "import_type",
+              "description": "Choose the data format for reading outcome data. With a standard Canvas\ninstall, this option can only be 'instructure_csv', and if unprovided,\nwill be assumed to be so. Can be part of the query string.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "attachment",
+              "description": "There are two ways to post outcome import data - either via a\nmultipart/form-data form-field-style attachment, or via a non-multipart\nraw post request.\n\n'attachment' is required for multipart/form-data style posts. Assumed to\nbe outcome data from a file upload form field named 'attachment'.\n\nExamples:\n  curl -F attachment=@<filename> -H \"Authorization: Bearer <token>\" \\\n      'https://<canvas>/api/v1/accounts/<account_id>/outcome_imports?import_type=instructure_csv'\n  curl -F attachment=@<filename> -H \"Authorization: Bearer <token>\" \\\n      'https://<canvas>/api/v1/courses/<course_id>/outcome_imports?import_type=instructure_csv'\n\nIf you decide to do a raw post, you can skip the 'attachment' argument,\nbut you will then be required to provide a suitable Content-Type header.\nYou are encouraged to also provide the 'extension' argument.\n\nExamples:\n  curl -H 'Content-Type: text/csv' --data-binary @<filename>.csv \\\n      -H \"Authorization: Bearer <token>\" \\\n      'https://<canvas>/api/v1/accounts/<account_id>/outcome_imports?import_type=instructure_csv'\n\n  curl -H 'Content-Type: text/csv' --data-binary @<filename>.csv \\\n      -H \"Authorization: Bearer <token>\" \\\n      'https://<canvas>/api/v1/courses/<course_id>/outcome_imports?import_type=instructure_csv'",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "extension",
+              "description": "Recommended for raw post request style imports. This field will be used to\ndistinguish between csv and other file format extensions that\nwould usually be provided with the filename in the multipart post request\nscenario. If not provided, this value will be inferred from the\nContent-Type, falling back to csv-file format if all else fails.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "OutcomeImport"
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/outcome_imports/{id}",
+      "description": "Get the status of an already created Outcome import. Pass 'latest' for the outcome import id\nfor the latest import.\n\n  Examples:\n    curl 'https://<canvas>/api/v1/accounts/<account_id>/outcome_imports/<outcome_import_id>' \\\n        -H \"Authorization: Bearer <token>\"\n    curl 'https://<canvas>/api/v1/courses/<course_id>/outcome_imports/<outcome_import_id>' \\\n        -H \"Authorization: Bearer <token>\"",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get Outcome import status",
+          "notes": "Get the status of an already created Outcome import. Pass 'latest' for the outcome import id\nfor the latest import.\n\n  Examples:\n    curl 'https://<canvas>/api/v1/accounts/<account_id>/outcome_imports/<outcome_import_id>' \\\n        -H \"Authorization: Bearer <token>\"\n    curl 'https://<canvas>/api/v1/courses/<course_id>/outcome_imports/<outcome_import_id>' \\\n        -H \"Authorization: Bearer <token>\"",
+          "nickname": "get_outcome_import_status_accounts",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "OutcomeImport"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/outcome_imports/{id}",
+      "description": "Get the status of an already created Outcome import. Pass 'latest' for the outcome import id\nfor the latest import.\n\n  Examples:\n    curl 'https://<canvas>/api/v1/accounts/<account_id>/outcome_imports/<outcome_import_id>' \\\n        -H \"Authorization: Bearer <token>\"\n    curl 'https://<canvas>/api/v1/courses/<course_id>/outcome_imports/<outcome_import_id>' \\\n        -H \"Authorization: Bearer <token>\"",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get Outcome import status",
+          "notes": "Get the status of an already created Outcome import. Pass 'latest' for the outcome import id\nfor the latest import.\n\n  Examples:\n    curl 'https://<canvas>/api/v1/accounts/<account_id>/outcome_imports/<outcome_import_id>' \\\n        -H \"Authorization: Bearer <token>\"\n    curl 'https://<canvas>/api/v1/courses/<course_id>/outcome_imports/<outcome_import_id>' \\\n        -H \"Authorization: Bearer <token>\"",
+          "nickname": "get_outcome_import_status_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "OutcomeImport"
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/outcome_imports/{id}/created_group_ids",
+      "description": "Get the IDs of the outcome groups created after a successful import.\nPass 'latest' for the outcome import id for the latest import.\n\n  Examples:\n    curl 'https://<canvas>/api/v1/accounts/<account_id>/outcome_imports/outcomes_group_ids/<outcome_import_id>' \\\n        -H \"Authorization: Bearer <token>\"\n    curl 'https://<canvas>/api/v1/courses/<course_id>/outcome_imports/outcome_group_ids/<outcome_import_id>' \\\n        -H \"Authorization: Bearer <token>\"",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get IDs of outcome groups created after successful import",
+          "notes": "Get the IDs of the outcome groups created after a successful import.\nPass 'latest' for the outcome import id for the latest import.\n\n  Examples:\n    curl 'https://<canvas>/api/v1/accounts/<account_id>/outcome_imports/outcomes_group_ids/<outcome_import_id>' \\\n        -H \"Authorization: Bearer <token>\"\n    curl 'https://<canvas>/api/v1/courses/<course_id>/outcome_imports/outcome_group_ids/<outcome_import_id>' \\\n        -H \"Authorization: Bearer <token>\"",
+          "nickname": "get_ids_of_outcome_groups_created_after_successful_import_accounts",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array of outcome ids"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/outcome_imports/{id}/created_group_ids",
+      "description": "Get the IDs of the outcome groups created after a successful import.\nPass 'latest' for the outcome import id for the latest import.\n\n  Examples:\n    curl 'https://<canvas>/api/v1/accounts/<account_id>/outcome_imports/outcomes_group_ids/<outcome_import_id>' \\\n        -H \"Authorization: Bearer <token>\"\n    curl 'https://<canvas>/api/v1/courses/<course_id>/outcome_imports/outcome_group_ids/<outcome_import_id>' \\\n        -H \"Authorization: Bearer <token>\"",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get IDs of outcome groups created after successful import",
+          "notes": "Get the IDs of the outcome groups created after a successful import.\nPass 'latest' for the outcome import id for the latest import.\n\n  Examples:\n    curl 'https://<canvas>/api/v1/accounts/<account_id>/outcome_imports/outcomes_group_ids/<outcome_import_id>' \\\n        -H \"Authorization: Bearer <token>\"\n    curl 'https://<canvas>/api/v1/courses/<course_id>/outcome_imports/outcome_group_ids/<outcome_import_id>' \\\n        -H \"Authorization: Bearer <token>\"",
+          "nickname": "get_ids_of_outcome_groups_created_after_successful_import_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array of outcome ids"
+        }
+      ]
+    }
+  ],
+  "models": {
+    "OutcomeImportData": {
+      "id": "OutcomeImportData",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "import_type": {
+          "description": "The type of outcome import",
+          "example": "instructure_csv",
+          "type": "string"
+        }
+      }
+    },
+    "OutcomeImport": {
+      "id": "OutcomeImport",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "The unique identifier for the outcome import.",
+          "example": 1,
+          "type": "integer"
+        },
+        "learning_outcome_group_id": {
+          "description": "The unique identifier for the group into which the outcomes will be imported to, or NULL.",
+          "example": 1,
+          "type": "integer"
+        },
+        "created_at": {
+          "description": "The date the outcome import was created.",
+          "example": "2013-12-01T23:59:00-06:00",
+          "type": "datetime"
+        },
+        "ended_at": {
+          "description": "The date the outcome import finished. Returns null if not finished.",
+          "example": "2013-12-02T00:03:21-06:00",
+          "type": "datetime"
+        },
+        "updated_at": {
+          "description": "The date the outcome import was last updated.",
+          "example": "2013-12-02T00:03:21-06:00",
+          "type": "datetime"
+        },
+        "workflow_state": {
+          "description": "The current state of the outcome import.\n - 'created': The outcome import has been created.\n - 'importing': The outcome import is currently processing.\n - 'succeeded': The outcome import has completed successfully.\n - 'failed': The outcome import failed.",
+          "example": "imported",
+          "type": "string",
+          "allowableValues": {
+            "values": [
+              "created",
+              "importing",
+              "succeeded",
+              "failed"
+            ]
+          }
+        },
+        "data": {
+          "description": "See the OutcomeImportData specification above.",
+          "$ref": "OutcomeImportData"
+        },
+        "progress": {
+          "description": "The progress of the outcome import.",
+          "example": "100",
+          "type": "string"
+        },
+        "user": {
+          "description": "The user that initiated the outcome_import. See the Users API for details.",
+          "$ref": "User"
+        },
+        "processing_errors": {
+          "description": "An array of row number / error message pairs. Returns the first 25 errors.",
+          "example": [
+            [
+              1,
+              "Missing required fields: title"
+            ]
+          ],
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    }
+  }
+}

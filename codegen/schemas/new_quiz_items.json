@@ -1,0 +1,778 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/new_quiz_items",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/quiz/v1/courses/{course_id}/quizzes/{assignment_id}/items/{item_id}",
+      "description": "Get details about a single item in a new quiz.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get a quiz item",
+          "notes": "Get details about a single item in a new quiz.",
+          "nickname": "get_quiz_item",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "no description",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "assignment_id",
+              "description": "The id of the assignment associated with the quiz.",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "item_id",
+              "description": "The id of the item associated with the quiz.",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "QuizItem"
+        }
+      ]
+    },
+    {
+      "path": "/quiz/v1/courses/{course_id}/quizzes/{assignment_id}/items",
+      "description": "Get a list of items in a new quiz.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List quiz items",
+          "notes": "Get a list of items in a new quiz.",
+          "nickname": "list_quiz_items",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "no description",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "assignment_id",
+              "description": "no description",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "QuizItem"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/quiz/v1/courses/{course_id}/quizzes/{assignment_id}/items",
+      "description": "Create a quiz item in a new quiz. Only +QuestionItem+ types can be created.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Create a quiz item",
+          "notes": "Create a quiz item in a new quiz. Only +QuestionItem+ types can be created.",
+          "nickname": "create_quiz_item",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "no description",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "assignment_id",
+              "description": "The id of the assignment associated with the quiz.",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "item[position]",
+              "description": "The position of the item within the quiz.",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "item[points_possible]",
+              "description": "The number of points available to score on this item. Must be positive.",
+              "type": "number",
+              "format": "float",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "item[entry_type]",
+              "description": "The type of the item.",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false,
+              "enum": [
+                "Item"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "item[entry][title]",
+              "description": "The question title.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "item[entry][item_body]",
+              "description": "The question stem (rich content).",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "item[entry][calculator_type]",
+              "description": "Type of calculator the user will have access to during the question.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "none",
+                "basic",
+                "scientific"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "item[entry][feedback][neutral]",
+              "description": "General feedback to show regardless of answer (rich content).",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "item[entry][feedback][correct]",
+              "description": "Feedback to show if the question is answered correctly (rich content).",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "item[entry][feedback][incorrect]",
+              "description": "Feedback to show if the question is answered incorrectly (rich content).",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "item[entry][interaction_type_slug]",
+              "description": "The type of question. One of 'multi-answer', 'matching', 'categorization', 'file-upload', 'formula', 'ordering', 'rich-fill-blank', 'hot-spot', 'choice', 'numeric', 'true-false', or 'essay'. See {Appendix: Question Types} for more info about each type.",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "item[entry][interaction_data]",
+              "description": "An object that contains the question data. See {Appendix: Question Types} for more info about this field.",
+              "type": "Object",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "item[entry][properties]",
+              "description": "An object that contains additional properties for some question types. See {Appendix: Question Types} for more info about this field.",
+              "type": "Object",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "item[entry][scoring_data]",
+              "description": "An object that describes how to score the question. See {Appendix: Question Types} for more info about this field.",
+              "type": "Object",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "item[entry][answer_feedback]",
+              "description": "Feedback provided for each answer (rich content, only available on 'choice' question types).",
+              "type": "Object",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "item[entry][scoring_algorithm]",
+              "description": "The algorithm used to score the question. See {Appendix: Question Types} for more info about this field.",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "QuizItem"
+        }
+      ]
+    },
+    {
+      "path": "/quiz/v1/courses/{course_id}/quizzes/{assignment_id}/items/{item_id}",
+      "description": "Update a single quiz item in a new quiz. Only +QuestionItem+ types can be updated.",
+      "operations": [
+        {
+          "method": "PATCH",
+          "summary": "Update a quiz item",
+          "notes": "Update a single quiz item in a new quiz. Only +QuestionItem+ types can be updated.",
+          "nickname": "update_quiz_item",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "no description",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "assignment_id",
+              "description": "The id of the assignment associated with the quiz.",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "item_id",
+              "description": "The id of the item associated with the quiz.",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "item[position]",
+              "description": "The position of the item within the quiz.",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "item[points_possible]",
+              "description": "The number of points available to score on this item. Must be positive.",
+              "type": "number",
+              "format": "float",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "item[entry_type]",
+              "description": "The type of the item.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "Item"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "item[entry][title]",
+              "description": "The question title.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "item[entry][item_body]",
+              "description": "The question stem (rich content).",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "item[entry][calculator_type]",
+              "description": "Type of calculator the user will have access to during the question.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "none",
+                "basic",
+                "scientific"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "item[entry][feedback][neutral]",
+              "description": "General feedback to show regardless of answer (rich content).",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "item[entry][feedback][correct]",
+              "description": "Feedback to show if the question is answered correctly (rich content).",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "item[entry][feedback][incorrect]",
+              "description": "Feedback to show if the question is answered incorrectly (rich content).",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "item[entry][interaction_type_slug]",
+              "description": "The type of question. One of 'multi-answer', 'matching', 'categorization', 'file-upload', 'formula', 'ordering', 'rich-fill-blank',\n'hot-spot', 'choice', 'numeric', 'true-false', or 'essay'. See {Appendix: Question Types} for more info about each type.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "item[entry][interaction_data]",
+              "description": "An object that contains the question data. See {Appendix: Question Types} for more info about this field.",
+              "type": "Object",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "item[entry][properties]",
+              "description": "An object that contains additional properties for some question types. See {Appendix: Question Types} for more info about this field.",
+              "type": "Object",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "item[entry][scoring_data]",
+              "description": "An object that describes how to score the question. See {Appendix: Question Types} for more info about this field.",
+              "type": "Object",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "item[entry][answer_feedback]",
+              "description": "Feedback provided for each answer (rich content, only available on 'choice' question types).",
+              "type": "Object",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "item[entry][scoring_algorithm]",
+              "description": "The algorithm used to score the question. See {Appendix: Question Types} for more info about this field.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "QuizItem"
+        }
+      ]
+    },
+    {
+      "path": "/quiz/v1/courses/{course_id}/quizzes/{assignment_id}/items/{item_id}",
+      "description": "Delete a single quiz item in a new quiz.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Delete a quiz item",
+          "notes": "Delete a single quiz item in a new quiz.",
+          "nickname": "delete_quiz_item",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "no description",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "assignment_id",
+              "description": "The id of the assignment associated with the quiz.",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "item_id",
+              "description": "The id of the item associated with the quiz.",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "QuizItem"
+        }
+      ]
+    },
+    {
+      "path": "/quiz/v1/courses/{course_id}/quizzes/{assignment_id}/items/media_upload_url",
+      "description": "Get a url for uploading media for use in hot-spot question types. See the hot-spot\nquestion type in the {Appendix: Question Types} for more details about using this endpoint.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get items media_upload_url",
+          "notes": "Get a url for uploading media for use in hot-spot question types. See the hot-spot\nquestion type in the {Appendix: Question Types} for more details about using this endpoint.",
+          "nickname": "get_items_media_upload_url",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "no description",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "assignment_id",
+              "description": "no description",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    }
+  ],
+  "models": {
+    "QuizItem": {
+      "id": "QuizItem",
+      "description": "Individual items within a quiz, whether they're questions, stimuli, banked content, or question banks.",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "the ID of the quiz item",
+          "example": "35",
+          "type": "string"
+        },
+        "position": {
+          "description": "the position of the item within the quiz. The first item in a quiz is given position 1.",
+          "example": 2,
+          "type": "integer"
+        },
+        "points_possible": {
+          "description": "the number of points available to score on this item",
+          "example": 10.0,
+          "type": "number"
+        },
+        "entry_type": {
+          "description": "the type of the item. One of 'Item', 'Stimulus', 'BankEntry', or 'Bank'.",
+          "example": "Item",
+          "type": "string"
+        },
+        "entry_editable": {
+          "description": "whether the current user can edit the item -- used internally, no need to set",
+          "example": true,
+          "type": "boolean"
+        },
+        "stimulus_quiz_entry_id": {
+          "description": "the ID of the stimulus that this item is associated with. null if not associated with any stimuli.",
+          "example": "3",
+          "type": "string"
+        },
+        "status": {
+          "description": "status of the item. one of 'mutable' or 'immutable'.  Used internally, no need to set",
+          "example": "mutable",
+          "type": "string"
+        },
+        "properties": {
+          "description": "additional properties for the item (currently only populated by items with a BankItem entry)",
+          "$ref": "ItemProperties"
+        },
+        "entry": {
+          "description": "the specific data associated with the quiz item.  These items can be either a\n       QuestionItem, StimulusItem, BankEntryItem, or BankItem, depending on entry_type, and are defined\n       separately",
+          "$ref": "QuestionItem|StimulusItem|BankEntryItem|BankItem"
+        }
+      }
+    },
+    "QuestionItem": {
+      "id": "QuestionItem",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "title": {
+          "description": "the question title",
+          "example": "Linear Algebra 1-104",
+          "type": "string"
+        },
+        "item_body": {
+          "description": "the question content (can include html for rich content)",
+          "example": "<p>What is 3 + 6?</p>",
+          "type": "string"
+        },
+        "calculator_type": {
+          "description": "type of calculator the user will have access to during the question ('none', basic' or 'scientific')",
+          "example": "none",
+          "type": "string"
+        },
+        "feedback": {
+          "description": "correct, incorrect, and general feedback for the question (see QuestionFeedback)",
+          "$ref": "QuestionFeedback"
+        },
+        "interaction_type_slug": {
+          "description": "can be thought of as the question type. One of 'multi-answer', 'matching', 'categorization',\n      'file-upload', 'formula', 'ordering', 'rich-fill-blank', 'hot-spot', 'choice', 'numeric', 'true-false',\n      'essay', or 'fill-blank' (deprecated). See Appendix: Question Types for more info about each type.",
+          "example": "essay",
+          "type": "string"
+        },
+        "interaction_data": {
+          "description": "an object that contains the question data. See Appendix: Question Types for more info about this field.",
+          "type": "object"
+        },
+        "properties": {
+          "description": "an object that contains additional properties for some question types. See Appendix: Question Types for more info about this field.",
+          "type": "object"
+        },
+        "scoring_data": {
+          "description": "describes how to score the question. See Appendix: Question Types for more info about this field.",
+          "type": "object"
+        },
+        "answer_feedback": {
+          "description": "feedback provided for each answer (rich content, only available on 'choice' question types)",
+          "example": {
+            "5595b4c2-7dd6-447f-b8f1-9b6d0e0c287a": "<p>Close, but in this case...</p>"
+          },
+          "type": "object"
+        },
+        "scoring_algorithm": {
+          "description": "the algorithm used to score the question. See Appendix: Question Types for more info about this field.",
+          "example": "AllOrNothing",
+          "type": "string"
+        }
+      }
+    },
+    "StimulusItem": {
+      "id": "StimulusItem",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "title": {
+          "description": "stimulus title",
+          "example": "Consider the following image",
+          "type": "string"
+        },
+        "body": {
+          "description": "stimulus content (rich content)",
+          "example": "<img src=... />",
+          "type": "string"
+        },
+        "instructions": {
+          "description": "additional stimulus instructions",
+          "example": "Some instructions...",
+          "type": "string"
+        },
+        "source_url": {
+          "description": "optional URL; not visible to students",
+          "example": "https://example.com",
+          "type": "string"
+        },
+        "orientation": {
+          "description": "where the stimulus appears relative to questions ('top' or 'left')",
+          "example": "left",
+          "type": "string"
+        }
+      }
+    },
+    "BankEntryItem": {
+      "id": "BankEntryItem",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "entry_type": {
+          "description": "the type of the item. Either 'Item' or 'Stimulus'.",
+          "example": "Item",
+          "type": "string"
+        },
+        "archived": {
+          "description": "whether the banked item is archived",
+          "example": false,
+          "type": "boolean"
+        },
+        "entry": {
+          "description": "the item (either a QuestionItem or StimulusItem, depending on entry_type)",
+          "$ref": "QuestionItem|StimulusItem"
+        }
+      }
+    },
+    "BankItem": {
+      "id": "BankItem",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "title": {
+          "description": "the title of the bank",
+          "example": "Linear Algebra 1-1",
+          "type": "string"
+        },
+        "archived": {
+          "description": "whether the bank is archived",
+          "example": false,
+          "type": "boolean"
+        },
+        "entry_count": {
+          "description": "the number of items in the bank, including stimuli",
+          "example": 20,
+          "type": "integer"
+        },
+        "item_entry_count": {
+          "description": "the number of items in the bank, excluding stimuli",
+          "example": 18,
+          "type": "integer"
+        }
+      }
+    },
+    "ItemProperties": {
+      "id": "ItemProperties",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "sample_num": {
+          "description": "for items with a BankItem entry - the number of items to randomly select from the bank. null if all items should be included.",
+          "example": 5,
+          "type": "integer"
+        }
+      }
+    },
+    "QuestionFeedback": {
+      "id": "QuestionFeedback",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "neutral": {
+          "description": "general feedback to show regardless of answer (rich content)",
+          "example": "<p>That was a hard one.</p>",
+          "type": "string"
+        },
+        "correct": {
+          "description": "feedback to show if the question is answered correctly (rich content)",
+          "example": "<p>Nice work!</p>",
+          "type": "string"
+        },
+        "incorrect": {
+          "description": "feedback to show if the question is answered incorrectly (rich content)",
+          "example": "<p>Remember to start by...</p>",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

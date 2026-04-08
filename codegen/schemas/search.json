@@ -1,0 +1,341 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/search",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/conversations/find_recipients",
+      "description": "Find valid recipients (users, courses and groups) that the current user\ncan send messages to. The /api/v1/search/recipients path is the preferred\nendpoint, /api/v1/conversations/find_recipients is deprecated.\n\nPagination is supported.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Find recipients",
+          "notes": "Find valid recipients (users, courses and groups) that the current user\ncan send messages to. The /api/v1/search/recipients path is the preferred\nendpoint, /api/v1/conversations/find_recipients is deprecated.\n\nPagination is supported.",
+          "nickname": "find_recipients_conversations",
+          "parameters": [
+            {
+              "paramType": "query",
+              "name": "search",
+              "description": "Search terms used for matching users/courses/groups (e.g. \"bob smith\"). If\nmultiple terms are given (separated via whitespace), only results matching\nall terms will be returned.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "context",
+              "description": "Limit the search to a particular course/group (e.g. \"course_3\" or \"group_4\").",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "exclude",
+              "description": "Array of ids to exclude from the search. These may be user ids or\ncourse/group ids prefixed with \"course_\" or \"group_\" respectively,\ne.g. exclude[]=1&exclude[]=2&exclude[]=course_3",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "type",
+              "description": "Limit the search just to users or contexts (groups/courses).",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "user",
+                "context"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "user_id",
+              "description": "Search for a specific user id. This ignores the other above parameters,\nand will never return more than one result.",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "from_conversation_id",
+              "description": "When searching by user_id, only users that could be normally messaged by\nthis user will be returned. This parameter allows you to specify a\nconversation that will be referenced for a shared context -- if both the\ncurrent user and the searched user are in the conversation, the user will\nbe returned. This is used to start new side conversations.",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "permissions",
+              "description": "Array of permission strings to be checked for each matched context (e.g.\n\"send_messages\"). This argument determines which permissions may be\nreturned in the response; it won't prevent contexts from being returned if\nthey don't grant the permission(s).",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [
+            {
+              "name": "id",
+              "description": "The unique identifier for the user/context. For\ngroups/courses, the id is prefixed by \"group_\"/\"course_\" respectively.",
+              "deprecated": false
+            },
+            {
+              "name": "name",
+              "description": "The name of the context or short name of the user",
+              "deprecated": false
+            },
+            {
+              "name": "full_name",
+              "description": "Only set for users. The full name of the user",
+              "deprecated": false
+            },
+            {
+              "name": "avatar_url",
+              "description": "Avatar image url for the user/context",
+              "deprecated": false
+            },
+            {
+              "name": "type",
+              "description": "[\"context\"|\"course\"|\"section\"|\"group\"|\"user\"|null]\nType of recipients to return, defaults to null (all). \"context\"\nencompasses \"course\", \"section\" and \"group\"",
+              "deprecated": false
+            },
+            {
+              "name": "types[]",
+              "description": "Array of recipient types to return (see type\nabove), e.g. types[]=user&types[]=course",
+              "deprecated": false
+            },
+            {
+              "name": "user_count",
+              "description": "Only set for contexts, indicates number of\nmessageable users",
+              "deprecated": false
+            },
+            {
+              "name": "common_courses",
+              "description": "Only set for users. Hash of course ids and\nenrollment types for each course to show what they share with this user",
+              "deprecated": false
+            },
+            {
+              "name": "common_groups",
+              "description": "Only set for users. Hash of group ids and\nenrollment types for each group to show what they share with this user",
+              "deprecated": false
+            },
+            {
+              "name": "permissions[]",
+              "description": "Only set for contexts. Mapping of requested\npermissions that the context grants the current user, e.g.\n{ send_messages: true }",
+              "deprecated": false
+            }
+          ],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/search/recipients",
+      "description": "Find valid recipients (users, courses and groups) that the current user\ncan send messages to. The /api/v1/search/recipients path is the preferred\nendpoint, /api/v1/conversations/find_recipients is deprecated.\n\nPagination is supported.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Find recipients",
+          "notes": "Find valid recipients (users, courses and groups) that the current user\ncan send messages to. The /api/v1/search/recipients path is the preferred\nendpoint, /api/v1/conversations/find_recipients is deprecated.\n\nPagination is supported.",
+          "nickname": "find_recipients_search",
+          "parameters": [
+            {
+              "paramType": "query",
+              "name": "search",
+              "description": "Search terms used for matching users/courses/groups (e.g. \"bob smith\"). If\nmultiple terms are given (separated via whitespace), only results matching\nall terms will be returned.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "context",
+              "description": "Limit the search to a particular course/group (e.g. \"course_3\" or \"group_4\").",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "exclude",
+              "description": "Array of ids to exclude from the search. These may be user ids or\ncourse/group ids prefixed with \"course_\" or \"group_\" respectively,\ne.g. exclude[]=1&exclude[]=2&exclude[]=course_3",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "type",
+              "description": "Limit the search just to users or contexts (groups/courses).",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "user",
+                "context"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "user_id",
+              "description": "Search for a specific user id. This ignores the other above parameters,\nand will never return more than one result.",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "from_conversation_id",
+              "description": "When searching by user_id, only users that could be normally messaged by\nthis user will be returned. This parameter allows you to specify a\nconversation that will be referenced for a shared context -- if both the\ncurrent user and the searched user are in the conversation, the user will\nbe returned. This is used to start new side conversations.",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "permissions",
+              "description": "Array of permission strings to be checked for each matched context (e.g.\n\"send_messages\"). This argument determines which permissions may be\nreturned in the response; it won't prevent contexts from being returned if\nthey don't grant the permission(s).",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [
+            {
+              "name": "id",
+              "description": "The unique identifier for the user/context. For\ngroups/courses, the id is prefixed by \"group_\"/\"course_\" respectively.",
+              "deprecated": false
+            },
+            {
+              "name": "name",
+              "description": "The name of the context or short name of the user",
+              "deprecated": false
+            },
+            {
+              "name": "full_name",
+              "description": "Only set for users. The full name of the user",
+              "deprecated": false
+            },
+            {
+              "name": "avatar_url",
+              "description": "Avatar image url for the user/context",
+              "deprecated": false
+            },
+            {
+              "name": "type",
+              "description": "[\"context\"|\"course\"|\"section\"|\"group\"|\"user\"|null]\nType of recipients to return, defaults to null (all). \"context\"\nencompasses \"course\", \"section\" and \"group\"",
+              "deprecated": false
+            },
+            {
+              "name": "types[]",
+              "description": "Array of recipient types to return (see type\nabove), e.g. types[]=user&types[]=course",
+              "deprecated": false
+            },
+            {
+              "name": "user_count",
+              "description": "Only set for contexts, indicates number of\nmessageable users",
+              "deprecated": false
+            },
+            {
+              "name": "common_courses",
+              "description": "Only set for users. Hash of course ids and\nenrollment types for each course to show what they share with this user",
+              "deprecated": false
+            },
+            {
+              "name": "common_groups",
+              "description": "Only set for users. Hash of group ids and\nenrollment types for each group to show what they share with this user",
+              "deprecated": false
+            },
+            {
+              "name": "permissions[]",
+              "description": "Only set for contexts. Mapping of requested\npermissions that the context grants the current user, e.g.\n{ send_messages: true }",
+              "deprecated": false
+            }
+          ],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/search/all_courses",
+      "description": "A paginated list of all courses visible in the public index",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List all courses",
+          "notes": "A paginated list of all courses visible in the public index",
+          "nickname": "list_all_courses",
+          "parameters": [
+            {
+              "paramType": "query",
+              "name": "search",
+              "description": "Search terms used for matching users/courses/groups (e.g. \"bob smith\"). If\nmultiple terms are given (separated via whitespace), only results matching\nall terms will be returned.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "public_only",
+              "description": "Only return courses with public content. Defaults to false.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "open_enrollment_only",
+              "description": "Only return courses that allow self enrollment. Defaults to false.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    }
+  ],
+  "models": {}
+}

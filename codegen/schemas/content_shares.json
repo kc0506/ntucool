@@ -1,0 +1,412 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/content_shares",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/users/{user_id}/content_shares",
+      "description": "Share content directly between two or more users",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Create a content share",
+          "notes": "Share content directly between two or more users",
+          "nickname": "create_content_share",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "receiver_ids",
+              "description": "IDs of users to share the content with.",
+              "type": "Array",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "content_type",
+              "description": "Type of content you are sharing.",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false,
+              "enum": [
+                "assignment",
+                "discussion_topic",
+                "page",
+                "quiz",
+                "module",
+                "module_item"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "content_id",
+              "description": "The id of the content that you are sharing",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "ContentShare"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{user_id}/content_shares/sent",
+      "description": "Return a paginated list of content shares a user has sent or received. Use +self+ as the user_id\nto retrieve your own content shares. Only linked observers and administrators may view other users'\ncontent shares.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List content shares",
+          "notes": "Return a paginated list of content shares a user has sent or received. Use +self+ as the user_id\nto retrieve your own content shares. Only linked observers and administrators may view other users'\ncontent shares.",
+          "nickname": "list_content_shares_sent",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "ContentShare"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{user_id}/content_shares/received",
+      "description": "Return a paginated list of content shares a user has sent or received. Use +self+ as the user_id\nto retrieve your own content shares. Only linked observers and administrators may view other users'\ncontent shares.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List content shares",
+          "notes": "Return a paginated list of content shares a user has sent or received. Use +self+ as the user_id\nto retrieve your own content shares. Only linked observers and administrators may view other users'\ncontent shares.",
+          "nickname": "list_content_shares_received",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "ContentShare"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{user_id}/content_shares/unread_count",
+      "description": "Return the number of content shares a user has received that have not yet been read. Use +self+ as the user_id\nto retrieve your own content shares. Only linked observers and administrators may view other users'\ncontent shares.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get unread shares count",
+          "notes": "Return the number of content shares a user has received that have not yet been read. Use +self+ as the user_id\nto retrieve your own content shares. Only linked observers and administrators may view other users'\ncontent shares.",
+          "nickname": "get_unread_shares_count",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "{ \"unread_count\": \"integer\" }"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{user_id}/content_shares/{id}",
+      "description": "Return information about a single content share. You may use +self+ as the user_id to retrieve your own content share.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get content share",
+          "notes": "Return information about a single content share. You may use +self+ as the user_id to retrieve your own content share.",
+          "nickname": "get_content_share",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "ContentShare"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{user_id}/content_shares/{id}",
+      "description": "Remove a content share from your list. Use +self+ as the user_id. Note that this endpoint does not delete other users'\ncopies of the content share.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Remove content share",
+          "notes": "Remove a content share from your list. Use +self+ as the user_id. Note that this endpoint does not delete other users'\ncopies of the content share.",
+          "nickname": "remove_content_share",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{user_id}/content_shares/{id}/add_users",
+      "description": "Send a previously created content share to additional users",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Add users to content share",
+          "notes": "Send a previously created content share to additional users",
+          "nickname": "add_users_to_content_share",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "receiver_ids",
+              "description": "IDs of users to share the content with.",
+              "type": "Array",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "ContentShare"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{user_id}/content_shares/{id}",
+      "description": "Mark a content share read or unread",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update a content share",
+          "notes": "Mark a content share read or unread",
+          "nickname": "update_content_share",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "read_state",
+              "description": "Read state for the content share",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "read",
+                "unread"
+              ]
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "ContentShare"
+        }
+      ]
+    }
+  ],
+  "models": {
+    "ContentShare": {
+      "id": "ContentShare",
+      "description": "Content shared between users",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "The id of the content share for the current user",
+          "example": 1,
+          "type": "integer"
+        },
+        "name": {
+          "description": "The name of the shared content",
+          "example": "War of 1812 homework",
+          "type": "string"
+        },
+        "content_type": {
+          "description": "The type of content that was shared. Can be assignment, discussion_topic, page, quiz, module, or module_item.",
+          "example": "assignment",
+          "type": "string"
+        },
+        "created_at": {
+          "description": "The datetime the content was shared with this user.",
+          "example": "2017-05-09T10:12:00Z",
+          "type": "datetime"
+        },
+        "updated_at": {
+          "description": "The datetime the content was updated.",
+          "example": "2017-05-09T10:12:00Z",
+          "type": "datetime"
+        },
+        "user_id": {
+          "description": "The id of the user who sent or received the content share.",
+          "example": 1578941,
+          "type": "integer"
+        },
+        "sender": {
+          "description": "The user who shared the content. This field is provided only to receivers; it is not populated in the sender's list of sent content shares.",
+          "example": {
+            "id": 1,
+            "display_name": "Matilda Vargas",
+            "avatar_image_url": "http://localhost:3000/image_url",
+            "html_url": "http://localhost:3000/users/1"
+          },
+          "type": "object"
+        },
+        "receivers": {
+          "description": "An Array of users the content is shared with.  This field is provided only to senders; an empty array will be returned for the receiving users.",
+          "example": [
+            {
+              "id": 1,
+              "display_name": "Jon Snow",
+              "avatar_image_url": "http://localhost:3000/image_url2",
+              "html_url": "http://localhost:3000/users/2"
+            }
+          ],
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "source_course": {
+          "description": "The course the content was originally shared from.",
+          "example": {
+            "id": 787,
+            "name": "History 105"
+          },
+          "type": "object"
+        },
+        "read_state": {
+          "description": "Whether the recipient has viewed the content share.",
+          "example": "read",
+          "type": "string"
+        },
+        "content_export": {
+          "description": "The content export record associated with this content share",
+          "example": {
+            "id": 42
+          },
+          "$ref": "ContentExport"
+        }
+      }
+    }
+  }
+}

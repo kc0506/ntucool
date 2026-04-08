@@ -1,0 +1,395 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/user_observees",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/users/{user_id}/observees",
+      "description": "A paginated list of the users that the given user is observing.\n\n*Note:* all users are allowed to list their own observees. Administrators can list\nother users' observees.\n\nThe returned observees will include an attribute \"observation_link_root_account_ids\", a list\nof ids for the root accounts the observer and observee are linked on. The observer will only be able to\nobserve in courses associated with these root accounts.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List observees",
+          "notes": "A paginated list of the users that the given user is observing.\n\n*Note:* all users are allowed to list their own observees. Administrators can list\nother users' observees.\n\nThe returned observees will include an attribute \"observation_link_root_account_ids\", a list\nof ids for the root accounts the observer and observee are linked on. The observer will only be able to\nobserve in courses associated with these root accounts.",
+          "nickname": "list_observees",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "- \"avatar_url\": Optionally include avatar_url.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "avatar_url"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "User"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{user_id}/observers",
+      "description": "A paginated list of the observers of a given user.\n\n*Note:* all users are allowed to list their own observers. Administrators can list\nother users' observers.\n\nThe returned observers will include an attribute \"observation_link_root_account_ids\", a list\nof ids for the root accounts the observer and observee are linked on. The observer will only be able to\nobserve in courses associated with these root accounts.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List observers",
+          "notes": "A paginated list of the observers of a given user.\n\n*Note:* all users are allowed to list their own observers. Administrators can list\nother users' observers.\n\nThe returned observers will include an attribute \"observation_link_root_account_ids\", a list\nof ids for the root accounts the observer and observee are linked on. The observer will only be able to\nobserve in courses associated with these root accounts.",
+          "nickname": "list_observers",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "- \"avatar_url\": Optionally include avatar_url.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "avatar_url"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "User"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{user_id}/observees",
+      "description": "Register the given user to observe another user, given the observee's credentials.\n\n*Note:* all users are allowed to add their own observees, given the observee's\ncredentials or access token are provided. Administrators can add observees given credentials, access token or\nthe {api:UserObserveesController#update observee's id}.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Add an observee with credentials",
+          "notes": "Register the given user to observe another user, given the observee's credentials.\n\n*Note:* all users are allowed to add their own observees, given the observee's\ncredentials or access token are provided. Administrators can add observees given credentials, access token or\nthe {api:UserObserveesController#update observee's id}.",
+          "nickname": "add_observee_with_credentials",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "observee[unique_id]",
+              "description": "The login id for the user to observe.  Required if access_token is omitted.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "observee[password]",
+              "description": "The password for the user to observe. Required if access_token is omitted.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "access_token",
+              "description": "The access token for the user to observe.  Required if <tt>observee[unique_id]</tt> or <tt>observee[password]</tt> are omitted.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "pairing_code",
+              "description": "A generated pairing code for the user to observe. Required if the Observer pairing code feature flag is enabled",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "root_account_id",
+              "description": "The ID for the root account to associate with the observation link.\nDefaults to the current domain account.\nIf 'all' is specified, a link will be created for each root account associated\nto both the observer and observee.",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "User"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{user_id}/observees/{observee_id}",
+      "description": "Gets information about an observed user.\n\n*Note:* all users are allowed to view their own observees.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Show an observee",
+          "notes": "Gets information about an observed user.\n\n*Note:* all users are allowed to view their own observees.",
+          "nickname": "show_observee",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "observee_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "User"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{user_id}/observers/{observer_id}",
+      "description": "Gets information about an observer.\n\n*Note:* all users are allowed to view their own observers.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Show an observer",
+          "notes": "Gets information about an observer.\n\n*Note:* all users are allowed to view their own observers.",
+          "nickname": "show_observer",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "observer_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "User"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{user_id}/observees/{observee_id}",
+      "description": "Registers a user as being observed by the given user.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Add an observee",
+          "notes": "Registers a user as being observed by the given user.",
+          "nickname": "add_observee",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "observee_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "root_account_id",
+              "description": "The ID for the root account to associate with the observation link.\nIf not specified, a link will be created for each root account associated\nto both the observer and observee.",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "User"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{user_id}/observees/{observee_id}",
+      "description": "Unregisters a user as being observed by the given user.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Remove an observee",
+          "notes": "Unregisters a user as being observed by the given user.",
+          "nickname": "remove_observee",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "observee_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "root_account_id",
+              "description": "If specified, only removes the link for the given root account",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "User"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{user_id}/observer_pairing_codes",
+      "description": "If the user is a student, will generate a code to be used with self registration\nor observees APIs to link another user to this student.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Create observer pairing code",
+          "notes": "If the user is a student, will generate a code to be used with self registration\nor observees APIs to link another user to this student.",
+          "nickname": "create_observer_pairing_code",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "PairingCode"
+        }
+      ]
+    }
+  ],
+  "models": {
+    "PairingCode": {
+      "id": "PairingCode",
+      "description": "A code used for linking a user to a student to observe them.",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "user_id": {
+          "description": "The ID of the user.",
+          "example": 2,
+          "type": "integer",
+          "format": "int64"
+        },
+        "code": {
+          "description": "The actual code to be sent to other APIs",
+          "example": "abc123",
+          "type": "string"
+        },
+        "expires_at": {
+          "description": "When the code expires",
+          "example": "2012-05-30T17:45:25Z",
+          "type": "string",
+          "format": "date-time"
+        },
+        "workflow_state": {
+          "description": "The current status of the code",
+          "example": "active",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

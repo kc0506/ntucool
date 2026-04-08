@@ -1,0 +1,132 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/result",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/lti/courses/{course_id}/line_items/{line_item_id}/results",
+      "description": "Show existing Results of a line item. Can be used to retrieve a specific student's\nresult by adding the user_id (defined as the lti_user_id or the Canvas user_id) as\na query parameter (i.e. user_id=1000). If user_id is included, it will return only\none Result in the collection if the result exists, otherwise it will be empty. May\nalso limit number of results by adding the limit query param (i.e. limit=100)",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Show a collection of Results",
+          "notes": "Show existing Results of a line item. Can be used to retrieve a specific student's\nresult by adding the user_id (defined as the lti_user_id or the Canvas user_id) as\na query parameter (i.e. user_id=1000). If user_id is included, it will return only\none Result in the collection if the result exists, otherwise it will be empty. May\nalso limit number of results by adding the limit query param (i.e. limit=100)",
+          "nickname": "show_collection_of_results",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "line_item_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Result"
+        }
+      ]
+    },
+    {
+      "path": "/lti/courses/{course_id}/line_items/{line_item_id}/results/{id}",
+      "description": "Show existing Result of a line item.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Show a Result",
+          "notes": "Show existing Result of a line item.",
+          "nickname": "show_result",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "line_item_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Result"
+        }
+      ]
+    }
+  ],
+  "models": {
+    "Result": {
+      "id": "Result",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "The fully qualified URL for showing the Result",
+          "example": "http://institution.canvas.com/api/lti/courses/5/line_items/2/results/1",
+          "type": "string"
+        },
+        "userId": {
+          "description": "The lti_user_id or the Canvas user_id",
+          "example": "50 | 'abcasdf'",
+          "type": "string"
+        },
+        "resultScore": {
+          "description": "The score of the result as defined by Canvas, scaled to the resultMaximum",
+          "example": "50",
+          "type": "number"
+        },
+        "resultMaximum": {
+          "description": "Maximum possible score for this result; 1 is the default value and will be assumed if not specified otherwise. Minimum value of 0 required.",
+          "example": "50",
+          "type": "number"
+        },
+        "comment": {
+          "description": "Comment visible to the student about the result.",
+          "type": "string"
+        },
+        "scoreOf": {
+          "description": "URL of the line item this belongs to",
+          "example": "http://institution.canvas.com/api/lti/courses/5/line_items/2",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

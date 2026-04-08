@@ -1,0 +1,103 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/assignment_extensions",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/courses/{course_id}/assignments/{assignment_id}/extensions",
+      "description": "<b>Responses</b>\n\n* <b>200 OK</b> if the request was successful\n* <b>403 Forbidden</b> if you are not allowed to extend assignments for this course\n* <b>400 Bad Request</b> if any of the extensions are invalid",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Set extensions for student assignment submissions",
+          "notes": "<b>Responses</b>\n\n* <b>200 OK</b> if the request was successful\n* <b>403 Forbidden</b> if you are not allowed to extend assignments for this course\n* <b>400 Bad Request</b> if any of the extensions are invalid",
+          "nickname": "set_extensions_for_student_assignment_submissions",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "assignment_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "assignment_extensions[user_id]",
+              "description": "The ID of the user we want to add assignment extensions for.",
+              "type": "array",
+              "format": "int64",
+              "required": true,
+              "deprecated": false,
+              "items": {
+                "type": "integer"
+              }
+            },
+            {
+              "paramType": "form",
+              "name": "assignment_extensions[extra_attempts]",
+              "description": "Number of times the student is allowed to re-take the assignment over the\nlimit.",
+              "type": "array",
+              "format": "int64",
+              "required": true,
+              "deprecated": false,
+              "items": {
+                "type": "integer"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    }
+  ],
+  "models": {
+    "AssignmentExtension": {
+      "id": "AssignmentExtension",
+      "description": "",
+      "required": [
+        "assignment_id",
+        "user_id"
+      ],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "assignment_id": {
+          "description": "The ID of the Assignment the extension belongs to.",
+          "example": 2,
+          "type": "integer",
+          "format": "int64"
+        },
+        "user_id": {
+          "description": "The ID of the Student that needs the assignment extension.",
+          "example": 3,
+          "type": "integer",
+          "format": "int64"
+        },
+        "extra_attempts": {
+          "description": "Number of times the student is allowed to re-submit the assignment",
+          "example": 2,
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    }
+  }
+}

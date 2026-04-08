@@ -1,0 +1,134 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/sis_import_errors",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/accounts/{account_id}/sis_imports/{id}/errors",
+      "description": "Returns the list of SIS import errors for an account or a SIS import. Import\nerrors are only stored for 30 days.\n\nExample:\n  curl 'https://<canvas>/api/v1/accounts/<account_id>/sis_imports/<id>/sis_import_errors' \\\n    -H \"Authorization: Bearer <token>\"\n\nExample:\n  curl 'https://<canvas>/api/v1/accounts/<account_id>/sis_import_errors' \\\n    -H \"Authorization: Bearer <token>\"",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get SIS import error list",
+          "notes": "Returns the list of SIS import errors for an account or a SIS import. Import\nerrors are only stored for 30 days.\n\nExample:\n  curl 'https://<canvas>/api/v1/accounts/<account_id>/sis_imports/<id>/sis_import_errors' \\\n    -H \"Authorization: Bearer <token>\"\n\nExample:\n  curl 'https://<canvas>/api/v1/accounts/<account_id>/sis_import_errors' \\\n    -H \"Authorization: Bearer <token>\"",
+          "nickname": "get_sis_import_error_list_sis_imports",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "failure",
+              "description": "If set, only shows errors on a sis import that would cause a failure.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "SisImportError"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/sis_import_errors",
+      "description": "Returns the list of SIS import errors for an account or a SIS import. Import\nerrors are only stored for 30 days.\n\nExample:\n  curl 'https://<canvas>/api/v1/accounts/<account_id>/sis_imports/<id>/sis_import_errors' \\\n    -H \"Authorization: Bearer <token>\"\n\nExample:\n  curl 'https://<canvas>/api/v1/accounts/<account_id>/sis_import_errors' \\\n    -H \"Authorization: Bearer <token>\"",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get SIS import error list",
+          "notes": "Returns the list of SIS import errors for an account or a SIS import. Import\nerrors are only stored for 30 days.\n\nExample:\n  curl 'https://<canvas>/api/v1/accounts/<account_id>/sis_imports/<id>/sis_import_errors' \\\n    -H \"Authorization: Bearer <token>\"\n\nExample:\n  curl 'https://<canvas>/api/v1/accounts/<account_id>/sis_import_errors' \\\n    -H \"Authorization: Bearer <token>\"",
+          "nickname": "get_sis_import_error_list_sis_import_errors",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "failure",
+              "description": "If set, only shows errors on a sis import that would cause a failure.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "SisImportError"
+          }
+        }
+      ]
+    }
+  ],
+  "models": {
+    "SisImportError": {
+      "id": "SisImportError",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "sis_import_id": {
+          "description": "The unique identifier for the SIS import.",
+          "example": "1",
+          "type": "integer"
+        },
+        "file": {
+          "description": "The file where the error message occurred.",
+          "example": "courses.csv",
+          "type": "string"
+        },
+        "message": {
+          "description": "The error message that from the record.",
+          "example": "No short_name given for course C001",
+          "type": "string"
+        },
+        "row_info": {
+          "description": "The contents of the line that had the error.",
+          "example": "account_1, Sub account 1,, active ",
+          "type": "string"
+        },
+        "row": {
+          "description": "The line number where the error occurred. Some Importers do not yet support this. This is a 1 based index starting with the header row.",
+          "example": "34",
+          "type": "integer"
+        }
+      }
+    }
+  }
+}

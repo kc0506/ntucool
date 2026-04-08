@@ -1,0 +1,94 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/api_token_scopes",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/accounts/{account_id}/scopes",
+      "description": "A list of scopes that can be applied to developer keys and access tokens.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List scopes",
+          "notes": "A list of scopes that can be applied to developer keys and access tokens.",
+          "nickname": "list_scopes",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "group_by",
+              "description": "The attribute to group the scopes by. By default no grouping is done.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "resource_name"
+              ]
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "Scope"
+          }
+        }
+      ]
+    }
+  ],
+  "models": {
+    "Scope": {
+      "id": "Scope",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "resource": {
+          "description": "The resource the scope is associated with",
+          "example": "courses",
+          "type": "string"
+        },
+        "resource_name": {
+          "description": "The localized resource name",
+          "example": "Courses",
+          "type": "string"
+        },
+        "controller": {
+          "description": "The controller the scope is associated to",
+          "example": "courses",
+          "type": "string"
+        },
+        "action": {
+          "description": "The controller action the scope is associated to",
+          "example": "index",
+          "type": "string"
+        },
+        "verb": {
+          "description": "The HTTP verb for the scope",
+          "example": "GET",
+          "type": "string"
+        },
+        "scope": {
+          "description": "The identifier for the scope",
+          "example": "url:GET|/api/v1/courses",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

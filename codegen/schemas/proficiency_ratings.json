@@ -1,0 +1,260 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/proficiency_ratings",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/accounts/{account_id}/outcome_proficiency",
+      "description": "Create or update account-level proficiency ratings. These ratings will apply to all\nsub-accounts, unless they have their own account-level proficiency ratings defined.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Create/update proficiency ratings",
+          "notes": "Create or update account-level proficiency ratings. These ratings will apply to all\nsub-accounts, unless they have their own account-level proficiency ratings defined.",
+          "nickname": "create_update_proficiency_ratings_accounts",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "ratings[description]",
+              "description": "The description of the rating level.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "form",
+              "name": "ratings[points]",
+              "description": "The non-negative number of points of the rating level. Points across ratings should be strictly decreasing in value.",
+              "type": "array",
+              "format": "int64",
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "integer"
+              }
+            },
+            {
+              "paramType": "form",
+              "name": "ratings[mastery]",
+              "description": "Indicates the rating level where mastery is first achieved. Only one rating in a proficiency should be marked for mastery.",
+              "type": "array",
+              "format": "int64",
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "integer"
+              }
+            },
+            {
+              "paramType": "form",
+              "name": "ratings[color]",
+              "description": "The color associated with the rating level. Should be a hex color code like '00FFFF'.",
+              "type": "array",
+              "format": "int64",
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "integer"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Proficiency"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/outcome_proficiency",
+      "description": "Create or update account-level proficiency ratings. These ratings will apply to all\nsub-accounts, unless they have their own account-level proficiency ratings defined.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Create/update proficiency ratings",
+          "notes": "Create or update account-level proficiency ratings. These ratings will apply to all\nsub-accounts, unless they have their own account-level proficiency ratings defined.",
+          "nickname": "create_update_proficiency_ratings_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "ratings[description]",
+              "description": "The description of the rating level.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "form",
+              "name": "ratings[points]",
+              "description": "The non-negative number of points of the rating level. Points across ratings should be strictly decreasing in value.",
+              "type": "array",
+              "format": "int64",
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "integer"
+              }
+            },
+            {
+              "paramType": "form",
+              "name": "ratings[mastery]",
+              "description": "Indicates the rating level where mastery is first achieved. Only one rating in a proficiency should be marked for mastery.",
+              "type": "array",
+              "format": "int64",
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "integer"
+              }
+            },
+            {
+              "paramType": "form",
+              "name": "ratings[color]",
+              "description": "The color associated with the rating level. Should be a hex color code like '00FFFF'.",
+              "type": "array",
+              "format": "int64",
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "integer"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Proficiency"
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/outcome_proficiency",
+      "description": "Get account-level proficiency ratings. If not defined for this account,\nit will return proficiency ratings for the nearest super-account with ratings defined.\nWill return 404 if none found.\n\n  Examples:\n    curl https://<canvas>/api/v1/accounts/<account_id>/outcome_proficiency \\\n        -H 'Authorization: Bearer <token>'",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get proficiency ratings",
+          "notes": "Get account-level proficiency ratings. If not defined for this account,\nit will return proficiency ratings for the nearest super-account with ratings defined.\nWill return 404 if none found.\n\n  Examples:\n    curl https://<canvas>/api/v1/accounts/<account_id>/outcome_proficiency \\\n        -H 'Authorization: Bearer <token>'",
+          "nickname": "get_proficiency_ratings_accounts",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Proficiency"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/outcome_proficiency",
+      "description": "Get account-level proficiency ratings. If not defined for this account,\nit will return proficiency ratings for the nearest super-account with ratings defined.\nWill return 404 if none found.\n\n  Examples:\n    curl https://<canvas>/api/v1/accounts/<account_id>/outcome_proficiency \\\n        -H 'Authorization: Bearer <token>'",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get proficiency ratings",
+          "notes": "Get account-level proficiency ratings. If not defined for this account,\nit will return proficiency ratings for the nearest super-account with ratings defined.\nWill return 404 if none found.\n\n  Examples:\n    curl https://<canvas>/api/v1/accounts/<account_id>/outcome_proficiency \\\n        -H 'Authorization: Bearer <token>'",
+          "nickname": "get_proficiency_ratings_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Proficiency"
+        }
+      ]
+    }
+  ],
+  "models": {
+    "ProficiencyRating": {
+      "id": "ProficiencyRating",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "description": {
+          "description": "The description of the rating",
+          "example": "Exceeds Mastery",
+          "type": "string"
+        },
+        "points": {
+          "description": "A non-negative number of points for the rating",
+          "example": 4,
+          "type": "number"
+        },
+        "mastery": {
+          "description": "Indicates the rating where mastery is first achieved",
+          "example": false,
+          "type": "boolean"
+        },
+        "color": {
+          "description": "The hex color code of the rating",
+          "example": "127A1B",
+          "type": "string"
+        }
+      }
+    },
+    "Proficiency": {
+      "id": "Proficiency",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "ratings": {
+          "description": "An array of proficiency ratings. See the ProficiencyRating specification above.",
+          "example": [],
+          "type": "array"
+        }
+      }
+    }
+  }
+}

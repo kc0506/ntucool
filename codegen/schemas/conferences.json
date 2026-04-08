@@ -1,0 +1,263 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/conferences",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/courses/{course_id}/conferences",
+      "description": "Retrieve the paginated list of conferences for this context\n\nThis API returns a JSON object containing the list of conferences,\nthe key for the list of conferences is \"conferences\"",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List conferences",
+          "notes": "Retrieve the paginated list of conferences for this context\n\nThis API returns a JSON object containing the list of conferences,\nthe key for the list of conferences is \"conferences\"",
+          "nickname": "list_conferences_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "Conference"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/conferences",
+      "description": "Retrieve the paginated list of conferences for this context\n\nThis API returns a JSON object containing the list of conferences,\nthe key for the list of conferences is \"conferences\"",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List conferences",
+          "notes": "Retrieve the paginated list of conferences for this context\n\nThis API returns a JSON object containing the list of conferences,\nthe key for the list of conferences is \"conferences\"",
+          "nickname": "list_conferences_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "Conference"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/conferences",
+      "description": "Retrieve the paginated list of conferences for all courses and groups\nthe current user belongs to\n\nThis API returns a JSON object containing the list of conferences.\nThe key for the list of conferences is \"conferences\".",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List conferences for the current user",
+          "notes": "Retrieve the paginated list of conferences for all courses and groups\nthe current user belongs to\n\nThis API returns a JSON object containing the list of conferences.\nThe key for the list of conferences is \"conferences\".",
+          "nickname": "list_conferences_for_current_user",
+          "parameters": [
+            {
+              "paramType": "query",
+              "name": "state",
+              "description": "If set to \"live\", returns only conferences that are live (i.e., have\nstarted and not finished yet). If omitted, returns all conferences for\nthis user's groups and courses.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "Conference"
+          }
+        }
+      ]
+    }
+  ],
+  "models": {
+    "ConferenceRecording": {
+      "id": "ConferenceRecording",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "duration_minutes": {
+          "example": 0,
+          "type": "integer"
+        },
+        "title": {
+          "example": "course2: Test conference 3 [170]_0",
+          "type": "string"
+        },
+        "updated_at": {
+          "example": "2013-12-12T16:09:33.903-07:00",
+          "type": "datetime"
+        },
+        "created_at": {
+          "example": "2013-12-12T16:09:09.960-07:00",
+          "type": "datetime"
+        },
+        "playback_url": {
+          "example": "http://example.com/recording_url",
+          "type": "string"
+        }
+      }
+    },
+    "Conference": {
+      "id": "Conference",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "The id of the conference",
+          "example": 170,
+          "type": "integer"
+        },
+        "conference_type": {
+          "description": "The type of conference",
+          "example": "AdobeConnect",
+          "type": "string"
+        },
+        "conference_key": {
+          "description": "The 3rd party's ID for the conference",
+          "example": "abcdjoelisgreatxyz",
+          "type": "string"
+        },
+        "description": {
+          "description": "The description for the conference",
+          "example": "Conference Description",
+          "type": "string"
+        },
+        "duration": {
+          "description": "The expected duration the conference is supposed to last",
+          "example": 60,
+          "type": "integer"
+        },
+        "ended_at": {
+          "description": "The date that the conference ended at, null if it hasn't ended",
+          "example": "2013-12-13T17:23:26Z",
+          "type": "datetime"
+        },
+        "started_at": {
+          "description": "The date the conference started at, null if it hasn't started",
+          "example": "2013-12-12T23:02:17Z",
+          "type": "datetime"
+        },
+        "title": {
+          "description": "The title of the conference",
+          "example": "Test conference",
+          "type": "string"
+        },
+        "users": {
+          "description": "Array of user ids that are participants in the conference",
+          "example": [
+            1,
+            7,
+            8,
+            9,
+            10
+          ],
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "invitees": {
+          "description": "Array of user ids that are invitees in the conference",
+          "example": [
+            1,
+            7,
+            8,
+            9,
+            10
+          ],
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "attendees": {
+          "description": "Array of user ids that are attendees in the conference",
+          "example": [
+            1,
+            7,
+            8,
+            9,
+            10
+          ],
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "has_advanced_settings": {
+          "description": "True if the conference type has advanced settings.",
+          "example": false,
+          "type": "boolean"
+        },
+        "long_running": {
+          "description": "If true the conference is long running and has no expected end time",
+          "example": false,
+          "type": "boolean"
+        },
+        "user_settings": {
+          "description": "A collection of settings specific to the conference type",
+          "example": {
+            "record": true
+          },
+          "type": "object"
+        },
+        "recordings": {
+          "description": "A List of recordings for the conference",
+          "type": "array",
+          "items": {
+            "$ref": "ConferenceRecording"
+          }
+        },
+        "url": {
+          "description": "URL for the conference, may be null if the conference type doesn't set it",
+          "type": "string"
+        },
+        "join_url": {
+          "description": "URL to join the conference, may be null if the conference type doesn't set it",
+          "type": "string"
+        },
+        "context_type": {
+          "description": "The type of this conference's context, typically 'Course' or 'Group'.",
+          "type": "string"
+        },
+        "context_id": {
+          "description": "The ID of this conference's context.",
+          "type": "integer"
+        }
+      }
+    }
+  }
+}

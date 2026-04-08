@@ -1,0 +1,104 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/smart_search",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/courses/{course_id}/smartsearch",
+      "description": "Find course content using a meaning-based search",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Search course content",
+          "notes": "Find course content using a meaning-based search",
+          "nickname": "search_course_content",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "q",
+              "description": "The search query",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "filter",
+              "description": "Types of objects to search. By default, all supported types are searched. Supported types\ninclude +pages+, +assignments+, +announcements+, and +discussion_topics+.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "SearchResult"
+          }
+        }
+      ]
+    }
+  ],
+  "models": {
+    "SearchResult": {
+      "id": "SearchResult",
+      "description": "Reference to an object that matches a smart search",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "content_id": {
+          "description": "The ID of the matching object.",
+          "example": 2,
+          "type": "integer",
+          "format": "int64"
+        },
+        "content_type": {
+          "description": "The type of the matching object.",
+          "example": "WikiPage",
+          "type": "string"
+        },
+        "title": {
+          "description": "The title of the matching object.",
+          "example": "Nicolaus Copernicus",
+          "type": "string"
+        },
+        "body": {
+          "description": "The body of the matching object.",
+          "example": "Nicolaus Copernicus was a Renaissance-era mathematician and astronomer who...",
+          "type": "string"
+        },
+        "html_url": {
+          "description": "The Canvas URL of the matching object.",
+          "example": "https://canvas.example.com/courses/123/pages/nicolaus-copernicus",
+          "type": "string"
+        },
+        "distance": {
+          "description": "The distance between the search query and the result. Smaller numbers indicate closer matches.",
+          "example": "0.212",
+          "type": "number"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/sandboxes",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/lti/uuid_map",
+      "description": "This endpoint returns a CSV file with the UUID mapping for the sandbox.\nThe CSV has three columns:\n * `type` - The object type\n * `original_uuid` - The UUID of an object from the template\n * `new_uuid` - The UUID of the corresponding object in the sandbox",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Download UUID Mapping for this Sandbox",
+          "notes": "This endpoint returns a CSV file with the UUID mapping for the sandbox.\nThe CSV has three columns:\n * `type` - The object type\n * `original_uuid` - The UUID of an object from the template\n * `new_uuid` - The UUID of the corresponding object in the sandbox",
+          "nickname": "download_uuid_mapping_for_this_sandbox",
+          "parameters": [],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    }
+  ],
+  "models": {}
+}

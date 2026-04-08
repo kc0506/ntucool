@@ -1,0 +1,487 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/assignment_groups",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/courses/{course_id}/assignment_groups",
+      "description": "Returns the paginated list of assignment groups for the current context.\nThe returned groups are sorted by their position field.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List assignment groups",
+          "notes": "Returns the paginated list of assignment groups for the current context.\nThe returned groups are sorted by their position field.",
+          "nickname": "list_assignment_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "Associations to include with the group. \"discussion_topic\", \"all_dates\", \"can_edit\",\n\"assignment_visibility\" & \"submission\" are only valid if \"assignments\" is also included.\n\"score_statistics\" requires that the \"assignments\" and \"submission\" options are included.\nThe \"assignment_visibility\" option additionally requires that the Differentiated Assignments course feature be turned on.\nIf \"observed_users\" is passed along with \"assignments\" and \"submission\", submissions for observed users will also be included as an array.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "assignments",
+                "discussion_topic",
+                "all_dates",
+                "assignment_visibility",
+                "overrides",
+                "submission",
+                "observed_users",
+                "can_edit",
+                "score_statistics"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "assignment_ids",
+              "description": "If \"assignments\" are included, optionally return only assignments having their ID in this array. This argument may also be passed as\na comma separated string.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "exclude_assignment_submission_types",
+              "description": "If \"assignments\" are included, those with the specified submission types\nwill be excluded from the assignment groups.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "online_quiz",
+                "discussion_topic",
+                "wiki_page",
+                "external_tool"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "override_assignment_dates",
+              "description": "Apply assignment overrides for each assignment, defaults to true.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "grading_period_id",
+              "description": "The id of the grading period in which assignment groups are being requested\n(Requires grading periods to exist.)",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "scope_assignments_to_student",
+              "description": "If true, all assignments returned will apply to the current user in the\nspecified grading period. If assignments apply to other students in the\nspecified grading period, but not the current user, they will not be\nreturned. (Requires the grading_period_id argument and grading periods to\nexist. In addition, the current user must be a student.)",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "AssignmentGroup"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/assignment_groups/{assignment_group_id}",
+      "description": "Returns the assignment group with the given id.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get an Assignment Group",
+          "notes": "Returns the assignment group with the given id.",
+          "nickname": "get_assignment_group",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "assignment_group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "Associations to include with the group. \"discussion_topic\" and \"assignment_visibility\" and \"submission\"\nare only valid if \"assignments\" is also included. \"score_statistics\" is only valid if \"submission\" and\n\"assignments\" are also included. The \"assignment_visibility\" option additionally requires that the Differentiated Assignments\ncourse feature be turned on.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "assignments",
+                "discussion_topic",
+                "assignment_visibility",
+                "submission",
+                "score_statistics"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "override_assignment_dates",
+              "description": "Apply assignment overrides for each assignment, defaults to true.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "grading_period_id",
+              "description": "The id of the grading period in which assignment groups are being requested\n(Requires grading periods to exist on the account)",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "AssignmentGroup"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/assignment_groups",
+      "description": "Create a new assignment group for this course.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Create an Assignment Group",
+          "notes": "Create a new assignment group for this course.",
+          "nickname": "create_assignment_group",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "name",
+              "description": "The assignment group's name",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "position",
+              "description": "The position of this assignment group in relation to the other assignment groups",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "group_weight",
+              "description": "The percent of the total grade that this assignment group represents",
+              "type": "number",
+              "format": "float",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "sis_source_id",
+              "description": "The sis source id of the Assignment Group",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "integration_data",
+              "description": "The integration data of the Assignment Group",
+              "type": "Object",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "AssignmentGroup"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/assignment_groups/{assignment_group_id}",
+      "description": "Modify an existing Assignment Group.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Edit an Assignment Group",
+          "notes": "Modify an existing Assignment Group.",
+          "nickname": "edit_assignment_group",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "assignment_group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "name",
+              "description": "The assignment group's name",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "position",
+              "description": "The position of this assignment group in relation to the other assignment groups",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "group_weight",
+              "description": "The percent of the total grade that this assignment group represents",
+              "type": "number",
+              "format": "float",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "sis_source_id",
+              "description": "The sis source id of the Assignment Group",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "integration_data",
+              "description": "The integration data of the Assignment Group",
+              "type": "Object",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rules",
+              "description": "The grading rules that are applied within this assignment group\nSee the Assignment Group object definition for format",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "AssignmentGroup"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/assignment_groups/{assignment_group_id}",
+      "description": "Deletes the assignment group with the given id.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Destroy an Assignment Group",
+          "notes": "Deletes the assignment group with the given id.",
+          "nickname": "destroy_assignment_group",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "assignment_group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "move_assignments_to",
+              "description": "The ID of an active Assignment Group to which the assignments that are\ncurrently assigned to the destroyed Assignment Group will be assigned.\nNOTE: If this argument is not provided, any assignments in this Assignment\nGroup will be deleted.",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "AssignmentGroup"
+        }
+      ]
+    }
+  ],
+  "models": {
+    "GradingRules": {
+      "id": "GradingRules",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "drop_lowest": {
+          "description": "Number of lowest scores to be dropped for each user.",
+          "example": 1,
+          "type": "integer"
+        },
+        "drop_highest": {
+          "description": "Number of highest scores to be dropped for each user.",
+          "example": 1,
+          "type": "integer"
+        },
+        "never_drop": {
+          "description": "Assignment IDs that should never be dropped.",
+          "example": [
+            33,
+            17,
+            24
+          ],
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "AssignmentGroup": {
+      "id": "AssignmentGroup",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "the id of the Assignment Group",
+          "example": 1,
+          "type": "integer"
+        },
+        "name": {
+          "description": "the name of the Assignment Group",
+          "example": "group2",
+          "type": "string"
+        },
+        "position": {
+          "description": "the position of the Assignment Group",
+          "example": 7,
+          "type": "integer"
+        },
+        "group_weight": {
+          "description": "the weight of the Assignment Group",
+          "example": 20,
+          "type": "integer"
+        },
+        "sis_source_id": {
+          "description": "the sis source id of the Assignment Group",
+          "example": "1234",
+          "type": "string"
+        },
+        "integration_data": {
+          "description": "the integration data of the Assignment Group",
+          "example": {
+            "5678": "0954"
+          },
+          "type": "object"
+        },
+        "assignments": {
+          "description": "the assignments in this Assignment Group (see the Assignment API for a detailed list of fields)",
+          "example": [],
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "rules": {
+          "description": "the grading rules that this Assignment Group has",
+          "$ref": "GradingRules"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,505 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/grading_periods",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/accounts/{account_id}/grading_periods",
+      "description": "Returns the paginated list of grading periods for the current course.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List grading periods",
+          "notes": "Returns the paginated list of grading periods for the current course.",
+          "nickname": "list_grading_periods_accounts",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/grading_periods",
+      "description": "Returns the paginated list of grading periods for the current course.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List grading periods",
+          "notes": "Returns the paginated list of grading periods for the current course.",
+          "nickname": "list_grading_periods_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/grading_periods/{id}",
+      "description": "Returns the grading period with the given id",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get a single grading period",
+          "notes": "Returns the grading period with the given id",
+          "nickname": "get_single_grading_period",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/grading_periods/{id}",
+      "description": "Update an existing grading period.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update a single grading period",
+          "notes": "Update an existing grading period.",
+          "nickname": "update_single_grading_period",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "grading_periods[start_date]",
+              "description": "The date the grading period starts.",
+              "type": "array",
+              "format": null,
+              "required": true,
+              "deprecated": false,
+              "items": {
+                "$ref": "Date"
+              }
+            },
+            {
+              "paramType": "form",
+              "name": "grading_periods[end_date]",
+              "description": "no description",
+              "type": "array",
+              "format": null,
+              "required": true,
+              "deprecated": false,
+              "items": {
+                "$ref": "Date"
+              }
+            },
+            {
+              "paramType": "form",
+              "name": "grading_periods[weight]",
+              "description": "A weight value that contributes to the overall weight of a grading period set which is used to calculate how much assignments in this period contribute to the total grade",
+              "type": "array",
+              "format": "float",
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "number"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/grading_periods/{id}",
+      "description": "<b>204 No Content</b> response code is returned if the deletion was\nsuccessful.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Delete a grading period",
+          "notes": "<b>204 No Content</b> response code is returned if the deletion was\nsuccessful.",
+          "nickname": "delete_grading_period_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/grading_periods/{id}",
+      "description": "<b>204 No Content</b> response code is returned if the deletion was\nsuccessful.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Delete a grading period",
+          "notes": "<b>204 No Content</b> response code is returned if the deletion was\nsuccessful.",
+          "nickname": "delete_grading_period_accounts",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/grading_periods/batch_update",
+      "description": "Update multiple grading periods",
+      "operations": [
+        {
+          "method": "PATCH",
+          "summary": "Batch update grading periods",
+          "notes": "Update multiple grading periods",
+          "nickname": "batch_update_grading_periods_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "set_id",
+              "description": "The id of the grading period set.",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "grading_periods[id]",
+              "description": "The id of the grading period. If the id parameter does not exist, a new grading period will be created.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "form",
+              "name": "grading_periods[title]",
+              "description": "The title of the grading period.\nThe title is required for creating a new grading period, but not for updating an existing grading period.",
+              "type": "array",
+              "format": null,
+              "required": true,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "form",
+              "name": "grading_periods[start_date]",
+              "description": "The date the grading period starts.\nThe start_date is required for creating a new grading period, but not for updating an existing grading period.",
+              "type": "array",
+              "format": null,
+              "required": true,
+              "deprecated": false,
+              "items": {
+                "$ref": "Date"
+              }
+            },
+            {
+              "paramType": "form",
+              "name": "grading_periods[end_date]",
+              "description": "The date the grading period ends.\nThe end_date is required for creating a new grading period, but not for updating an existing grading period.",
+              "type": "array",
+              "format": null,
+              "required": true,
+              "deprecated": false,
+              "items": {
+                "$ref": "Date"
+              }
+            },
+            {
+              "paramType": "form",
+              "name": "grading_periods[close_date]",
+              "description": "The date after which grades can no longer be changed for a grading period.\nThe close_date is required for creating a new grading period, but not for updating an existing grading period.",
+              "type": "array",
+              "format": null,
+              "required": true,
+              "deprecated": false,
+              "items": {
+                "$ref": "Date"
+              }
+            },
+            {
+              "paramType": "form",
+              "name": "grading_periods[weight]",
+              "description": "A weight value that contributes to the overall weight of a grading period set which is used to calculate how much assignments in this period contribute to the total grade",
+              "type": "array",
+              "format": "float",
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "number"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/grading_period_sets/{set_id}/grading_periods/batch_update",
+      "description": "Update multiple grading periods",
+      "operations": [
+        {
+          "method": "PATCH",
+          "summary": "Batch update grading periods",
+          "notes": "Update multiple grading periods",
+          "nickname": "batch_update_grading_periods_grading_period_sets",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "set_id",
+              "description": "The id of the grading period set.",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "grading_periods[id]",
+              "description": "The id of the grading period. If the id parameter does not exist, a new grading period will be created.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "form",
+              "name": "grading_periods[title]",
+              "description": "The title of the grading period.\nThe title is required for creating a new grading period, but not for updating an existing grading period.",
+              "type": "array",
+              "format": null,
+              "required": true,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "form",
+              "name": "grading_periods[start_date]",
+              "description": "The date the grading period starts.\nThe start_date is required for creating a new grading period, but not for updating an existing grading period.",
+              "type": "array",
+              "format": null,
+              "required": true,
+              "deprecated": false,
+              "items": {
+                "$ref": "Date"
+              }
+            },
+            {
+              "paramType": "form",
+              "name": "grading_periods[end_date]",
+              "description": "The date the grading period ends.\nThe end_date is required for creating a new grading period, but not for updating an existing grading period.",
+              "type": "array",
+              "format": null,
+              "required": true,
+              "deprecated": false,
+              "items": {
+                "$ref": "Date"
+              }
+            },
+            {
+              "paramType": "form",
+              "name": "grading_periods[close_date]",
+              "description": "The date after which grades can no longer be changed for a grading period.\nThe close_date is required for creating a new grading period, but not for updating an existing grading period.",
+              "type": "array",
+              "format": null,
+              "required": true,
+              "deprecated": false,
+              "items": {
+                "$ref": "Date"
+              }
+            },
+            {
+              "paramType": "form",
+              "name": "grading_periods[weight]",
+              "description": "A weight value that contributes to the overall weight of a grading period set which is used to calculate how much assignments in this period contribute to the total grade",
+              "type": "array",
+              "format": "float",
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "number"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    }
+  ],
+  "models": {
+    "GradingPeriod": {
+      "id": "GradingPeriod",
+      "description": "",
+      "required": [
+        "id",
+        "start_date",
+        "end_date"
+      ],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "The unique identifier for the grading period.",
+          "example": 1023,
+          "type": "integer"
+        },
+        "title": {
+          "description": "The title for the grading period.",
+          "example": "First Block",
+          "type": "string"
+        },
+        "start_date": {
+          "description": "The start date of the grading period.",
+          "example": "2014-01-07T15:04:00Z",
+          "type": "string",
+          "format": "date-time"
+        },
+        "end_date": {
+          "description": "The end date of the grading period.",
+          "example": "2014-05-07T17:07:00Z",
+          "type": "string",
+          "format": "date-time"
+        },
+        "close_date": {
+          "description": "Grades can only be changed before the close date of the grading period.",
+          "example": "2014-06-07T17:07:00Z",
+          "type": "string",
+          "format": "date-time"
+        },
+        "weight": {
+          "description": "A weight value that contributes to the overall weight of a grading period set which is used to calculate how much assignments in this period contribute to the total grade",
+          "type": "integer",
+          "example": "33.33"
+        },
+        "is_closed": {
+          "description": "If true, the grading period's close_date has passed.",
+          "example": true,
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

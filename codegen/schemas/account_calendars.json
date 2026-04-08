@@ -1,0 +1,295 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/account_calendars",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/account_calendars",
+      "description": "Returns a paginated list of account calendars available to the current user.\nIncludes visible account calendars where the user has an account association.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List available account calendars",
+          "notes": "Returns a paginated list of account calendars available to the current user.\nIncludes visible account calendars where the user has an account association.",
+          "nickname": "list_available_account_calendars",
+          "parameters": [
+            {
+              "paramType": "query",
+              "name": "search_term",
+              "description": "When included, searches available account calendars for the term. Returns matching\nresults. Term must be at least 2 characters.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "{ \"account_calendars\": AccountCalendar, \"total_results\": \"integer\"}"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/account_calendars/{account_id}",
+      "description": "Get details about a specific account calendar.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get a single account calendar",
+          "notes": "Get details about a specific account calendar.",
+          "nickname": "get_single_account_calendar",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "AccountCalendar"
+        }
+      ]
+    },
+    {
+      "path": "/v1/account_calendars/{account_id}",
+      "description": "Set an account calendar's visibility and auto_subscribe values. Requires the\n`manage_account_calendar_visibility` permission on the account.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update a calendar",
+          "notes": "Set an account calendar's visibility and auto_subscribe values. Requires the\n`manage_account_calendar_visibility` permission on the account.",
+          "nickname": "update_calendar",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "visible",
+              "description": "Allow administrators with `manage_account_calendar_events` permission\nto create events on this calendar, and allow users to view this\ncalendar and its events.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "auto_subscribe",
+              "description": "When true, users will automatically see events from this account in their\ncalendar, even if they haven't manually added that calendar.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "AccountCalendar"
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/account_calendars",
+      "description": "Set visibility and/or auto_subscribe on many calendars simultaneously. Requires\nthe `manage_account_calendar_visibility` permission on the account.\n\nAccepts a JSON array of objects containing 2-3 keys each: `id`\n(the account's id, required), `visible` (a boolean indicating whether\nthe account calendar is visible), and `auto_subscribe` (a boolean indicating\nwhether users should see these events in their calendar without manually\nsubscribing).\n\nReturns the count of updated accounts.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update several calendars",
+          "notes": "Set visibility and/or auto_subscribe on many calendars simultaneously. Requires\nthe `manage_account_calendar_visibility` permission on the account.\n\nAccepts a JSON array of objects containing 2-3 keys each: `id`\n(the account's id, required), `visible` (a boolean indicating whether\nthe account calendar is visible), and `auto_subscribe` (a boolean indicating\nwhether users should see these events in their calendar without manually\nsubscribing).\n\nReturns the count of updated accounts.",
+          "nickname": "update_several_calendars",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/account_calendars",
+      "description": "Returns a paginated list of account calendars for the provided account and\nits first level of sub-accounts. Includes hidden calendars in the response.\nRequires the `manage_account_calendar_visibility` permission.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List all account calendars",
+          "notes": "Returns a paginated list of account calendars for the provided account and\nits first level of sub-accounts. Includes hidden calendars in the response.\nRequires the `manage_account_calendar_visibility` permission.",
+          "nickname": "list_all_account_calendars",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "search_term",
+              "description": "When included, searches all descendent accounts of provided account for the\nterm. Returns matching results. Term must be at least 2 characters. Can be\ncombined with a filter value.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "filter",
+              "description": "When included, only returns calendars that are either visible or hidden. Can\nbe combined with a search term.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "visible",
+                "hidden"
+              ]
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "AccountCalendar"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/visible_calendars_count",
+      "description": "Returns the number of visible account calendars.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Count of all visible account calendars",
+          "notes": "Returns the number of visible account calendars.",
+          "nickname": "count_of_all_visible_account_calendars",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "{ \"count\": \"integer\" }"
+        }
+      ]
+    }
+  ],
+  "models": {
+    "AccountCalendar": {
+      "id": "AccountCalendar",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "the ID of the account associated with this calendar",
+          "example": 204,
+          "type": "integer"
+        },
+        "name": {
+          "description": "the name of the account associated with this calendar",
+          "example": "Department of Chemistry",
+          "type": "string"
+        },
+        "parent_account_id": {
+          "description": "the account's parent ID, or null if this is the root account",
+          "example": 1,
+          "type": "integer"
+        },
+        "root_account_id": {
+          "description": "the ID of the root account, or null if this is the root account",
+          "example": 1,
+          "type": "integer"
+        },
+        "visible": {
+          "description": "whether this calendar is visible to users",
+          "example": true,
+          "type": "boolean"
+        },
+        "auto_subscribe": {
+          "description": "whether users see this calendar's events without needing to manually add it",
+          "example": false,
+          "type": "boolean"
+        },
+        "sub_account_count": {
+          "description": "number of this account's direct sub-accounts",
+          "example": 0,
+          "type": "integer"
+        },
+        "asset_string": {
+          "description": "Asset string of the account",
+          "example": "account_4",
+          "type": "string"
+        },
+        "type": {
+          "description": "Object type",
+          "example": "account",
+          "type": "string"
+        },
+        "calendar_event_url": {
+          "description": "url to get full detailed events",
+          "example": "/accounts/2/calendar_events/%7B%7B%20id%20%7D%7D",
+          "type": "string"
+        },
+        "can_create_calendar_events": {
+          "description": "whether the user can create calendar events",
+          "example": true,
+          "type": "boolean"
+        },
+        "create_calendar_event_url": {
+          "description": "API path to create events for the account",
+          "example": "/accounts/2/calendar_events",
+          "type": "string"
+        },
+        "new_calendar_event_url": {
+          "description": "url to open the more options event editor",
+          "example": "/accounts/6/calendar_events/new",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

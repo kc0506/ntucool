@@ -1,0 +1,231 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/favorites",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/users/self/favorites/courses",
+      "description": "Retrieve the paginated list of favorite courses for the current user. If the user has not chosen\nany favorites, then a selection of currently enrolled courses will be returned.\n\nSee the {api:CoursesController#index List courses API} for details on accepted include[] parameters.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List favorite courses",
+          "notes": "Retrieve the paginated list of favorite courses for the current user. If the user has not chosen\nany favorites, then a selection of currently enrolled courses will be returned.\n\nSee the {api:CoursesController#index List courses API} for details on accepted include[] parameters.",
+          "nickname": "list_favorite_courses",
+          "parameters": [
+            {
+              "paramType": "query",
+              "name": "exclude_blueprint_courses",
+              "description": "When set, only return courses that are not configured as blueprint courses.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "Course"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/self/favorites/groups",
+      "description": "Retrieve the paginated list of favorite groups for the current user. If the user has not chosen\nany favorites, then a selection of groups that the user is a member of will be returned.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List favorite groups",
+          "notes": "Retrieve the paginated list of favorite groups for the current user. If the user has not chosen\nany favorites, then a selection of groups that the user is a member of will be returned.",
+          "nickname": "list_favorite_groups",
+          "parameters": [],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "Group"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/self/favorites/courses/{id}",
+      "description": "Add a course to the current user's favorites.  If the course is already\nin the user's favorites, nothing happens. Canvas for Elementary subject\nand homeroom courses can be added to favorites, but this has no effect in\nthe UI.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Add course to favorites",
+          "notes": "Add a course to the current user's favorites.  If the course is already\nin the user's favorites, nothing happens. Canvas for Elementary subject\nand homeroom courses can be added to favorites, but this has no effect in\nthe UI.",
+          "nickname": "add_course_to_favorites",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "The ID or SIS ID of the course to add.  The current user must be\nregistered in the course.",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Favorite"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/self/favorites/groups/{id}",
+      "description": "Add a group to the current user's favorites.  If the group is already\nin the user's favorites, nothing happens.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Add group to favorites",
+          "notes": "Add a group to the current user's favorites.  If the group is already\nin the user's favorites, nothing happens.",
+          "nickname": "add_group_to_favorites",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "The ID or SIS ID of the group to add.  The current user must be\na member of the group.",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Favorite"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/self/favorites/courses/{id}",
+      "description": "Remove a course from the current user's favorites.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Remove course from favorites",
+          "notes": "Remove a course from the current user's favorites.",
+          "nickname": "remove_course_from_favorites",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "the ID or SIS ID of the course to remove",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Favorite"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/self/favorites/groups/{id}",
+      "description": "Remove a group from the current user's favorites.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Remove group from favorites",
+          "notes": "Remove a group from the current user's favorites.",
+          "nickname": "remove_group_from_favorites",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "the ID or SIS ID of the group to remove",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Favorite"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/self/favorites/courses",
+      "description": "Reset the current user's course favorites to the default\nautomatically generated list of enrolled courses",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Reset course favorites",
+          "notes": "Reset the current user's course favorites to the default\nautomatically generated list of enrolled courses",
+          "nickname": "reset_course_favorites",
+          "parameters": [],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/self/favorites/groups",
+      "description": "Reset the current user's group favorites to the default\nautomatically generated list of enrolled group",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Reset group favorites",
+          "notes": "Reset the current user's group favorites to the default\nautomatically generated list of enrolled group",
+          "nickname": "reset_group_favorites",
+          "parameters": [],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    }
+  ],
+  "models": {
+    "Favorite": {
+      "id": "Favorite",
+      "description": "",
+      "required": [
+        ""
+      ],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "context_id": {
+          "description": "The ID of the object the Favorite refers to",
+          "example": 1170,
+          "type": "integer"
+        },
+        "context_type": {
+          "description": "The type of the object the Favorite refers to (currently, only 'Course' is supported)",
+          "example": "Course",
+          "type": "string",
+          "allowableValues": {
+            "values": [
+              "Course"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/accounts_(lti)",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/lti/accounts/{account_id}",
+      "description": "Retrieve information on an individual account, given by local or global ID.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get account",
+          "notes": "Retrieve information on an individual account, given by local or global ID.",
+          "nickname": "get_account",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Account"
+        }
+      ]
+    }
+  ],
+  "models": {
+    "Account": {
+      "id": "Account",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "the ID of the Account object",
+          "example": 2,
+          "type": "integer"
+        },
+        "name": {
+          "description": "The display name of the account",
+          "example": "Canvas Account",
+          "type": "string"
+        },
+        "uuid": {
+          "description": "The UUID of the account",
+          "example": "WvAHhY5FINzq5IyRIJybGeiXyFkG3SqHUPb7jZY5",
+          "type": "string"
+        },
+        "parent_account_id": {
+          "description": "The account's parent ID, or null if this is the root account",
+          "example": 1,
+          "type": "integer"
+        },
+        "root_account_id": {
+          "description": "The ID of the root account, or null if this is the root account",
+          "example": 1,
+          "type": "integer"
+        },
+        "workflow_state": {
+          "description": "The state of the account. Can be 'active' or 'deleted'.",
+          "example": "active",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

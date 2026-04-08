@@ -1,0 +1,15 @@
+{
+  "endpoints": [
+    "upload_file",
+    "upload_file_courses",
+    "upload_file_sections"
+  ],
+  "form_params": {
+    "name": { "type": "string", "required": true, "description": "The filename of the file" },
+    "size": { "type": "integer", "required": true, "description": "The size of the file in bytes" },
+    "content_type": { "type": "string", "description": "The content type of the file" },
+    "on_duplicate": { "type": "string", "enum": ["overwrite", "rename"], "description": "How to handle duplicate filenames" },
+    "parent_folder_id": { "type": "string", "description": "The id of the folder to upload to" },
+    "parent_folder_path": { "type": "string", "description": "The path of the folder to upload to" }
+  }
+}

@@ -1,0 +1,416 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/line_items",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/lti/courses/{course_id}/line_items",
+      "description": "Create a new Line Item",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Create a Line Item",
+          "notes": "Create a new Line Item",
+          "nickname": "create_line_item",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "scoreMaximum",
+              "description": "The maximum score for the line item. Scores created for the Line Item may exceed this value.",
+              "type": "number",
+              "format": "float",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "label",
+              "description": "The label for the Line Item. If no resourceLinkId is specified this value will also be used\nas the name of the placeholder assignment.",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "resourceId",
+              "description": "A Tool Provider specified id for the Line Item. Multiple line items may\nshare the same resourceId within a given context.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "tag",
+              "description": "A value used to qualify a line Item beyond its ids. Line Items may be queried\nby this value in the List endpoint. Multiple line items can share the same tag\nwithin a given context.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "resourceLinkId",
+              "description": "The resource link id the Line Item should be attached to. This value should\nmatch the LTI id of the Canvas assignment associated with the tool.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "startDateTime",
+              "description": "The ISO8601 date and time when the line item is made available. Corresponds\nto the assignment's unlock_at date.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "endDateTime",
+              "description": "The ISO8601 date and time when the line item stops receiving submissions. Corresponds\nto the assignment's due_at date.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "https://canvas.instructure.com/lti/submission_type",
+              "description": "(EXTENSION) - Optional block to set Assignment Submission Type when creating a new assignment is created.\ntype - 'none' or 'external_tool'::\nexternal_tool_url - Submission URL only used when type: 'external_tool'::",
+              "type": "object",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "LineItem"
+        }
+      ]
+    },
+    {
+      "path": "/lti/courses/{course_id}/line_items/{id}",
+      "description": "Update new Line Item",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update a Line Item",
+          "notes": "Update new Line Item",
+          "nickname": "update_line_item",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "scoreMaximum",
+              "description": "The maximum score for the line item. Scores created for the Line Item may exceed this value.",
+              "type": "number",
+              "format": "float",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "label",
+              "description": "The label for the Line Item. If no resourceLinkId is specified this value will also be used\nas the name of the placeholder assignment.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "resourceId",
+              "description": "A Tool Provider specified id for the Line Item. Multiple line items may\nshare the same resourceId within a given context.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "tag",
+              "description": "A value used to qualify a line Item beyond its ids. Line Items may be queried\nby this value in the List endpoint. Multiple line items can share the same tag\nwithin a given context.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "startDateTime",
+              "description": "The ISO8601 date and time when the line item is made available. Corresponds\nto the assignment's unlock_at date.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "endDateTime",
+              "description": "The ISO8601 date and time when the line item stops receiving submissions. Corresponds\nto the assignment's due_at date.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "LineItem"
+        }
+      ]
+    },
+    {
+      "path": "/lti/courses/{course_id}/line_items/{id}",
+      "description": "Show existing Line Item",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Show a Line Item",
+          "notes": "Show existing Line Item",
+          "nickname": "show_line_item",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "Array of additional information to include.\n\n\"launch_url\":: includes the launch URL for this line item using the \"https\\://canvas.instructure.com/lti/launch_url\" extension",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "launch_url"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "LineItem"
+        }
+      ]
+    },
+    {
+      "path": "/lti/courses/{course_id}/line_items",
+      "description": "List all Line Items for a course",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List line Items",
+          "notes": "List all Line Items for a course",
+          "nickname": "list_line_items",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "tag",
+              "description": "If specified only Line Items with this tag will be included.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "resource_id",
+              "description": "If specified only Line Items with this resource_id will be included.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "resource_link_id",
+              "description": "If specified only Line Items attached to the specified resource_link_id will be included.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "limit",
+              "description": "May be used to limit the number of Line Items returned in a page",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "Array of additional information to include.\n\n\"launch_url\":: includes the launch URL for each line item using the \"https\\://canvas.instructure.com/lti/launch_url\" extension",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "launch_url"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "LineItem"
+        }
+      ]
+    },
+    {
+      "path": "/lti/courses/{course_id}/line_items/{id}",
+      "description": "Delete an existing Line Item",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Delete a Line Item",
+          "notes": "Delete an existing Line Item",
+          "nickname": "delete_line_item",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "LineItem"
+        }
+      ]
+    }
+  ],
+  "models": {
+    "LineItem": {
+      "id": "LineItem",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "The fully qualified URL for showing, updating, and deleting the Line Item",
+          "example": "http://institution.canvas.com/api/lti/courses/5/line_items/2",
+          "type": "string"
+        },
+        "scoreMaximum": {
+          "description": "The maximum score of the Line Item",
+          "example": "50",
+          "type": "number"
+        },
+        "label": {
+          "description": "The label of the Line Item.",
+          "example": "50",
+          "type": "string"
+        },
+        "tag": {
+          "description": "Tag used to qualify a line Item beyond its ids",
+          "example": "50",
+          "type": "string"
+        },
+        "resourceId": {
+          "description": "A Tool Provider specified id for the Line Item. Multiple line items can share the same resourceId within a given context",
+          "example": "50",
+          "type": "string"
+        },
+        "resourceLinkId": {
+          "description": "The resource link id the Line Item is attached to",
+          "example": "50",
+          "type": "string"
+        },
+        "https://canvas.instructure.com/lti/submission_type": {
+          "description": "The extension that defines the submission_type of the line_item. Only returns if set through the line_item create endpoint.",
+          "example": "{\n\t\"type\":\"external_tool\",\n\t\"external_tool_url\":\"https://my.launch.url\",\n}",
+          "type": "string"
+        },
+        "https://canvas.instructure.com/lti/launch_url": {
+          "description": "The launch url of the Line Item. Only returned if `include=launch_url` query parameter is passed, and only for Show and List actions.",
+          "example": "https://my.tool.url/launch",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

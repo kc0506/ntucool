@@ -1,0 +1,110 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/history",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/users/{user_id}/history",
+      "description": "Return a paginated list of the user's recent history. History entries are returned in descending order,\nnewest to oldest. You may list history entries for yourself (use +self+ as the user_id), for a student you observe,\nor for a user you manage as an administrator. Note that the +per_page+ pagination argument is not supported\nand the number of history entries returned per page will vary.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List recent history for a user",
+          "notes": "Return a paginated list of the user's recent history. History entries are returned in descending order,\nnewest to oldest. You may list history entries for yourself (use +self+ as the user_id), for a student you observe,\nor for a user you manage as an administrator. Note that the +per_page+ pagination argument is not supported\nand the number of history entries returned per page will vary.",
+          "nickname": "list_recent_history_for_user",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "HistoryEntry"
+          }
+        }
+      ]
+    }
+  ],
+  "models": {
+    "HistoryEntry": {
+      "id": "HistoryEntry",
+      "description": "Information about a recently visited item or page in Canvas",
+      "required": [
+        "asset_code",
+        "asset_name",
+        "visited_url",
+        "visited_at"
+      ],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "asset_code": {
+          "description": "The asset string for the item viewed",
+          "example": "assignment_123",
+          "type": "string"
+        },
+        "asset_name": {
+          "description": "The name of the item",
+          "example": "Test Assignment",
+          "type": "string"
+        },
+        "asset_icon": {
+          "description": "The icon type shown for the item. One of 'icon-announcement', 'icon-assignment', 'icon-calendar-month', 'icon-discussion', 'icon-document', 'icon-download', 'icon-gradebook', 'icon-home', 'icon-message', 'icon-module', 'icon-outcomes', 'icon-quiz', 'icon-user', 'icon-syllabus'",
+          "example": "icon-assignment",
+          "type": "string"
+        },
+        "asset_readable_category": {
+          "description": "The associated category describing the asset_icon",
+          "example": "Assignment",
+          "type": "string"
+        },
+        "context_type": {
+          "description": "The type of context of the item visited. One of 'Course', 'Group', 'User', or 'Account'",
+          "type": "string",
+          "example": "Course"
+        },
+        "context_id": {
+          "description": "The id of the context, if applicable",
+          "type": "integer",
+          "format": "int64",
+          "example": 123
+        },
+        "context_name": {
+          "description": "The name of the context",
+          "type": "string",
+          "example": "Something 101"
+        },
+        "visited_url": {
+          "description": "The URL of the item",
+          "example": "https://canvas.example.com/courses/123/assignments/456",
+          "type": "string"
+        },
+        "visited_at": {
+          "description": "When the page was visited",
+          "example": "2019-08-01T19:49:47Z",
+          "type": "datetime",
+          "format": "iso8601"
+        },
+        "interaction_seconds": {
+          "description": "The estimated time spent on the page in seconds",
+          "type": "integer",
+          "format": "int64",
+          "example": 400
+        }
+      }
+    }
+  }
+}

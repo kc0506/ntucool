@@ -1,0 +1,711 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/planner",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/planner/items",
+      "description": "Retrieve the paginated list of objects to be shown on the planner for the\ncurrent user with the associated planner override to override an item's\nvisibility if set.\n\nPlanner items for a student may also be retrieved by a linked observer. Use\nthe path that accepts a user_id and supply the student's id.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List planner items",
+          "notes": "Retrieve the paginated list of objects to be shown on the planner for the\ncurrent user with the associated planner override to override an item's\nvisibility if set.\n\nPlanner items for a student may also be retrieved by a linked observer. Use\nthe path that accepts a user_id and supply the student's id.",
+          "nickname": "list_planner_items_planner",
+          "parameters": [
+            {
+              "paramType": "query",
+              "name": "start_date",
+              "description": "Only return items starting from the given date.\nThe value should be formatted as: yyyy-mm-dd or ISO 8601 YYYY-MM-DDTHH:MM:SSZ.",
+              "type": "Date",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "end_date",
+              "description": "Only return items up to the given date.\nThe value should be formatted as: yyyy-mm-dd or ISO 8601 YYYY-MM-DDTHH:MM:SSZ.",
+              "type": "Date",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "context_codes",
+              "description": "List of context codes of courses and/or groups whose items you want to see.\nIf not specified, defaults to all contexts associated to the current user.\nNote that concluded courses will be ignored unless specified in the includes[]\nparameter. The format of this field is the context type, followed by an underscore,\nfollowed by the context id. For example: course_42, group_123",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "observed_user_id",
+              "description": "Return planner items for the given observed user. Must be accompanied by context_codes[].\nThe user making the request must be observing the observed user in all the courses specified by\ncontext_codes[].",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "filter",
+              "description": "Only return items that have new or unread activity",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "new_activity"
+              ]
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{user_id}/planner/items",
+      "description": "Retrieve the paginated list of objects to be shown on the planner for the\ncurrent user with the associated planner override to override an item's\nvisibility if set.\n\nPlanner items for a student may also be retrieved by a linked observer. Use\nthe path that accepts a user_id and supply the student's id.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List planner items",
+          "notes": "Retrieve the paginated list of objects to be shown on the planner for the\ncurrent user with the associated planner override to override an item's\nvisibility if set.\n\nPlanner items for a student may also be retrieved by a linked observer. Use\nthe path that accepts a user_id and supply the student's id.",
+          "nickname": "list_planner_items_users",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "start_date",
+              "description": "Only return items starting from the given date.\nThe value should be formatted as: yyyy-mm-dd or ISO 8601 YYYY-MM-DDTHH:MM:SSZ.",
+              "type": "Date",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "end_date",
+              "description": "Only return items up to the given date.\nThe value should be formatted as: yyyy-mm-dd or ISO 8601 YYYY-MM-DDTHH:MM:SSZ.",
+              "type": "Date",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "context_codes",
+              "description": "List of context codes of courses and/or groups whose items you want to see.\nIf not specified, defaults to all contexts associated to the current user.\nNote that concluded courses will be ignored unless specified in the includes[]\nparameter. The format of this field is the context type, followed by an underscore,\nfollowed by the context id. For example: course_42, group_123",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "observed_user_id",
+              "description": "Return planner items for the given observed user. Must be accompanied by context_codes[].\nThe user making the request must be observing the observed user in all the courses specified by\ncontext_codes[].",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "filter",
+              "description": "Only return items that have new or unread activity",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "new_activity"
+              ]
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/planner_notes",
+      "description": "Retrieve the paginated list of planner notes\n\nRetrieve planner note for a user",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List planner notes",
+          "notes": "Retrieve the paginated list of planner notes\n\nRetrieve planner note for a user",
+          "nickname": "list_planner_notes",
+          "parameters": [
+            {
+              "paramType": "query",
+              "name": "start_date",
+              "description": "Only return notes with todo dates since the start_date (inclusive).\nNo default. The value should be formatted as: yyyy-mm-dd or\nISO 8601 YYYY-MM-DDTHH:MM:SSZ.",
+              "type": "DateTime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "end_date",
+              "description": "Only return notes with todo dates before the end_date (inclusive).\nNo default. The value should be formatted as: yyyy-mm-dd or\nISO 8601 YYYY-MM-DDTHH:MM:SSZ.\nIf end_date and start_date are both specified and equivalent,\nthen only notes with todo dates on that day are returned.",
+              "type": "DateTime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "context_codes",
+              "description": "List of context codes of courses whose notes you want to see.\nIf not specified, defaults to all contexts that the user belongs to.\nThe format of this field is the context type, followed by an\nunderscore, followed by the context id. For example: course_42\nIncluding a code matching the user's own context code (e.g. user_1)\nwill include notes that are not associated with any particular course.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "PlannerNote"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/planner_notes/{id}",
+      "description": "Retrieve a planner note for the current user",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Show a planner note",
+          "notes": "Retrieve a planner note for the current user",
+          "nickname": "show_planner_note",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "PlannerNote"
+        }
+      ]
+    },
+    {
+      "path": "/v1/planner_notes/{id}",
+      "description": "Update a planner note for the current user",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update a planner note",
+          "notes": "Update a planner note for the current user",
+          "nickname": "update_planner_note",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "title",
+              "description": "The title of the planner note.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "details",
+              "description": "Text of the planner note.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "todo_date",
+              "description": "The date where this planner note should appear in the planner.\nThe value should be formatted as: yyyy-mm-dd.",
+              "type": "Date",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "course_id",
+              "description": "The ID of the course to associate with the planner note. The caller must be able to view the course in order to\nassociate it with a planner note. Use a null or empty value to remove a planner note from a course. Note that if\nthe planner note is linked to a learning object, its course_id cannot be changed.",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "PlannerNote"
+        }
+      ]
+    },
+    {
+      "path": "/v1/planner_notes",
+      "description": "Create a planner note for the current user",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Create a planner note",
+          "notes": "Create a planner note for the current user",
+          "nickname": "create_planner_note",
+          "parameters": [
+            {
+              "paramType": "form",
+              "name": "title",
+              "description": "The title of the planner note.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "details",
+              "description": "Text of the planner note.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "todo_date",
+              "description": "The date where this planner note should appear in the planner.\nThe value should be formatted as: yyyy-mm-dd.",
+              "type": "Date",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "course_id",
+              "description": "The ID of the course to associate with the planner note. The caller must be able to view the course in order to\nassociate it with a planner note.",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "linked_object_type",
+              "description": "The type of a learning object to link to this planner note. Must be used in conjunction wtih linked_object_id\nand course_id. Valid linked_object_type values are:\n'announcement', 'assignment', 'discussion_topic', 'wiki_page', 'quiz'",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "linked_object_id",
+              "description": "The id of a learning object to link to this planner note. Must be used in conjunction with linked_object_type\nand course_id. The object must be in the same course as specified by course_id. If the title argument is not\nprovided, the planner note will use the learning object's title as its title. Only one planner note may be\nlinked to a specific learning object.",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "PlannerNote"
+        }
+      ]
+    },
+    {
+      "path": "/v1/planner_notes/{id}",
+      "description": "Delete a planner note for the current user",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Delete a planner note",
+          "notes": "Delete a planner note for the current user",
+          "nickname": "delete_planner_note",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "PlannerNote"
+        }
+      ]
+    },
+    {
+      "path": "/v1/planner/overrides",
+      "description": "Retrieve a planner override for the current user",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List planner overrides",
+          "notes": "Retrieve a planner override for the current user",
+          "nickname": "list_planner_overrides",
+          "parameters": [],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "PlannerOverride"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/planner/overrides/{id}",
+      "description": "Retrieve a planner override for the current user",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Show a planner override",
+          "notes": "Retrieve a planner override for the current user",
+          "nickname": "show_planner_override",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "PlannerOverride"
+        }
+      ]
+    },
+    {
+      "path": "/v1/planner/overrides/{id}",
+      "description": "Update a planner override's visibilty for the current user",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update a planner override",
+          "notes": "Update a planner override's visibilty for the current user",
+          "nickname": "update_planner_override",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "marked_complete",
+              "description": "determines whether the planner item is marked as completed",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "dismissed",
+              "description": "determines whether the planner item shows in the opportunities list",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "PlannerOverride"
+        }
+      ]
+    },
+    {
+      "path": "/v1/planner/overrides",
+      "description": "Create a planner override for the current user",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Create a planner override",
+          "notes": "Create a planner override for the current user",
+          "nickname": "create_planner_override",
+          "parameters": [
+            {
+              "paramType": "form",
+              "name": "plannable_type",
+              "description": "Type of the item that you are overriding in the planner",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false,
+              "enum": [
+                "announcement",
+                "assignment",
+                "discussion_topic",
+                "quiz",
+                "wiki_page",
+                "planner_note",
+                "calendar_event",
+                "assessment_request"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "plannable_id",
+              "description": "ID of the item that you are overriding in the planner",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "marked_complete",
+              "description": "If this is true, the item will show in the planner as completed",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "dismissed",
+              "description": "If this is true, the item will not show in the opportunities list",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "PlannerOverride"
+        }
+      ]
+    },
+    {
+      "path": "/v1/planner/overrides/{id}",
+      "description": "Delete a planner override for the current user",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Delete a planner override",
+          "notes": "Delete a planner override for the current user",
+          "nickname": "delete_planner_override",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "PlannerOverride"
+        }
+      ]
+    }
+  ],
+  "models": {
+    "PlannerNote": {
+      "id": "PlannerNote",
+      "description": "A planner note",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "The ID of the planner note",
+          "example": 234,
+          "type": "integer"
+        },
+        "title": {
+          "description": "The title for a planner note",
+          "example": "Bring books tomorrow",
+          "type": "string"
+        },
+        "description": {
+          "description": "The description of the planner note",
+          "example": "I need to bring books tomorrow for my course on biology",
+          "type": "string"
+        },
+        "user_id": {
+          "description": "The id of the associated user creating the planner note",
+          "example": 1578941,
+          "type": "integer"
+        },
+        "workflow_state": {
+          "description": "The current published state of the planner note",
+          "example": "active",
+          "type": "string"
+        },
+        "course_id": {
+          "description": "The course that the note is in relation too, if applicable",
+          "example": 1578941,
+          "type": "integer"
+        },
+        "todo_date": {
+          "description": "The datetime of when the planner note should show up on their planner",
+          "example": "2017-05-09T10:12:00Z",
+          "type": "datetime"
+        },
+        "linked_object_type": {
+          "description": "the type of the linked learning object",
+          "example": "assignment",
+          "type": "string"
+        },
+        "linked_object_id": {
+          "description": "the id of the linked learning object",
+          "example": 131072,
+          "type": "integer"
+        },
+        "linked_object_html_url": {
+          "description": "the Canvas web URL of the linked learning object",
+          "example": "https://canvas.example.com/courses/1578941/assignments/131072",
+          "type": "string"
+        },
+        "linked_object_url": {
+          "description": "the API URL of the linked learning object",
+          "example": "https://canvas.example.com/api/v1/courses/1578941/assignments/131072",
+          "type": "string"
+        }
+      }
+    },
+    "PlannerOverride": {
+      "id": "PlannerOverride",
+      "description": "User-controlled setting for whether an item should be displayed on the planner or not",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "The ID of the planner override",
+          "example": 234,
+          "type": "integer"
+        },
+        "plannable_type": {
+          "description": "The type of the associated object for the planner override",
+          "example": "Assignment",
+          "type": "string"
+        },
+        "plannable_id": {
+          "description": "The id of the associated object for the planner override",
+          "example": 1578941,
+          "type": "integer"
+        },
+        "user_id": {
+          "description": "The id of the associated user for the planner override",
+          "example": 1578941,
+          "type": "integer"
+        },
+        "assignment_id": {
+          "description": "The id of the plannable's associated assignment, if it has one",
+          "example": 1578941,
+          "type": "integer"
+        },
+        "workflow_state": {
+          "description": "The current published state of the item, synced with the associated object",
+          "example": "published",
+          "type": "string"
+        },
+        "marked_complete": {
+          "description": "Controls whether or not the associated plannable item is marked complete on the planner",
+          "example": false,
+          "type": "boolean"
+        },
+        "dismissed": {
+          "description": "Controls whether or not the associated plannable item shows up in the opportunities list",
+          "example": false,
+          "type": "boolean"
+        },
+        "created_at": {
+          "description": "The datetime of when the planner override was created",
+          "example": "2017-05-09T10:12:00Z",
+          "type": "datetime"
+        },
+        "updated_at": {
+          "description": "The datetime of when the planner override was updated",
+          "example": "2017-05-09T10:12:00Z",
+          "type": "datetime"
+        },
+        "deleted_at": {
+          "description": "The datetime of when the planner override was deleted, if applicable",
+          "example": "2017-05-15T12:12:00Z",
+          "type": "datetime"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/plagiarism_detection_platform_users",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/lti/users/{id}",
+      "description": "Get a single Canvas user by Canvas id or LTI id. Tool providers may only access\nusers that have been assigned an assignment associated with their tool.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get a single user (lti)",
+          "notes": "Get a single Canvas user by Canvas id or LTI id. Tool providers may only access\nusers that have been assigned an assignment associated with their tool.",
+          "nickname": "get_single_user_lti",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "User"
+        }
+      ]
+    },
+    {
+      "path": "/lti/groups/{group_id}/users",
+      "description": "Get all Canvas users in a group. Tool providers may only access\ngroups that belong to the context the tool is installed in.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get all users in a group (lti)",
+          "notes": "Get all Canvas users in a group. Tool providers may only access\ngroups that belong to the context the tool is installed in.",
+          "nickname": "get_all_users_in_group_lti",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "User"
+          }
+        }
+      ]
+    }
+  ],
+  "models": {}
+}

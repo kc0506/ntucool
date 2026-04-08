@@ -1,0 +1,1056 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/new_quizzes",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/quiz/v1/courses/{course_id}/quizzes/{assignment_id}",
+      "description": "Get details about a single new quiz.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get a new quiz",
+          "notes": "Get details about a single new quiz.",
+          "nickname": "get_new_quiz",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "no description",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "assignment_id",
+              "description": "The id of the assignment associated with the quiz.",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "NewQuiz"
+        }
+      ]
+    },
+    {
+      "path": "/quiz/v1/courses/{course_id}/quizzes",
+      "description": "Get a list of new quizzes.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List new quizzes",
+          "notes": "Get a list of new quizzes.",
+          "nickname": "list_new_quizzes",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "no description",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "NewQuiz"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/quiz/v1/courses/{course_id}/quizzes",
+      "description": "Create a new quiz for the course.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Create a new quiz",
+          "notes": "Create a new quiz for the course.",
+          "nickname": "create_new_quiz",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "no description",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[title]",
+              "description": "The title of the quiz.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[assignment_group_id]",
+              "description": "The ID of the quiz's assignment group.",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[points_possible]",
+              "description": "The total point value given to the quiz. Must be positive.",
+              "type": "number",
+              "format": "float",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[due_at]",
+              "description": "When the quiz is due.",
+              "type": "DateTime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[lock_at]",
+              "description": "When to lock the quiz.",
+              "type": "DateTime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[unlock_at]",
+              "description": "When to unlock the quiz.",
+              "type": "DateTime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[grading_type]",
+              "description": "The type of grading the assignment receives.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "pass_fail",
+                "percent",
+                "letter_grade",
+                "gpa_scale",
+                "points"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[instructions]",
+              "description": "Instructions for the quiz.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][calculator_type]",
+              "description": "Specifies which type of Calculator a student can use during Quiz taking.\nShould be null if no calculator is allowed.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "none",
+                "basic",
+                "scientific"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][filter_ip_address]",
+              "description": "Whether IP filtering is needed.  Must be true for filters to take effect.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][filters][ips]",
+              "description": "Specifies ranges of IP addresses where the quiz can be taken from. Each range is an array like\n[start address, end address], or null if there's no restriction.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][multiple_attempts][multiple_attempts_enabled]",
+              "description": "Whether multiple attempts for this quiz is true.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][multiple_attempts][attempt_limit]",
+              "description": "Whether there is an attempt limit.  Only set if multiple_attempts_enabled is true.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][multiple_attempts][max_attempts]",
+              "description": "The allowed attempts a student can take. If null, the allowed attempts are unlimited.  Only used if\nattempt_limit is true.",
+              "type": "Positive Integer",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][multiple_attempts][score_to_keep]",
+              "description": "Whichever score to keep for the attempts.  Only used if multiple_attempts_enabled is true.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "average",
+                "first",
+                "highest",
+                "latest"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][multiple_attempts][cooling_period]",
+              "description": "Whether there is a cooling (waiting) period.  Only used if multiple_attempts_enabled is true.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][multiple_attempts][cooling_period_seconds]",
+              "description": "Required waiting period in seconds between attempts. If null, there is no required time. Only used if\ncooling_period is true",
+              "type": "Positive Integer",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][one_at_a_time_type]",
+              "description": "Specifies the settings for questions to display when quiz taking.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "none",
+                "question"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][allow_backtracking]",
+              "description": "Whether to allow user to return to previous questions when 'one_at_a_time_type' is set to 'question'.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][results_view_settings][result_view_restricted]",
+              "description": "Whether the results view is restricted for students.  Must be true for any student restrictions to be set",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][results_view_settings][display_points_awarded]",
+              "description": "Whether points are shown. Must set result_view_restricted to true to use this parameter.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][results_view_settings][display_points_possible]",
+              "description": "Whether points possible is shown. Must set result_view_restricted to true to use this parameter.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][results_view_settings][display_items]",
+              "description": "Whether to show items in the results view.  Must be true for any items restrictions to be set",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][results_view_settings][display_item_response]",
+              "description": "Whether item response is shown.  Only set if display_items is true.  Must be true for\ndisplay_item_response_correctness to be set.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][results_view_settings][display_item_response_correctness]",
+              "description": "Whether item correctness is shown.  Only set if display_item_response is true.  Must be true for\ndisplay_item_correct_answer to be set.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][results_view_settings][display_item_correct_answer]",
+              "description": "Whether correct answer is shown.  Only set if display_item_response_correctness is true",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][results_view_settings][display_item_feedback]",
+              "description": "Whether Item feedback is shown.  Only set if display_items is true",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][shuffle_answers]",
+              "description": "Whether answers should be shuffled for students.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][shuffle_questions]",
+              "description": "Whether questions should be shuffled for students.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][require_student_access_code]",
+              "description": "Whether an access code is needed to take the quiz.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][student_access_code]",
+              "description": "Access code to restrict quiz access. Should be null if no restriction.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][has_time_limit]",
+              "description": "Whether there is a time limit for the quiz.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][session_time_limit_in_seconds]",
+              "description": "Limit the time a student can work on the quiz. Should be null if no restriction.",
+              "type": "Positive Integer",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "NewQuiz"
+        }
+      ]
+    },
+    {
+      "path": "/quiz/v1/courses/{course_id}/quizzes/{assignment_id}",
+      "description": "Update a single quiz for the course.",
+      "operations": [
+        {
+          "method": "PATCH",
+          "summary": "Update a single quiz",
+          "notes": "Update a single quiz for the course.",
+          "nickname": "update_single_quiz",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "no description",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "assignment_id",
+              "description": "The id of the assignment associated with the quiz.",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[title]",
+              "description": "The title of the quiz.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[assignment_group_id]",
+              "description": "The ID of the quiz's assignment group.",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[points_possible]",
+              "description": "The total point value given to the quiz. Must be positive.",
+              "type": "number",
+              "format": "float",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[due_at]",
+              "description": "When the quiz is due.",
+              "type": "DateTime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[lock_at]",
+              "description": "When to lock the quiz.",
+              "type": "DateTime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[unlock_at]",
+              "description": "When to unlock the quiz.",
+              "type": "DateTime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[grading_type]",
+              "description": "The type of grading the assignment receives.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "pass_fail",
+                "percent",
+                "letter_grade",
+                "gpa_scale",
+                "points"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[instructions]",
+              "description": "Instructions for the quiz.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][calculator_type]",
+              "description": "Specifies which type of Calculator a student can use during Quiz taking.\nShould be null if no calculator is allowed.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "none",
+                "basic",
+                "scientific"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][filter_ip_address]",
+              "description": "Whether IP filtering is needed. Must be true for filters to take effect.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][filters][ips]",
+              "description": "Specifies ranges of IP addresses where the quiz can be taken from. Each range is an array like\n[start address, end address], or null if there's no restriction.\nSpecifies the range of IP addresses where the quiz can be taken from. Should be null if there's no restriction.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][multiple_attempts][multiple_attempts_enabled]",
+              "description": "Whether multiple attempts for this quiz is true.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][multiple_attempts][attempt_limit]",
+              "description": "Whether there is an attempt limit.  Only set if multiple_attempts_enabled is true.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][multiple_attempts][max_attempts]",
+              "description": "The allowed attempts a student can take. If null, the allowed attempts are unlimited. Only used if\nattempt_limit is true.",
+              "type": "Positive Integer",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][multiple_attempts][score_to_keep]",
+              "description": "Whichever score to keep for the attempts. Only used if multiple_attempts_enabled is true.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "average",
+                "first",
+                "highest",
+                "latest"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][multiple_attempts][cooling_period]",
+              "description": "Whether there is a cooling period. Only used if multiple_attempts_enabled is true.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][multiple_attempts][cooling_period_seconds]",
+              "description": "Required waiting period in seconds between attempts. If null, there is no required time.  Only used if\ncooling_period is true.",
+              "type": "Positive Integer",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][one_at_a_time_type]",
+              "description": "Specifies the settings for questions to display when quiz taking.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "none",
+                "question"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][allow_backtracking]",
+              "description": "Whether to allow user to return to previous questions when 'one_at_a_time_type' is set to 'question'.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][results_view_settings][result_view_restricted]",
+              "description": "Whether the results view is restricted for students.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][results_view_settings][display_points_awarded]",
+              "description": "Whether points are shown.  Must set result_view_restricted to true to use this parameter.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][results_view_settings][display_points_possible]",
+              "description": "Whether points possible is shown. Must set result_view_restricted to true to use this parameter.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][results_view_settings][display_items]",
+              "description": "Whether to show items in the results view.  Must be true for any items restrictions to be set.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][results_view_settings][display_item_response]",
+              "description": "Whether item response is shown.  Only set if display_items is true.  Must be true for\ndisplay_item_response_correctness to be set.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][results_view_settings][display_item_response_correctness]",
+              "description": "Whether item correctness is shown.  Only set if display_item_response is true.  Must be true for\ndisplay_item_correct_answer to be set.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][results_view_settings][display_item_correct_answer]",
+              "description": "Whether correct answer is shown.  Only set if display_item_response_correctness is true.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][results_view_settings][display_item_feedback]",
+              "description": "Whether Item feedback is shown. Only set if display_items is true.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][shuffle_answers]",
+              "description": "Whether answers should be shuffled for students.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][shuffle_questions]",
+              "description": "Whether questions should be shuffled for students.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][require_student_access_code]",
+              "description": "Whether an access code is needed to take the quiz.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][student_access_code]",
+              "description": "Access code to restrict quiz access. Should be null if no restriction.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][has_time_limit]",
+              "description": "Whether there is a time limit for the quiz.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "quiz[quiz_settings][session_time_limit_in_seconds]",
+              "description": "Limit the time a student can work on the quiz. Should be null if no restriction.",
+              "type": "Positive Integer",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "NewQuiz"
+        }
+      ]
+    },
+    {
+      "path": "/quiz/v1/courses/{course_id}/quizzes/{assignment_id}",
+      "description": "Delete a single new quiz.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Delete a new quiz",
+          "notes": "Delete a single new quiz.",
+          "nickname": "delete_new_quiz",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "no description",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "assignment_id",
+              "description": "The id of the assignment associated with the quiz.",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "NewQuiz"
+        }
+      ]
+    }
+  ],
+  "models": {
+    "NewQuiz": {
+      "id": "NewQuiz",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "the ID of the quiz",
+          "example": "5",
+          "type": "string"
+        },
+        "title": {
+          "description": "the title of the quiz",
+          "example": "Hamlet Act 3 Quiz",
+          "type": "string"
+        },
+        "instructions": {
+          "description": "the quiz's instructions",
+          "example": "<p>Welcome to the final exam for...</p>",
+          "type": "string"
+        },
+        "assignment_group_id": {
+          "description": "the ID of the quiz's assignment group",
+          "example": "3",
+          "type": "string"
+        },
+        "points_possible": {
+          "description": "The total point value given to the quiz",
+          "example": 20,
+          "type": "integer"
+        },
+        "due_at": {
+          "description": "when the quiz is due",
+          "example": "2013-01-23T23:59:00-07:00",
+          "type": "datetime"
+        },
+        "lock_at": {
+          "description": "when to lock the quiz",
+          "type": "datetime"
+        },
+        "unlock_at": {
+          "description": "when to unlock the quiz",
+          "example": "2013-01-21T23:59:00-07:00",
+          "type": "datetime"
+        },
+        "published": {
+          "description": "whether the quiz has a published or unpublished draft state",
+          "example": true,
+          "default": false,
+          "type": "boolean"
+        },
+        "grading_type": {
+          "description": "the type of grading the assignment receives ('pass_fail', 'percent', 'letter_grade', 'gpa_scale', or 'points')",
+          "example": "points",
+          "type": "string"
+        },
+        "quiz_settings": {
+          "description": "additional quiz settings (see QuizSettings)",
+          "$ref": "QuizSettings"
+        }
+      }
+    },
+    "QuizSettings": {
+      "id": "QuizSettings",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "calculator_type": {
+          "description": "type of calculator the user will have access to during the quiz ('none', basic' or 'scientific')",
+          "example": "scientific",
+          "type": "string"
+        },
+        "filter_ip_address": {
+          "description": "whether access to the quiz should be restricted to the IP address ranges described in 'filters'",
+          "example": true,
+          "type": "boolean"
+        },
+        "filters": {
+          "description": "IP address ranges from which users can take the quiz, if 'filter_ip_address' is true",
+          "example": {
+            "ips": [
+              [
+                "1.1.1.1",
+                "1.1.1.3"
+              ],
+              [
+                "2.2.2.3",
+                "2.2.2.9"
+              ]
+            ]
+          },
+          "type": "object"
+        },
+        "one_at_a_time_type": {
+          "description": "whether questions should be shown all at once ('none') or one-at-a-time ('question')",
+          "example": "none",
+          "type": "string"
+        },
+        "allow_backtracking": {
+          "description": "whether to allow user to return to previous questions when 'one_at_a_time_type' is set to 'question'",
+          "example": false,
+          "type": "boolean"
+        },
+        "shuffle_answers": {
+          "description": "whether answers should be shuffled during quiz",
+          "example": false,
+          "type": "boolean"
+        },
+        "shuffle_questions": {
+          "description": "whether questions should be shuffled during quiz",
+          "example": false,
+          "type": "boolean"
+        },
+        "require_student_access_code": {
+          "description": "whether to require an access code to take the quiz (set as 'student_access_code')",
+          "example": true,
+          "type": "boolean"
+        },
+        "student_access_code": {
+          "description": "access code that is required to take the quiz if 'require_student_access_code' is true",
+          "example": "supersecret",
+          "type": "string"
+        },
+        "has_time_limit": {
+          "description": "whether the quiz has a time limit (set as 'session_time_limit_in_seconds')",
+          "example": true,
+          "type": "boolean"
+        },
+        "session_time_limit_in_seconds": {
+          "description": "time limit during the quiz (in seconds)",
+          "example": 3600,
+          "type": "integer"
+        },
+        "multiple_attempts": {
+          "description": "settings to configure multiple quiz attempts (see MultipleAttemptsSettings)",
+          "$ref": "MultipleAttemptsSettings"
+        },
+        "result_view_settings": {
+          "description": "settings to restrict student result view (see ResultViewSettings)",
+          "$ref": "ResultViewSettings"
+        }
+      }
+    },
+    "MultipleAttemptsSettings": {
+      "id": "MultipleAttemptsSettings",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "multiple_attempts_enabled": {
+          "description": "whether to allow multiple attempts",
+          "example": true,
+          "type": "boolean"
+        },
+        "attempt_limit": {
+          "description": "whether to limit the number of attempts if 'multiple_attempts_enabled' is true. Unlimited attempts if false.",
+          "example": true,
+          "type": "boolean"
+        },
+        "max_attempts": {
+          "description": "number of attempts to allow if 'multiple_attempts_enabled' and 'attempt_limit' are true",
+          "example": 3,
+          "type": "integer"
+        },
+        "score_to_keep": {
+          "description": "specifies which score to keep after attempts ('average', 'first', 'highest', or 'latest')",
+          "example": "highest",
+          "type": "string"
+        },
+        "cooling_period": {
+          "description": "whether to enforce a waiting period after an attempt (set as 'cooling_period_seconds')",
+          "example": true,
+          "type": "boolean"
+        },
+        "cooling_period_seconds": {
+          "description": "required waiting period (in seconds) between attempts. Enforced if 'cooling_period' is true.",
+          "example": 1800,
+          "type": "integer"
+        }
+      }
+    },
+    "ResultViewSettings": {
+      "id": "ResultViewSettings",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "result_view_restricted": {
+          "description": "whether to restrict the student result view",
+          "example": true,
+          "type": "boolean"
+        },
+        "display_points_awarded": {
+          "description": "whether to show points awarded (overall and per question), if 'result_view_restricted' is true",
+          "example": true,
+          "type": "boolean"
+        },
+        "display_points_possible": {
+          "description": "whether to show points possible (overall and per question), if 'result_view_restricted' is true",
+          "example": true,
+          "type": "boolean"
+        },
+        "display_items": {
+          "description": "whether to show questions in the result view, if 'result_view_restricted' is true",
+          "example": true,
+          "type": "boolean"
+        },
+        "display_item_response": {
+          "description": "whether to show student's responses in the result view, if 'display_items' is true",
+          "example": true,
+          "type": "boolean"
+        },
+        "display_item_response_correctness": {
+          "description": "whether to indicate whether the student's response is correct/incorrect, if 'display_item_response' is true",
+          "example": true,
+          "type": "boolean"
+        },
+        "display_item_correct_answer": {
+          "description": "whether to show the correct answer for each question, if 'display_item_response_correctness' is true",
+          "example": true,
+          "type": "boolean"
+        },
+        "display_item_feedback": {
+          "description": "whether to show feedback for each item, if 'display_items' is true",
+          "example": true,
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

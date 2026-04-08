@@ -1,0 +1,177 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/what_if_grades",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/submissions/{id}/what_if_grades",
+      "description": "Enter a what if score for a submission and receive the calculated grades\nGrade calculation is a costly operation, so this API should be used sparingly",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update a submission's what-if score and calculate grades",
+          "notes": "Enter a what if score for a submission and receive the calculated grades\nGrade calculation is a costly operation, so this API should be used sparingly",
+          "nickname": "update_submission_s_what_if_score_and_calculate_grades",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "student_entered_score",
+              "description": "The score the student wants to test",
+              "type": "number",
+              "format": "float",
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "{\"grades\": Grades, \"submission\": Submission}"
+          }
+        }
+      ]
+    }
+  ],
+  "models": {
+    "Grade": {
+      "id": "Grade",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "grade": {
+          "description": "The grade for the course",
+          "example": 120.0,
+          "type": "number"
+        },
+        "total": {
+          "description": "The total points earned in the course",
+          "example": 24.0,
+          "type": "number"
+        },
+        "possible": {
+          "description": "The total points possible for the course",
+          "example": 20.0,
+          "type": "number"
+        },
+        "dropped": {
+          "description": "The dropped grades for the course",
+          "example": [],
+          "type": "array"
+        }
+      }
+    },
+    "AssignmentGroupGrade": {
+      "id": "AssignmentGroupGrade",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "The ID of the Assignment Group",
+          "example": 123,
+          "type": "integer"
+        },
+        "global_id": {
+          "description": "The global ID of the Assignment Group",
+          "example": 10000000000001,
+          "type": "integer"
+        },
+        "score": {
+          "description": "The score for the Assignment Group",
+          "example": 20.0,
+          "type": "number"
+        },
+        "possible": {
+          "description": "The total points possible for the Assignment Group",
+          "example": 10.0,
+          "type": "number"
+        },
+        "weight": {
+          "description": "The weight for the Assignment Group",
+          "example": 0.0,
+          "type": "number"
+        },
+        "grade": {
+          "description": "The grade for the Assignment Group",
+          "example": 200.0,
+          "type": "number"
+        },
+        "dropped": {
+          "description": "The dropped grades for the Assignment Group",
+          "example": [],
+          "type": "array"
+        }
+      }
+    },
+    "GradeGroup": {
+      "id": "GradeGroup",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "submission_id": {
+          "$ref": "AssignmentGroupGrade"
+        }
+      }
+    },
+    "Grades": {
+      "id": "Grades",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "current": {
+          "$ref": "Grade"
+        },
+        "current_groups": {
+          "$ref": "GradeGroup"
+        },
+        "final": {
+          "$ref": "Grade"
+        },
+        "final_groups": {
+          "$ref": "GradeGroup"
+        }
+      }
+    },
+    "Submission": {
+      "id": "Submission",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "The ID of the submission",
+          "example": 123,
+          "type": "integer"
+        },
+        "student_entered_score": {
+          "description": "The score the student wants to test",
+          "example": "20.0",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,465 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/logins",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/accounts/{account_id}/logins",
+      "description": "Given a user ID, return a paginated list of that user's logins for the given account.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List user logins",
+          "notes": "Given a user ID, return a paginated list of that user's logins for the given account.",
+          "nickname": "list_user_logins_accounts",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [
+            {
+              "name": "account_id",
+              "description": "The ID of the login's account.",
+              "deprecated": false
+            },
+            {
+              "name": "id",
+              "description": "The unique, numeric ID for the login.",
+              "deprecated": false
+            },
+            {
+              "name": "sis_user_id",
+              "description": "The login's unique SIS ID.",
+              "deprecated": false
+            },
+            {
+              "name": "integration_id",
+              "description": "The login's unique integration ID.",
+              "deprecated": false
+            },
+            {
+              "name": "unique_id",
+              "description": "The unique ID for the login.",
+              "deprecated": false
+            },
+            {
+              "name": "user_id",
+              "description": "The unique ID of the login's user.",
+              "deprecated": false
+            },
+            {
+              "name": "authentication_provider_id",
+              "description": "The ID of the authentication\nprovider that this login is associated with",
+              "deprecated": false
+            },
+            {
+              "name": "authentication_provider_type",
+              "description": "The type of the authentication\nprovider that this login is associated with",
+              "deprecated": false
+            },
+            {
+              "name": "workflow_state",
+              "description": "The current status of the login",
+              "deprecated": false
+            },
+            {
+              "name": "declared_user_type",
+              "description": "The declared intention for this user's role",
+              "deprecated": false
+            }
+          ],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{user_id}/logins",
+      "description": "Given a user ID, return a paginated list of that user's logins for the given account.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List user logins",
+          "notes": "Given a user ID, return a paginated list of that user's logins for the given account.",
+          "nickname": "list_user_logins_users",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [
+            {
+              "name": "account_id",
+              "description": "The ID of the login's account.",
+              "deprecated": false
+            },
+            {
+              "name": "id",
+              "description": "The unique, numeric ID for the login.",
+              "deprecated": false
+            },
+            {
+              "name": "sis_user_id",
+              "description": "The login's unique SIS ID.",
+              "deprecated": false
+            },
+            {
+              "name": "integration_id",
+              "description": "The login's unique integration ID.",
+              "deprecated": false
+            },
+            {
+              "name": "unique_id",
+              "description": "The unique ID for the login.",
+              "deprecated": false
+            },
+            {
+              "name": "user_id",
+              "description": "The unique ID of the login's user.",
+              "deprecated": false
+            },
+            {
+              "name": "authentication_provider_id",
+              "description": "The ID of the authentication\nprovider that this login is associated with",
+              "deprecated": false
+            },
+            {
+              "name": "authentication_provider_type",
+              "description": "The type of the authentication\nprovider that this login is associated with",
+              "deprecated": false
+            },
+            {
+              "name": "workflow_state",
+              "description": "The current status of the login",
+              "deprecated": false
+            },
+            {
+              "name": "declared_user_type",
+              "description": "The declared intention for this user's role",
+              "deprecated": false
+            }
+          ],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/reset_password",
+      "description": "Given a user email, generate a nonce and email it to the user",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Kickoff password recovery flow",
+          "notes": "Given a user email, generate a nonce and email it to the user",
+          "nickname": "kickoff_password_recovery_flow",
+          "parameters": [],
+          "response_fields": [
+            {
+              "name": "requested",
+              "description": "The recovery request status",
+              "deprecated": false
+            }
+          ],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/logins",
+      "description": "Create a new login for an existing user in the given account.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Create a user login",
+          "notes": "Create a new login for an existing user in the given account.",
+          "nickname": "create_user_login",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[id]",
+              "description": "The ID of the user to create the login for.",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "login[unique_id]",
+              "description": "The unique ID for the new login.",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "login[password]",
+              "description": "The new login's password.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "login[sis_user_id]",
+              "description": "SIS ID for the login. To set this parameter, the caller must be able to\nmanage SIS permissions on the account.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "login[integration_id]",
+              "description": "Integration ID for the login. To set this parameter, the caller must be able to\nmanage SIS permissions on the account. The Integration ID is a secondary\nidentifier useful for more complex SIS integrations.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "login[authentication_provider_id]",
+              "description": "The authentication provider this login is associated with. Logins\nassociated with a specific provider can only be used with that provider.\nLegacy providers (LDAP, CAS, SAML) will search for logins associated with\nthem, or unassociated logins. New providers will only search for logins\nexplicitly associated with them. This can be the integer ID of the\nprovider, or the type of the provider (in which case, it will find the\nfirst matching provider).",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "login[declared_user_type]",
+              "description": "The declared intention of the user type. This can be set, but does\nnot change any Canvas functionality with respect to their access.\nA user can still be a teacher, admin, student, etc. in any particular\ncontext without regard to this setting. This can be used for\nadministrative purposes for integrations to be able to more easily\nidentify why the user was created.\nValid values are:\n  * administrative\n  * observer\n  * staff\n  * student\n  * student_other\n  * teacher",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[existing_user_id]",
+              "description": "A Canvas User ID to identify a user in a trusted account (alternative to `id`,\n`existing_sis_user_id`, or `existing_integration_id`). This parameter is\nnot available in OSS Canvas.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[existing_integration_id]",
+              "description": "An Integration ID to identify a user in a trusted account (alternative to `id`,\n`existing_user_id`, or `existing_sis_user_id`). This parameter is not\navailable in OSS Canvas.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[existing_sis_user_id]",
+              "description": "An SIS User ID to identify a user in a trusted account (alternative to `id`,\n`existing_integration_id`, or `existing_user_id`). This parameter is not\navailable in OSS Canvas.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[trusted_account]",
+              "description": "The domain of the account to search for the user. This field is required when\nidentifying a user in a trusted account. This parameter is not available in OSS\nCanvas.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/logins/{id}",
+      "description": "Update an existing login for a user in the given account.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Edit a user login",
+          "notes": "Update an existing login for a user in the given account.",
+          "nickname": "edit_user_login",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "login[unique_id]",
+              "description": "The new unique ID for the login.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "login[password]",
+              "description": "The new password for the login. Can only be set by an admin user if admins\nare allowed to change passwords for the account.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "login[sis_user_id]",
+              "description": "SIS ID for the login. To set this parameter, the caller must be able to\nmanage SIS permissions on the account.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "login[integration_id]",
+              "description": "Integration ID for the login. To set this parameter, the caller must be able to\nmanage SIS permissions on the account. The Integration ID is a secondary\nidentifier useful for more complex SIS integrations.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "login[authentication_provider_id]",
+              "description": "The authentication provider this login is associated with. Logins\nassociated with a specific provider can only be used with that provider.\nLegacy providers (LDAP, CAS, SAML) will search for logins associated with\nthem, or unassociated logins. New providers will only search for logins\nexplicitly associated with them. This can be the integer ID of the\nprovider, or the type of the provider (in which case, it will find the\nfirst matching provider).",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "login[workflow_state]",
+              "description": "Used to suspend or re-activate a login.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "active",
+                "suspended"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "login[declared_user_type]",
+              "description": "The declared intention of the user type. This can be set, but does\nnot change any Canvas functionality with respect to their access.\nA user can still be a teacher, admin, student, etc. in any particular\ncontext without regard to this setting. This can be used for\nadministrative purposes for integrations to be able to more easily\nidentify why the user was created.\nValid values are:\n  * administrative\n  * observer\n  * staff\n  * student\n  * student_other\n  * teacher",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "override_sis_stickiness",
+              "description": "Default is true. If false, any fields containing \u201csticky\u201d changes will not be updated.\nSee SIS CSV Format documentation for information on which fields can have SIS stickiness",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{user_id}/logins/{id}",
+      "description": "Delete an existing login.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Delete a user login",
+          "notes": "Delete an existing login.",
+          "nickname": "delete_user_login",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    }
+  ],
+  "models": {}
+}

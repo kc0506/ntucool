@@ -1,0 +1,584 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/course_pace",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/courses/{course_id}/course_pacing/{id}",
+      "description": "Returns a course pace for the course and pace id provided",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Show a Course pace",
+          "notes": "Returns a course pace for the course and pace id provided",
+          "nickname": "show_course_pace",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "The id of the course",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "course_pace_id",
+              "description": "The id of the course_pace",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "CoursePace"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/course_pacing",
+      "description": "",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Create a Course pace",
+          "notes": "",
+          "nickname": "create_course_pace",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "The id of the course",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "end_date",
+              "description": "End date of the course pace",
+              "type": "Datetime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "end_date_context",
+              "description": "End date context (course, section, hupothetical)",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "start_date",
+              "description": "Start date of the course pace",
+              "type": "Datetime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "start_date_context",
+              "description": "Start date context (course, section, hupothetical)",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "exclude_weekends",
+              "description": "Course pace dates excludes weekends if true",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "hard_end_dates",
+              "description": "Course pace uess hard end dates if true",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "workflow_state",
+              "description": "The state of the course pace",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "course_pace_module_item_attributes",
+              "description": "Module Items attributes",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "form",
+              "name": "context_id",
+              "description": "Pace Context ID",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "context_type",
+              "description": "Pace Context Type (Course, Section, User)",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "CoursePace"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/course_pacing/{id}",
+      "description": "Returns the updated course pace",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update a Course pace",
+          "notes": "Returns the updated course pace",
+          "nickname": "update_course_pace",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "The id of the course",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "course_pace_id",
+              "description": "The id of the course pace",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "end_date",
+              "description": "End date of the course pace",
+              "type": "Datetime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "exclude_weekends",
+              "description": "Course pace dates excludes weekends if true",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "hard_end_dates",
+              "description": "Course pace uess hard end dates if true",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "workflow_state",
+              "description": "The state of the course pace",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "course_pace_module_item_attributes",
+              "description": "Module Items attributes",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "CoursePace"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/course_pacing/{id}",
+      "description": "Returns the updated course pace",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Delete a Course pace",
+          "notes": "Returns the updated course pace",
+          "nickname": "delete_course_pace",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "The id of the course",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "course_pace_id",
+              "description": "The id of the course_pace",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "CoursePace"
+        }
+      ]
+    }
+  ],
+  "models": {
+    "CoursePace": {
+      "id": "CoursePace",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "the ID of the course pace",
+          "example": 5,
+          "type": "integer"
+        },
+        "course_id": {
+          "description": "the ID of the course",
+          "example": 5,
+          "type": "integer"
+        },
+        "user_id": {
+          "description": "the ID of the user for this course pace",
+          "example": 10,
+          "type": "integer"
+        },
+        "workflow_state": {
+          "description": "the state of the course pace",
+          "example": "active",
+          "type": "string"
+        },
+        "exclude_weekends": {
+          "description": "boolean value depending on exclude weekends setting",
+          "example": true,
+          "type": "boolean"
+        },
+        "hard_end_dates": {
+          "description": "set if the end date is set from course",
+          "example": true,
+          "type": "boolean"
+        },
+        "created_at": {
+          "description": "date when course pace is created",
+          "example": "2013-01-23T23:59:00-07:00",
+          "type": "datetime"
+        },
+        "end_date": {
+          "description": "course end date",
+          "example": "2013-01-23T23:59:00-07:00",
+          "type": "datetime"
+        },
+        "updated_at": {
+          "description": "date when course pace is updated",
+          "example": "2013-01-23T23:59:00-07:00",
+          "type": "datetime"
+        },
+        "published_at": {
+          "description": "date when course pace is published",
+          "example": "2013-01-23T23:59:00-07:00",
+          "type": "datetime"
+        },
+        "root_account_id": {
+          "description": "the root account ID for this course pace",
+          "example": 10,
+          "type": "integer"
+        },
+        "start_date": {
+          "description": "course start date",
+          "example": "2013-01-23T23:59:00-07:00",
+          "type": "datetime"
+        },
+        "modules": {
+          "description": "list of modules and items for this course pace",
+          "type": "array",
+          "modules": {
+            "$ref": "Module"
+          }
+        },
+        "progress": {
+          "description": "progress of pace publishing",
+          "$ref": "Progress"
+        }
+      }
+    },
+    "Module": {
+      "id": "Module",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "the ID of the module",
+          "example": 5,
+          "type": "integer"
+        },
+        "name": {
+          "description": "the name of the module",
+          "example": "Module 1",
+          "type": "string"
+        },
+        "position": {
+          "description": "the position of the module",
+          "example": 5,
+          "type": "integer"
+        },
+        "items": {
+          "description": "list of module items",
+          "type": "array",
+          "items": {
+            "$ref": "ModuleItem"
+          }
+        },
+        "context_id": {
+          "description": "the ID of the context for this course pace",
+          "example": 10,
+          "type": "integer"
+        },
+        "context_type": {
+          "description": "The given context for the course pace",
+          "enum": [
+            "Course",
+            "Section",
+            "User"
+          ],
+          "example": "Course",
+          "type": "string"
+        }
+      }
+    },
+    "ModuleItem": {
+      "id": "ModuleItem",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "the ID of the module item",
+          "example": 5,
+          "type": "integer"
+        },
+        "duration": {
+          "description": "the duration of the module item",
+          "example": 5,
+          "type": "integer"
+        },
+        "course_pace_id": {
+          "description": "the course pace id of the module item",
+          "example": 5,
+          "type": "integer"
+        },
+        "root_account_id": {
+          "description": "the root account id of the module item",
+          "example": 5,
+          "type": "integer"
+        },
+        "module_item_id": {
+          "description": "the module item id of the module item",
+          "example": 5,
+          "type": "integer"
+        },
+        "assignment_title": {
+          "description": "The title of the item assignment",
+          "example": "Assignment 9",
+          "type": "string"
+        },
+        "points_possible": {
+          "description": "The points of the item",
+          "example": 10.0,
+          "type": "number"
+        },
+        "assignment_link": {
+          "description": "The link of the item assignment",
+          "example": "/courses/105/modules/items/264",
+          "type": "string"
+        },
+        "position": {
+          "description": "the current position of the module item",
+          "example": 5,
+          "type": "integer"
+        },
+        "module_item_type": {
+          "description": "The module item type of the item assignment",
+          "example": "Assignment",
+          "type": "string"
+        },
+        "published": {
+          "description": "published boolean value for course pace",
+          "example": true,
+          "type": "boolean"
+        }
+      }
+    },
+    "Progress": {
+      "id": "Progress",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "the ID of the Progress object",
+          "example": 1,
+          "type": "integer"
+        },
+        "context_id": {
+          "description": "the context owning the job.",
+          "example": 1,
+          "type": "integer"
+        },
+        "context_type": {
+          "example": "Account",
+          "type": "string"
+        },
+        "user_id": {
+          "description": "the id of the user who started the job",
+          "example": 123,
+          "type": "integer"
+        },
+        "tag": {
+          "description": "the type of operation",
+          "example": "course_batch_update",
+          "type": "string"
+        },
+        "completion": {
+          "description": "percent completed",
+          "example": 100,
+          "type": "integer"
+        },
+        "workflow_state": {
+          "description": "the state of the job one of 'queued', 'running', 'completed', 'failed'",
+          "example": "completed",
+          "type": "string",
+          "allowableValues": {
+            "values": [
+              "queued",
+              "running",
+              "completed",
+              "failed"
+            ]
+          }
+        },
+        "created_at": {
+          "description": "the time the job was created",
+          "example": "2013-01-15T15:00:00Z",
+          "type": "datetime"
+        },
+        "updated_at": {
+          "description": "the time the job was last updated",
+          "example": "2013-01-15T15:04:00Z",
+          "type": "datetime"
+        },
+        "message": {
+          "description": "optional details about the job",
+          "example": "17 courses processed",
+          "type": "string"
+        },
+        "results": {
+          "description": "optional results of the job. omitted when job is still pending",
+          "example": {
+            "id": "123"
+          },
+          "type": "object"
+        },
+        "url": {
+          "description": "url where a progress update can be retrieved",
+          "example": "https://canvas.example.edu/api/v1/progress/1",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

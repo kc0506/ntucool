@@ -1,0 +1,347 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/e_portfolios",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/users/{user_id}/eportfolios",
+      "description": "Get a list of all ePortfolios for the specified user.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get all ePortfolios for a User",
+          "notes": "Get a list of all ePortfolios for the specified user.",
+          "nickname": "get_all_eportfolios_for_user",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "deleted:: Include deleted ePortfolios. Only available to admins who can\nmoderate_user_content.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "deleted"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "ePortfolio"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/eportfolios/{id}",
+      "description": "Get details for a single ePortfolio.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get an ePortfolio",
+          "notes": "Get details for a single ePortfolio.",
+          "nickname": "get_eportfolio",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "ePortfolio"
+        }
+      ]
+    },
+    {
+      "path": "/v1/eportfolios/{id}",
+      "description": "Mark an ePortfolio as deleted.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Delete an ePortfolio",
+          "notes": "Mark an ePortfolio as deleted.",
+          "nickname": "delete_eportfolio",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "ePortfolio"
+        }
+      ]
+    },
+    {
+      "path": "/v1/eportfolios/{eportfolio_id}/pages",
+      "description": "Get details for the pages of an ePortfolio",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get ePortfolio Pages",
+          "notes": "Get details for the pages of an ePortfolio",
+          "nickname": "get_eportfolio_pages",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "eportfolio_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "ePortfolioPage"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/eportfolios/{eportfolio_id}/moderate",
+      "description": "Update the spam_status of an eportfolio. Only available to admins who can\nmoderate_user_content.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Moderate an ePortfolio",
+          "notes": "Update the spam_status of an eportfolio. Only available to admins who can\nmoderate_user_content.",
+          "nickname": "moderate_eportfolio",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "eportfolio_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "spam_status",
+              "description": "The spam status for the ePortfolio",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "marked_as_spam",
+                "marked_as_safe"
+              ]
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "ePortfolio"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{user_id}/eportfolios",
+      "description": "Update the spam_status for all active eportfolios of a user. Only available to\nadmins who can moderate_user_content.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Moderate all ePortfolios for a User",
+          "notes": "Update the spam_status for all active eportfolios of a user. Only available to\nadmins who can moderate_user_content.",
+          "nickname": "moderate_all_eportfolios_for_user",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "spam_status",
+              "description": "The spam status for all the ePortfolios",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "marked_as_spam",
+                "marked_as_safe"
+              ]
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/eportfolios/{eportfolio_id}/restore",
+      "description": "Restore an ePortfolio back to active that was previously deleted. Only\navailable to admins who can moderate_user_content.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Restore a deleted ePortfolio",
+          "notes": "Restore an ePortfolio back to active that was previously deleted. Only\navailable to admins who can moderate_user_content.",
+          "nickname": "restore_deleted_eportfolio",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "eportfolio_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "ePortfolio"
+        }
+      ]
+    }
+  ],
+  "models": {
+    "ePortfolio": {
+      "id": "ePortfolio",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "The database ID of the ePortfolio",
+          "example": 1,
+          "type": "integer"
+        },
+        "user_id": {
+          "description": "The user ID to which the ePortfolio belongs",
+          "example": 1,
+          "type": "integer"
+        },
+        "name": {
+          "description": "The name of the ePortfolio",
+          "example": "My Academic Journey",
+          "type": "string"
+        },
+        "public": {
+          "description": "Whether or not the ePortfolio is visible without authentication",
+          "example": true,
+          "type": "boolean"
+        },
+        "created_at": {
+          "description": "The creation timestamp for the ePortfolio",
+          "example": "2021-09-20T18:59:37Z",
+          "type": "datetime"
+        },
+        "updated_at": {
+          "description": "The timestamp of the last time any of the ePortfolio attributes changed",
+          "example": "2021-09-20T18:59:37Z",
+          "type": "datetime"
+        },
+        "workflow_state": {
+          "description": "The state of the ePortfolio. Either 'active' or 'deleted'",
+          "example": "active",
+          "type": "string"
+        },
+        "deleted_at": {
+          "description": "The timestamp when the ePortfolio was deleted, or else null",
+          "example": "2021-09-20T18:59:37Z",
+          "type": "datetime"
+        },
+        "spam_status": {
+          "description": "A flag indicating whether the ePortfolio has been\n      flagged or moderated as spam. One of 'flagged_as_possible_spam',\n      'marked_as_safe', 'marked_as_spam', or null",
+          "example": null,
+          "type": "string"
+        }
+      }
+    },
+    "ePortfolioPage": {
+      "id": "ePortfolioPage",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "The database ID of the ePortfolio",
+          "example": 1,
+          "type": "integer"
+        },
+        "eportfolio_id": {
+          "description": "The ePortfolio ID to which the entry belongs",
+          "example": 1,
+          "type": "integer"
+        },
+        "position": {
+          "description": "The positional order of the entry in the list",
+          "example": 1,
+          "type": "integer"
+        },
+        "name": {
+          "description": "The name of the ePortfolio",
+          "example": "My Academic Journey",
+          "type": "string"
+        },
+        "content": {
+          "description": "The user entered content of the entry",
+          "example": "A long time ago...",
+          "type": "string"
+        },
+        "created_at": {
+          "description": "The creation timestamp for the ePortfolio",
+          "example": "2021-09-20T18:59:37Z",
+          "type": "datetime"
+        },
+        "updated_at": {
+          "description": "The timestamp of the last time any of the ePortfolio attributes changed",
+          "example": "2021-09-20T18:59:37Z",
+          "type": "datetime"
+        }
+      }
+    }
+  }
+}

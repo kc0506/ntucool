@@ -1,0 +1,582 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/blackout_dates",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/courses/{course_id}/blackout_dates",
+      "description": "Returns the list of blackout dates for the current context.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List blackout dates",
+          "notes": "Returns the list of blackout dates for the current context.",
+          "nickname": "list_blackout_dates_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "BlackoutDate"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/blackout_dates",
+      "description": "Returns the list of blackout dates for the current context.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List blackout dates",
+          "notes": "Returns the list of blackout dates for the current context.",
+          "nickname": "list_blackout_dates_accounts",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "BlackoutDate"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/blackout_dates/{id}",
+      "description": "Returns the blackout date with the given id.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get a single blackout date",
+          "notes": "Returns the blackout date with the given id.",
+          "nickname": "get_single_blackout_date_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "BlackoutDate"
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/blackout_dates/{id}",
+      "description": "Returns the blackout date with the given id.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get a single blackout date",
+          "notes": "Returns the blackout date with the given id.",
+          "nickname": "get_single_blackout_date_accounts",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "BlackoutDate"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/blackout_dates/new",
+      "description": "Initialize an unsaved Blackout Date for the given context.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "New Blackout Date",
+          "notes": "Initialize an unsaved Blackout Date for the given context.",
+          "nickname": "new_blackout_date_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "BlackoutDate"
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/blackout_dates/new",
+      "description": "Initialize an unsaved Blackout Date for the given context.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "New Blackout Date",
+          "notes": "Initialize an unsaved Blackout Date for the given context.",
+          "nickname": "new_blackout_date_accounts",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "BlackoutDate"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/blackout_dates",
+      "description": "Create a blackout date for the given context.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Create Blackout Date",
+          "notes": "Create a blackout date for the given context.",
+          "nickname": "create_blackout_date_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "start_date",
+              "description": "The start date of the blackout date.",
+              "type": "Date",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "end_date",
+              "description": "The end date of the blackout date.",
+              "type": "Date",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "event_title",
+              "description": "The title of the blackout date.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "BlackoutDate"
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/blackout_dates",
+      "description": "Create a blackout date for the given context.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Create Blackout Date",
+          "notes": "Create a blackout date for the given context.",
+          "nickname": "create_blackout_date_accounts",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "start_date",
+              "description": "The start date of the blackout date.",
+              "type": "Date",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "end_date",
+              "description": "The end date of the blackout date.",
+              "type": "Date",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "event_title",
+              "description": "The title of the blackout date.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "BlackoutDate"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/blackout_dates/{id}",
+      "description": "Update a blackout date for the given context.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update Blackout Date",
+          "notes": "Update a blackout date for the given context.",
+          "nickname": "update_blackout_date_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "start_date",
+              "description": "The start date of the blackout date.",
+              "type": "Date",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "end_date",
+              "description": "The end date of the blackout date.",
+              "type": "Date",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "event_title",
+              "description": "The title of the blackout date.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "BlackoutDate"
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/blackout_dates/{id}",
+      "description": "Update a blackout date for the given context.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update Blackout Date",
+          "notes": "Update a blackout date for the given context.",
+          "nickname": "update_blackout_date_accounts",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "start_date",
+              "description": "The start date of the blackout date.",
+              "type": "Date",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "end_date",
+              "description": "The end date of the blackout date.",
+              "type": "Date",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "event_title",
+              "description": "The title of the blackout date.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "BlackoutDate"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/blackout_dates/{id}",
+      "description": "Delete a blackout date for the given context.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Delete Blackout Date",
+          "notes": "Delete a blackout date for the given context.",
+          "nickname": "delete_blackout_date_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "BlackoutDate"
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/blackout_dates/{id}",
+      "description": "Delete a blackout date for the given context.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Delete Blackout Date",
+          "notes": "Delete a blackout date for the given context.",
+          "nickname": "delete_blackout_date_accounts",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "BlackoutDate"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/blackout_dates",
+      "description": "Create, update, and delete blackout dates to sync the db with the incoming data.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update a list of Blackout Dates",
+          "notes": "Create, update, and delete blackout dates to sync the db with the incoming data.",
+          "nickname": "update_list_of_blackout_dates",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "blackout_dates:",
+              "description": "[blackout_date, ...]\nAn object containing the array of BlackoutDates we want to exist after this operation.\nFor array entries, if it has an id it will be updated, if not created, and if\nan existing BlackoutDate id is missing from the array, it will be deleted.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "BlackoutDate The result (which should match the input with maybe some different IDs)."
+          }
+        }
+      ]
+    }
+  ],
+  "models": {
+    "BlackoutDate": {
+      "id": "BlackoutDate",
+      "description": "Blackout dates are used to prevent scheduling assignments on a given date in course pacing.",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "the ID of the blackout date",
+          "example": 1,
+          "type": "integer"
+        },
+        "context_id": {
+          "description": "the context owning the blackout date",
+          "example": 1,
+          "type": "integer"
+        },
+        "context_type": {
+          "example": "Course",
+          "type": "string"
+        },
+        "start_date": {
+          "description": "the start date of the blackout date",
+          "example": "2022-01-01",
+          "type": "datetime"
+        },
+        "end_date": {
+          "description": "the end date of the blackout date",
+          "example": "2022-01-02",
+          "type": "datetime"
+        },
+        "event_title": {
+          "description": "title of the blackout date",
+          "example": "some title",
+          "type": "string"
+        }
+      }
+    }
+  }
+}
