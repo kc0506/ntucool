@@ -20,7 +20,7 @@ use cool_api::generated::params::ListAssignmentsAssignmentsParams;
 
 use super::fuzzy_select::FuzzySelect;
 use super::theme;
-use crate::commands::assignment::html_to_text;
+use cool_tools::text::html_to_text;
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -250,7 +250,7 @@ pub async fn run_browser(client: &cool_api::CoolClient) -> Result<()> {
     let (mut terminal, _guard) = super::setup_terminal()?;
 
     loop {
-        let courses = crate::commands::course::fetch_courses_cached_pub(client).await?;
+        let courses = cool_tools::courses::list_active(client).await?;
         if courses.is_empty() {
             anyhow::bail!("No courses found.");
         }

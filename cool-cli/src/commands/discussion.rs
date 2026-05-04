@@ -1,12 +1,8 @@
 use anyhow::Result;
 use clap::{Parser, Subcommand};
 use comfy_table::{presets::UTF8_FULL_CONDENSED, Table};
-use futures::StreamExt;
 
 use crate::output::OutputFormat;
-use cool_api::generated::endpoints;
-use cool_api::generated::models::DiscussionTopic;
-use cool_api::generated::params::ListDiscussionTopicsCoursesParams;
 
 #[derive(Subcommand)]
 pub enum DiscussionCommand {
@@ -49,23 +45,7 @@ async fn list(
 ) -> Result<()> {
     let course_id = super::course::resolve_course(client, &args.course).await?;
     let cid = course_id.to_string();
-
-    let params = ListDiscussionTopicsCoursesParams {
-        include: None,
-        order_by: None,
-        scope: None,
-        only_announcements: None,
-        filter_by: None,
-        search_term: None,
-        exclude_context_module_locked_topics: None,
-    };
-
-    let mut topics: Vec<DiscussionTopic> = Vec::new();
-    let mut stream =
-        std::pin::pin!(endpoints::list_discussion_topics_courses(client, &cid, &params));
-    while let Some(item) = stream.next().await {
-        topics.push(item?);
-    }
+    let topics = cool_tools::discussions::list(client, &cid).await?;
 
     match fmt {
         OutputFormat::Json => {
@@ -102,16 +82,8 @@ async fn show(
     fmt: OutputFormat,
 ) -> Result<()> {
     let course_id = super::course::resolve_course(client, &args.course).await?;
-
-    let topic: DiscussionTopic = client
-        .get(
-            &format!(
-                "/api/v1/courses/{}/discussion_topics/{}",
-                course_id, args.id
-            ),
-            None::<&()>,
-        )
-        .await?;
+    let cid = course_id.to_string();
+    let topic = cool_tools::discussions::show(client, &cid, &args.id).await?;
 
     match fmt {
         OutputFormat::Json => {
@@ -145,7 +117,7 @@ async fn show(
                     .unwrap_or_else(|| "0".to_string())
             );
             if let Some(ref msg) = topic.message {
-                let text = super::assignment::html_to_text(msg);
+                let text = cool_tools::text::html_to_text(msg);
                 if !text.trim().is_empty() {
                     println!("\n{}", text.trim());
                 }

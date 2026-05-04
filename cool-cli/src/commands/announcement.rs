@@ -3,7 +3,6 @@ use clap::{Parser, Subcommand};
 use comfy_table::{presets::UTF8_FULL_CONDENSED, Table};
 
 use crate::output::OutputFormat;
-use cool_api::generated::models::DiscussionTopic;
 
 #[derive(Subcommand)]
 pub enum AnnouncementCommand {
@@ -45,25 +44,7 @@ async fn list(
     fmt: OutputFormat,
 ) -> Result<()> {
     let course_id = super::course::resolve_course(client, &args.course).await?;
-
-    // Manual pagination: ListAnnouncementsParams has context_codes: Vec<String>
-    // which serde_urlencoded cannot serialize. Use tuple query params instead.
-    let context_code = format!("course_{}", course_id);
-    let query = [("context_codes[]", context_code.as_str()), ("per_page", "50")];
-
-    let mut announcements: Vec<DiscussionTopic> = Vec::new();
-    let mut next_url: Option<String> = None;
-
-    loop {
-        let path = next_url.as_deref().unwrap_or("/api/v1/announcements");
-        let page: cool_api::client::PaginatedResponse<DiscussionTopic> =
-            client.get_paginated(path, Some(&query)).await?;
-        announcements.extend(page.items);
-        match page.next_url {
-            Some(url) => next_url = Some(url),
-            None => break,
-        }
-    }
+    let announcements = cool_tools::announcements::list(client, course_id).await?;
 
     match fmt {
         OutputFormat::Json => {
@@ -97,16 +78,7 @@ async fn show(
     fmt: OutputFormat,
 ) -> Result<()> {
     let course_id = super::course::resolve_course(client, &args.course).await?;
-
-    let topic: DiscussionTopic = client
-        .get(
-            &format!(
-                "/api/v1/courses/{}/discussion_topics/{}",
-                course_id, args.id
-            ),
-            None::<&()>,
-        )
-        .await?;
+    let topic = cool_tools::announcements::show(client, course_id, &args.id).await?;
 
     match fmt {
         OutputFormat::Json => {
@@ -133,7 +105,7 @@ async fn show(
                     .unwrap_or_else(|| "-".to_string())
             );
             if let Some(ref msg) = topic.message {
-                let text = super::assignment::html_to_text(msg);
+                let text = cool_tools::text::html_to_text(msg);
                 if !text.trim().is_empty() {
                     println!("\n{}", text.trim());
                 }

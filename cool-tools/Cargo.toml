@@ -1,0 +1,17 @@
+[package]
+name = "cool-tools"
+version = "0.1.0"
+edition = "2021"
+description = "Reusable NTU COOL tool surface (used by both CLI and MCP frontends)"
+
+[dependencies]
+cool-api = { path = "../cool-api" }
+anyhow = "1"
+thiserror = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+futures = "0.3"
+chrono = { version = "0.4", features = ["serde"] }
+scraper = "0.21"
+ego-tree = "0.9"

@@ -4,7 +4,7 @@ use crate::output::OutputFormat;
 
 pub async fn run(opts: &super::GlobalOpts) -> Result<()> {
     let client = super::get_client()?;
-    let profile = cool_api::generated::endpoints::get_user_profile(&client, "self").await?;
+    let profile = cool_tools::profile::whoami(&client).await?;
 
     let fmt = OutputFormat::from_flag(opts.json);
 

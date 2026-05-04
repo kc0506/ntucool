@@ -6,43 +6,10 @@ use clap::{Parser, Subcommand};
 use comfy_table::{presets::UTF8_FULL_CONDENSED, Table};
 use futures::stream::{self, StreamExt};
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
-use serde::{Deserialize, Serialize};
 
-use cool_api::generated::endpoints;
-use cool_api::generated::models::File as CoolFile;
-use cool_api::generated::params::GetFileCoursesParams;
+use cool_tools::modules::CanvasModule;
 
 use crate::output::OutputFormat;
-
-// Custom structs instead of generated models because the generated `ModuleItem`
-// is modeled after the CoursePace API context (fields: `module_item_type`,
-// `assignment_title`, `assignment_link`), not the standard Canvas module items
-// returned by `GET /courses/:id/modules?include[]=items` which uses `title`,
-// `type`, `html_url`. Deserializing the standard response into the generated
-// struct would silently drop all useful fields.
-
-/// Module with items as returned by Canvas API with include=items.
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct CanvasModule {
-    pub id: Option<i64>,
-    pub name: Option<String>,
-    pub position: Option<i64>,
-    #[serde(default)]
-    pub items: Option<Vec<CanvasModuleItem>>,
-}
-
-/// Module item as returned by Canvas API (inside module.items).
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct CanvasModuleItem {
-    pub id: Option<i64>,
-    pub title: Option<String>,
-    #[serde(rename = "type")]
-    pub item_type: Option<String>,
-    pub html_url: Option<String>,
-    pub position: Option<i64>,
-    pub indent: Option<i64>,
-    pub content_id: Option<i64>,
-}
 
 #[derive(Subcommand)]
 pub enum ModuleCommand {
@@ -97,42 +64,13 @@ pub async fn run(cmd: ModuleCommand, opts: &super::GlobalOpts) -> Result<()> {
     }
 }
 
-async fn fetch_modules_paginated(
-    client: &cool_api::CoolClient,
-    course_id: i64,
-    include: &[&str],
-) -> Result<Vec<CanvasModule>> {
-    let include_str = include.join(",");
-    let query = [("include[]", include_str.as_str()), ("per_page", "50")];
-
-    let mut all_modules: Vec<CanvasModule> = Vec::new();
-    let mut next_url: Option<String> = None;
-
-    loop {
-        let path = next_url.unwrap_or_else(|| {
-            format!("/api/v1/courses/{}/modules", course_id)
-        });
-
-        let page: cool_api::client::PaginatedResponse<CanvasModule> =
-            client.get_paginated(&path, Some(&query)).await?;
-        all_modules.extend(page.items);
-
-        match page.next_url {
-            Some(url) => next_url = Some(url),
-            None => break,
-        }
-    }
-
-    Ok(all_modules)
-}
-
 async fn list(
     client: &cool_api::CoolClient,
     args: &ModuleListArgs,
     fmt: OutputFormat,
 ) -> Result<()> {
     let course_id = super::course::resolve_course(client, &args.course).await?;
-    let modules = fetch_modules_paginated(client, course_id, &["items"]).await?;
+    let modules = cool_tools::modules::list_with_items(client, course_id, &["items"]).await?;
 
     match fmt {
         OutputFormat::Json => {
@@ -146,11 +84,7 @@ async fn list(
                 match &m.items {
                     Some(items) if !items.is_empty() => {
                         for item in items {
-                            let type_icon = match item
-                                .item_type
-                                .as_deref()
-                                .unwrap_or("")
-                            {
+                            let type_icon = match item.item_type.as_deref().unwrap_or("") {
                                 "File" => "📁",
                                 "Page" => "📄",
                                 "Assignment" => "📝",
@@ -160,10 +94,8 @@ async fn list(
                                 "SubHeader" => "──",
                                 _ => "  ",
                             };
-                            let title =
-                                item.title.as_deref().unwrap_or("(untitled)");
-                            let itype =
-                                item.item_type.as_deref().unwrap_or("Unknown");
+                            let title = item.title.as_deref().unwrap_or("(untitled)");
+                            let itype = item.item_type.as_deref().unwrap_or("Unknown");
                             println!("  {} {}: {}", type_icon, itype, title);
                         }
                     }
@@ -185,27 +117,14 @@ async fn show(
     fmt: OutputFormat,
 ) -> Result<()> {
     let course_id = super::course::resolve_course(client, &args.course).await?;
-
-    let query = [
-        ("include[]", "items"),
-        ("include[]", "content_details"),
-    ];
-    let module: CanvasModule = client
-        .get(
-            &format!("/api/v1/courses/{}/modules/{}", course_id, args.id),
-            Some(&query),
-        )
-        .await?;
+    let module = cool_tools::modules::show_with_items(client, course_id, &args.id).await?;
 
     match fmt {
         OutputFormat::Json => {
             println!("{}", serde_json::to_string_pretty(&module)?);
         }
         OutputFormat::Table => {
-            println!(
-                "Module: {}",
-                module.name.as_deref().unwrap_or("(unnamed)")
-            );
+            println!("Module: {}", module.name.as_deref().unwrap_or("(unnamed)"));
             println!(
                 "ID:     {}",
                 module.id.map(|id| id.to_string()).unwrap_or_default()
@@ -293,7 +212,8 @@ async fn download(
 
     let concurrency = args.concurrency.max(1);
 
-    let modules = fetch_modules_paginated(client, course_id, &["items"]).await?;
+    let modules: Vec<CanvasModule> =
+        cool_tools::modules::list_with_items(client, course_id, &["items"]).await?;
     if modules.is_empty() {
         eprintln!("No modules found for course {cid}.");
         return Ok(());
@@ -330,8 +250,7 @@ async fn download(
             .iter()
             .filter(|i| i.item_type.as_deref() == Some("File"))
             .filter_map(|i| {
-                let title =
-                    i.title.clone().unwrap_or_else(|| "(untitled)".to_string());
+                let title = i.title.clone().unwrap_or_else(|| "(untitled)".to_string());
                 i.content_id.map(|cid| (cid, title))
             })
             .collect();
@@ -452,12 +371,10 @@ async fn run_job(
 ) -> JobOutcome {
     job.bar.set_message(job.item_title.clone());
 
-    let params = GetFileCoursesParams::default();
-    let file: CoolFile = match endpoints::get_file_courses(
+    let file = match cool_tools::files::get_metadata(
         client,
         course_id,
         &job.content_id.to_string(),
-        &params,
     )
     .await
     {
@@ -485,8 +402,7 @@ async fn run_job(
         return JobOutcome::Skipped;
     }
 
-    let dest_str = dest.to_string_lossy().to_string();
-    match cool_api::download::download_file(client, &file, &dest_str).await {
+    match cool_tools::files::download(client, &file, &dest).await {
         Ok(_) => {
             job.bar.inc(1);
             overall.inc(1);
