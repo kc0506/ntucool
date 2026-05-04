@@ -13,6 +13,18 @@ pub async fn download_file(
     file: &File,
     dest: &str,
 ) -> Result<u64, Error> {
+    download_file_with_progress(client, file, dest, |_| {}).await
+}
+
+/// Download a file from Canvas, calling `on_chunk` with the byte count of
+/// each streamed chunk as it is written to disk. Useful for driving a
+/// progress bar without coupling cool-api to any UI library.
+pub async fn download_file_with_progress(
+    client: &CoolClient,
+    file: &File,
+    dest: &str,
+    mut on_chunk: impl FnMut(u64),
+) -> Result<u64, Error> {
     let url = file
         .url
         .as_ref()
@@ -61,7 +73,9 @@ pub async fn download_file(
             .write_all(&chunk)
             .await
             .map_err(|e| Error::Io(format!("Write file failed: {e}")))?;
-        written += chunk.len() as u64;
+        let n = chunk.len() as u64;
+        written += n;
+        on_chunk(n);
     }
 
     file_out
