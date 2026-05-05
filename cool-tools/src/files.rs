@@ -12,6 +12,11 @@ use cool_api::generated::params::{
 };
 use cool_api::CoolClient;
 
+use crate::types::{
+    DownloadResult, FileMetadata as ContractFileMetadata, FileSummary, FolderListing as ContractFolderListing,
+    FolderSummary,
+};
+
 /// Combined contents of a folder: subfolders + files.
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct FolderListing {
@@ -209,6 +214,137 @@ pub async fn resolve_in_course(
             f.display_name.as_deref() == Some(target) || f.filename.as_deref() == Some(target)
         })
         .ok_or_else(|| anyhow::anyhow!("File not found: {target}"))
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Contract-shape adapters
+// ────────────────────────────────────────────────────────────────────────────
+
+fn file_to_summary(f: &File) -> Option<FileSummary> {
+    Some(FileSummary {
+        id: f.id?,
+        display_name: f
+            .display_name
+            .clone()
+            .or_else(|| f.filename.clone())
+            .unwrap_or_default(),
+        size_bytes: f.size.unwrap_or(0),
+        mime_type: f.content_type.clone(),
+        updated_at: f.updated_at.map(|t| t.to_rfc3339()),
+    })
+}
+
+fn folder_to_summary(f: &Folder) -> Option<FolderSummary> {
+    Some(FolderSummary {
+        id: f.id?,
+        name: f.name.clone().unwrap_or_default(),
+        files_count: f.files_count,
+    })
+}
+
+pub async fn list_in_course_summary(
+    client: &CoolClient,
+    course_id: i64,
+    path: Option<&str>,
+) -> Result<ContractFolderListing> {
+    let course_id_str = course_id.to_string();
+    let listing = list_in_course(client, &course_id_str, path).await?;
+    Ok(ContractFolderListing {
+        course_id,
+        path: path.unwrap_or("/").to_string(),
+        folders: listing.folders.iter().filter_map(folder_to_summary).collect(),
+        files: listing.files.iter().filter_map(file_to_summary).collect(),
+    })
+}
+
+/// Filename search via Canvas `search_term`. When `course_id` is `Some`,
+/// scoped to that course (`/courses/:id/files`); when `None`, falls back to
+/// `/users/self/files` which spans every course the user can access.
+/// Same 3-byte minimum either way.
+pub async fn search_summaries(
+    client: &CoolClient,
+    course_id: Option<i64>,
+    query: &str,
+) -> Result<Vec<FileSummary>> {
+    if query.as_bytes().len() < 3 {
+        anyhow::bail!("search query too short (Canvas requires at least 3 bytes)");
+    }
+    let raw_files: Vec<File> = match course_id {
+        Some(cid) => search(client, &cid.to_string(), query).await?,
+        None => search_user_files(client, query).await?,
+    };
+    Ok(raw_files.iter().filter_map(file_to_summary).collect())
+}
+
+async fn search_user_files(client: &CoolClient, query: &str) -> Result<Vec<File>> {
+    use cool_api::client::PaginatedResponse;
+
+    let query_pairs: [(&str, &str); 2] = [("search_term", query), ("per_page", "50")];
+    let mut all: Vec<File> = Vec::new();
+    let mut next_url: Option<String> = None;
+
+    loop {
+        let path = next_url.as_deref().unwrap_or("/api/v1/users/self/files");
+        let page: PaginatedResponse<File> =
+            client.get_paginated(path, Some(&query_pairs)).await?;
+        all.extend(page.items);
+        match page.next_url {
+            Some(u) => next_url = Some(u),
+            None => break,
+        }
+    }
+    Ok(all)
+}
+
+/// Get a single file's metadata via the GLOBAL `/api/v1/files/:id` endpoint
+/// (no course scope needed — Canvas resolves the file from the auth context).
+pub async fn get_metadata_global(
+    client: &CoolClient,
+    file_id: i64,
+) -> Result<ContractFileMetadata> {
+    let f: File = client
+        .get(&format!("/api/v1/files/{}", file_id), None::<&()>)
+        .await?;
+    Ok(ContractFileMetadata {
+        id: f.id.unwrap_or(file_id),
+        display_name: f
+            .display_name
+            .clone()
+            .or_else(|| f.filename.clone())
+            .unwrap_or_default(),
+        size_bytes: f.size.unwrap_or(0),
+        mime_type: f.content_type.clone(),
+        updated_at: f.updated_at.map(|t| t.to_rfc3339()),
+        url: f.url.clone(),
+        folder_id: f.folder_id,
+    })
+}
+
+/// Download a file by global ID. `dest = None` writes to `display_name` in
+/// the cool-mcp / cool-cli process's cwd.
+pub async fn download_global(
+    client: &CoolClient,
+    file_id: i64,
+    dest: Option<&Path>,
+) -> Result<DownloadResult> {
+    let file: File = client
+        .get(&format!("/api/v1/files/{}", file_id), None::<&()>)
+        .await?;
+    let dest_buf = match dest {
+        Some(p) => p.to_path_buf(),
+        None => std::path::PathBuf::from(
+            file.display_name
+                .clone()
+                .or_else(|| file.filename.clone())
+                .unwrap_or_else(|| "download".to_string()),
+        ),
+    };
+    let bytes = download(client, &file, &dest_buf).await?;
+    Ok(DownloadResult {
+        file_id,
+        dest_path: dest_buf.to_string_lossy().to_string(),
+        bytes_written: bytes,
+    })
 }
 
 /// Two-step upload: notify Canvas, then PUT the bytes.

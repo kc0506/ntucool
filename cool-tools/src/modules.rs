@@ -8,6 +8,8 @@ use serde::{Deserialize, Serialize};
 use cool_api::client::PaginatedResponse;
 use cool_api::CoolClient;
 
+use crate::types::{ModuleDetail, ModuleItem as ContractModuleItem, ModuleSummary};
+
 /// Module with items as returned by `GET /courses/:id/modules?include[]=items`.
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct CanvasModule {
@@ -77,4 +79,79 @@ pub async fn show_with_items(
         )
         .await?;
     Ok(module)
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Contract-shape adapters
+// ────────────────────────────────────────────────────────────────────────────
+
+/// List modules (without items) for a course. Paginated, items not included.
+pub async fn list_summaries(
+    client: &CoolClient,
+    course_id: i64,
+) -> Result<Vec<ModuleSummary>> {
+    let query = [("per_page", "50")];
+
+    let mut all: Vec<ModuleSummary> = Vec::new();
+    let mut next_url: Option<String> = None;
+
+    loop {
+        let path = next_url.unwrap_or_else(|| format!("/api/v1/courses/{}/modules", course_id));
+        let page: PaginatedResponse<serde_json::Value> =
+            client.get_paginated(&path, Some(&query)).await?;
+        for raw in page.items {
+            let Some(id) = raw.get("id").and_then(|v| v.as_i64()) else {
+                continue;
+            };
+            all.push(ModuleSummary {
+                id,
+                course_id,
+                name: raw
+                    .get("name")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or_default()
+                    .to_string(),
+                position: raw.get("position").and_then(|v| v.as_i64()),
+                items_count: raw.get("items_count").and_then(|v| v.as_i64()),
+            });
+        }
+        match page.next_url {
+            Some(url) => next_url = Some(url),
+            None => break,
+        }
+    }
+    Ok(all)
+}
+
+fn item_to_contract(i: &CanvasModuleItem) -> Option<ContractModuleItem> {
+    Some(ContractModuleItem {
+        id: i.id?,
+        title: i.title.clone().unwrap_or_default(),
+        item_type: i.item_type.clone().unwrap_or_default(),
+        content_id: i.content_id,
+        url: i.html_url.clone(),
+        position: i.position,
+        indent: i.indent,
+    })
+}
+
+pub async fn show_detail(
+    client: &CoolClient,
+    course_id: i64,
+    module_id: i64,
+) -> Result<ModuleDetail> {
+    let module_id_str = module_id.to_string();
+    let m = show_with_items(client, course_id, &module_id_str).await?;
+    Ok(ModuleDetail {
+        id: m.id.unwrap_or(module_id),
+        course_id,
+        name: m.name.unwrap_or_default(),
+        position: m.position,
+        items: m
+            .items
+            .unwrap_or_default()
+            .iter()
+            .filter_map(item_to_contract)
+            .collect(),
+    })
 }

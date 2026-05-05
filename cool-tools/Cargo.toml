@@ -15,3 +15,4 @@ futures = "0.3"
 chrono = { version = "0.4", features = ["serde"] }
 scraper = "0.21"
 ego-tree = "0.9"
+schemars = "1"

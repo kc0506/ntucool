@@ -361,6 +361,7 @@ dependencies = [
  "cool-api",
  "ego-tree",
  "futures",
+ "schemars",
  "scraper",
  "serde",
  "serde_json",

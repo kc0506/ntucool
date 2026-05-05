@@ -10,6 +10,12 @@ pub use cool_api::generated::models::Assignment;
 use cool_api::generated::params::{ListAssignmentsAssignmentsParams, SubmitAssignmentCoursesParams};
 use cool_api::CoolClient;
 
+use crate::attachments;
+use crate::text;
+use crate::types::{
+    AssignmentDetail as ContractAssignmentDetail, AssignmentSummary, RubricCriterion as ContractRubricCriterion,
+};
+
 /// Optional filters for `list`. All `None` = unfiltered.
 #[derive(Debug, Default, Clone)]
 pub struct ListFilter {
@@ -57,6 +63,84 @@ pub async fn show(
         )
         .await?;
     Ok(assignment)
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Contract-shape adapters
+// ────────────────────────────────────────────────────────────────────────────
+
+fn assignment_to_summary(a: &Assignment, bucket: Option<&str>) -> Option<AssignmentSummary> {
+    Some(AssignmentSummary {
+        id: a.id?,
+        course_id: a.course_id.unwrap_or(0),
+        name: a.name.clone().unwrap_or_default(),
+        due_at: a.due_at.map(|t| t.to_rfc3339()),
+        points_possible: a.points_possible,
+        bucket: bucket.map(str::to_string),
+        html_url: a.html_url.clone(),
+    })
+}
+
+pub async fn list_summaries(
+    client: &CoolClient,
+    course_id: i64,
+    bucket: Option<&str>,
+) -> Result<Vec<AssignmentSummary>> {
+    let course_id_str = course_id.to_string();
+    let raw = list(
+        client,
+        &course_id_str,
+        ListFilter {
+            bucket: bucket.map(str::to_string),
+            search_term: None,
+            include: None,
+        },
+    )
+    .await?;
+    Ok(raw
+        .iter()
+        .filter_map(|a| assignment_to_summary(a, bucket))
+        .collect())
+}
+
+pub async fn get_detail(
+    client: &CoolClient,
+    course_id: i64,
+    assignment_id: i64,
+) -> Result<ContractAssignmentDetail> {
+    let course_id_str = course_id.to_string();
+    let assignment_id_str = assignment_id.to_string();
+    let a = show(client, &course_id_str, &assignment_id_str).await?;
+
+    let rubric = a
+        .rubric
+        .unwrap_or_default()
+        .into_iter()
+        .map(|c| ContractRubricCriterion {
+            description: c.description.unwrap_or_default(),
+            points: c.points.unwrap_or(0) as f64,
+            long_description: c.long_description,
+        })
+        .collect();
+
+    let attachments = a
+        .description
+        .as_deref()
+        .map(attachments::extract_attachments)
+        .unwrap_or_default();
+
+    Ok(ContractAssignmentDetail {
+        id: a.id.unwrap_or(assignment_id),
+        course_id: a.course_id.unwrap_or(course_id),
+        name: a.name.unwrap_or_default(),
+        description_text: a.description.as_deref().map(text::html_to_text),
+        due_at: a.due_at.map(|t| t.to_rfc3339()),
+        points_possible: a.points_possible,
+        submission_types: a.submission_types.unwrap_or_default(),
+        html_url: a.html_url,
+        rubric,
+        attachments,
+    })
 }
 
 /// Submit a single file as an `online_upload` submission.

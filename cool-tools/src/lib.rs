@@ -6,11 +6,14 @@
 
 pub mod announcements;
 pub mod assignments;
+pub mod attachments;
 pub mod courses;
 pub mod discussions;
 pub mod files;
 pub mod modules;
+pub mod pages;
 pub mod profile;
 pub mod text;
+pub mod types;
 
 pub use cool_api::CoolClient;

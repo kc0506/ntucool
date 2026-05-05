@@ -8,6 +8,9 @@ use cool_api::client::PaginatedResponse;
 pub use cool_api::generated::models::DiscussionTopic;
 use cool_api::CoolClient;
 
+use crate::text;
+use crate::types::{AnnouncementDetail, AnnouncementSummary};
+
 /// List announcements for one course (most recent first, per Canvas default).
 ///
 /// Manual pagination with tuple query params: `ListAnnouncementsParams` has
@@ -50,4 +53,64 @@ pub async fn show(
         )
         .await?;
     Ok(topic)
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Contract-shape adapters
+// ────────────────────────────────────────────────────────────────────────────
+
+fn topic_to_summary(t: &DiscussionTopic, course_id: i64) -> Option<AnnouncementSummary> {
+    Some(AnnouncementSummary {
+        id: t.id?,
+        course_id,
+        title: t.title.clone().unwrap_or_default(),
+        posted_at: t.posted_at.map(|t| t.to_rfc3339()),
+        html_url: t.html_url.clone(),
+    })
+}
+
+/// List announcements across one or more courses, optionally newer than `since`.
+/// Empty `course_ids` returns an empty Vec — Canvas's `/announcements` endpoint
+/// requires at least one `context_codes[]` argument.
+pub async fn list_summaries(
+    client: &CoolClient,
+    course_ids: &[i64],
+    since: Option<&str>,
+) -> Result<Vec<AnnouncementSummary>> {
+    let mut out: Vec<AnnouncementSummary> = Vec::new();
+    for &cid in course_ids {
+        let topics = list(client, cid).await?;
+        for t in &topics {
+            if let Some(threshold) = since {
+                if let Some(posted) = t.posted_at {
+                    if posted.to_rfc3339().as_str() < threshold {
+                        continue;
+                    }
+                } else {
+                    continue;
+                }
+            }
+            if let Some(s) = topic_to_summary(t, cid) {
+                out.push(s);
+            }
+        }
+    }
+    Ok(out)
+}
+
+pub async fn show_detail(
+    client: &CoolClient,
+    course_id: i64,
+    topic_id: i64,
+) -> Result<AnnouncementDetail> {
+    let topic_id_str = topic_id.to_string();
+    let t = show(client, course_id, &topic_id_str).await?;
+    Ok(AnnouncementDetail {
+        id: t.id.unwrap_or(topic_id),
+        course_id,
+        title: t.title.unwrap_or_default(),
+        body_text: t.message.as_deref().map(text::html_to_text).unwrap_or_default(),
+        posted_at: t.posted_at.map(|t| t.to_rfc3339()),
+        html_url: t.html_url,
+    })
 }
