@@ -9,7 +9,7 @@ use std::sync::Arc;
 use anyhow::Result;
 use rmcp::{
     handler::server::{router::tool::ToolRouter, wrapper::Parameters},
-    model::{CallToolResult, Content},
+    model::{CallToolResult, Content, ServerCapabilities, ServerInfo},
     schemars,
     service::ServiceExt,
     tool, tool_handler, tool_router,
@@ -87,7 +87,14 @@ impl CoolServer {
 }
 
 #[tool_handler]
-impl ServerHandler for CoolServer {}
+impl ServerHandler for CoolServer {
+    fn get_info(&self) -> ServerInfo {
+        ServerInfo {
+            capabilities: ServerCapabilities::builder().enable_tools().build(),
+            ..Default::default()
+        }
+    }
+}
 
 fn to_mcp_err(e: anyhow::Error) -> ErrorData {
     ErrorData::internal_error(format!("{e:#}"), None)
