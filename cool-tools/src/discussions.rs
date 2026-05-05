@@ -76,9 +76,9 @@ pub async fn list_summaries(
         .collect())
 }
 
-/// Show one discussion topic. When `with_entries == true`, also fetch the
+/// Get one discussion topic. When `with_entries == true`, also fetch the
 /// top-level entries via `/courses/:cid/discussion_topics/:tid/entries`.
-pub async fn show_detail(
+pub async fn get_detail(
     client: &CoolClient,
     course_id: i64,
     topic_id: i64,

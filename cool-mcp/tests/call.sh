@@ -28,6 +28,9 @@ fi
   printf '%s\n' '{"jsonrpc":"2.0","method":"notifications/initialized"}'
   printf '%s\n' "$(jq -nc --arg t "$TOOL" --argjson a "$ARGS" \
     '{jsonrpc:"2.0", id:2, method:"tools/call", params:{name:$t, arguments:$a}}')"
-  sleep 0.5
+  # Hold stdin open long enough for paginated calls (files_search across all
+  # courses, modules_get with items, etc.) to finish before we EOF and the
+  # server exits. Override with COOL_MCP_TIMEOUT for slower tools.
+  sleep "${COOL_MCP_TIMEOUT:-5}"
 } | "$BIN" 2>/dev/null \
   | jq -c 'select(.id == 2) | .result.content[0].text | fromjson? // .'

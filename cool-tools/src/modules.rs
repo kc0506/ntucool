@@ -135,7 +135,7 @@ fn item_to_contract(i: &CanvasModuleItem) -> Option<ContractModuleItem> {
     })
 }
 
-pub async fn show_detail(
+pub async fn get_detail(
     client: &CoolClient,
     course_id: i64,
     module_id: i64,

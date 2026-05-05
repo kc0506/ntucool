@@ -70,15 +70,26 @@ fn topic_to_summary(t: &DiscussionTopic, course_id: i64) -> Option<AnnouncementS
 }
 
 /// List announcements across one or more courses, optionally newer than `since`.
-/// Empty `course_ids` returns an empty Vec — Canvas's `/announcements` endpoint
-/// requires at least one `context_codes[]` argument.
+/// Empty `course_ids` is honoured by fetching the user's currently-active
+/// enrolments (Canvas `/announcements` itself requires at least one
+/// `context_codes[]` argument, so the expansion happens client-side).
 pub async fn list_summaries(
     client: &CoolClient,
     course_ids: &[i64],
     since: Option<&str>,
 ) -> Result<Vec<AnnouncementSummary>> {
+    let resolved: Vec<i64> = if course_ids.is_empty() {
+        crate::courses::list_active(client)
+            .await?
+            .into_iter()
+            .filter_map(|c| c.id)
+            .collect()
+    } else {
+        course_ids.to_vec()
+    };
+
     let mut out: Vec<AnnouncementSummary> = Vec::new();
-    for &cid in course_ids {
+    for &cid in &resolved {
         let topics = list(client, cid).await?;
         for t in &topics {
             if let Some(threshold) = since {
@@ -98,7 +109,7 @@ pub async fn list_summaries(
     Ok(out)
 }
 
-pub async fn show_detail(
+pub async fn get_detail(
     client: &CoolClient,
     course_id: i64,
     topic_id: i64,

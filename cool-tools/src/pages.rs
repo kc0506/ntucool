@@ -43,7 +43,7 @@ pub async fn list_summaries(
     Ok(out)
 }
 
-pub async fn show_detail(
+pub async fn get_detail(
     client: &CoolClient,
     course_id: i64,
     url_or_id: &str,
