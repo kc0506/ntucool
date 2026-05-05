@@ -9,26 +9,14 @@
 //! for the spec; if a tool description and `cool_tools::types` shape disagree,
 //! the spec wins.
 
+mod file_server;
+
+use std::net::SocketAddr;
 use std::path::PathBuf;
 use std::sync::Arc;
+use std::time::Duration;
 
-/// Mode controlling how `files_fetch` exposes file bytes to the AI client.
-///
-/// stdio  — same machine; serve via `file:///abs/path` to a cache file.
-/// http   — remote MCP; serve via short-lived signed `https://host/cache/<token>` URL.
-///          Selected by env var `COOL_MCP_FILE_MODE=http` (not yet implemented).
-#[derive(Debug, Clone)]
-enum FileServeMode {
-    Stdio { cache_dir: PathBuf },
-    #[allow(dead_code)]
-    Http {
-        cache_dir: PathBuf,
-        public_base: String,
-        token_ttl_secs: u64,
-    },
-}
-
-use anyhow::Result;
+use anyhow::{Context, Result};
 use rmcp::{
     handler::server::{router::tool::ToolRouter, wrapper::Parameters},
     model::{CallToolResult, Content, ServerCapabilities, ServerInfo},
@@ -42,10 +30,17 @@ use serde::Deserialize;
 
 use cool_api::CoolClient;
 
+use crate::file_server::{FileServer, HttpPublisher, StdioPublisher};
+
 #[derive(Clone)]
 struct CoolServer {
     client: Arc<CoolClient>,
-    file_mode: Arc<FileServeMode>,
+    /// Server-internal cache directory. Files are downloaded here on
+    /// `files_fetch`; never exposed to the client.
+    server_cache_dir: PathBuf,
+    /// Public-facing publisher: turns a server-internal `CachedFile` into
+    /// a URI the client can read.
+    file_server: Arc<FileServer>,
     tool_router: ToolRouter<Self>,
 }
 
@@ -188,10 +183,11 @@ struct PagesGetArgs {
 
 #[tool_router]
 impl CoolServer {
-    fn new(client: CoolClient, file_mode: FileServeMode) -> Self {
+    fn new(client: CoolClient, server_cache_dir: PathBuf, file_server: FileServer) -> Self {
         Self {
             client: Arc::new(client),
-            file_mode: Arc::new(file_mode),
+            server_cache_dir,
+            file_server: Arc::new(file_server),
             tool_router: Self::tool_router(),
         }
     }
@@ -293,11 +289,17 @@ impl CoolServer {
         json_result(&meta)
     }
 
-    #[tool(description = "Fetch a file's bytes through cool-mcp's cache. Returns FilesFetchResult \
-        {file_id, display_name, mime_type, size_bytes, uri, expires_at?}. The URI's scheme depends \
-        on the server's serve mode (stdio → file:///cache/path; http → https://host/cache/<token>) \
-        and is the right way to deliver bytes to user or AI client without leaking Canvas auth. \
-        Cache-controlled — repeat calls are cheap as long as Canvas's updated_at is unchanged.")]
+    #[tool(description = "Fetch a file's bytes through cool-mcp. Returns FilesFetchResult \
+        {file_id, display_name, mime_type, size_bytes, uri, expires_at?}. The URI scheme depends \
+        on the server's serve mode — independent of, and never revealing, the server's internal cache:\n\
+        - stdio mode → `file://<output_dir>/<file_id>/<display_name>` to a copy under the publish \
+          dir (configurable via COOL_MCP_OUTPUT_DIR; default $XDG_DATA_HOME/cool-mcp/files). The \
+          output is decoupled from the server's internal cache so the client can read/move/delete \
+          safely.\n\
+        - http mode  → `http://host:port/files/<token>` short-lived signed URL backed by the \
+          server's internal cache. `expires_at` is set in this mode (TTL via COOL_MCP_HTTP_TTL_SECS, \
+          default 3600s). Repeat calls reuse the same token while it's still alive.\n\
+        Cache-controlled — Canvas's updated_at gates re-downloads.")]
     async fn files_fetch(
         &self,
         Parameters(args): Parameters<FilesFetchArgs>,
@@ -305,11 +307,15 @@ impl CoolServer {
         let cached = cool_tools::files::cache_or_download(
             &self.client,
             args.file_id,
-            self.file_mode_cache_dir(),
+            &self.server_cache_dir,
         )
         .await
         .map_err(to_mcp_err)?;
-        let result = self.wrap_cached(cached);
+        let result = self
+            .file_server
+            .publish(cached)
+            .await
+            .map_err(to_mcp_err)?;
         json_result(&result)
     }
 
@@ -472,49 +478,6 @@ impl CoolServer {
     }
 }
 
-impl CoolServer {
-    fn file_mode_cache_dir(&self) -> &std::path::Path {
-        match &*self.file_mode {
-            FileServeMode::Stdio { cache_dir } => cache_dir,
-            FileServeMode::Http { cache_dir, .. } => cache_dir,
-        }
-    }
-
-    fn wrap_cached(
-        &self,
-        cached: cool_tools::files::CachedFile,
-    ) -> cool_tools::types::FilesFetchResult {
-        match &*self.file_mode {
-            FileServeMode::Stdio { .. } => {
-                let abs = cached
-                    .path
-                    .canonicalize()
-                    .unwrap_or(cached.path.clone());
-                cool_tools::types::FilesFetchResult {
-                    file_id: cached.file_id,
-                    display_name: cached.display_name,
-                    mime_type: cached.mime_type,
-                    size_bytes: cached.size_bytes,
-                    uri: format!("file://{}", abs.display()),
-                    expires_at: None,
-                }
-            }
-            FileServeMode::Http { .. } => {
-                // Not implemented: would mint a short-lived token, register
-                // a route serving cached.path, and return https://… URI.
-                cool_tools::types::FilesFetchResult {
-                    file_id: cached.file_id,
-                    display_name: cached.display_name,
-                    mime_type: cached.mime_type,
-                    size_bytes: cached.size_bytes,
-                    uri: "http://NOT_IMPLEMENTED".into(),
-                    expires_at: None,
-                }
-            }
-        }
-    }
-}
-
 #[tool_handler]
 impl ServerHandler for CoolServer {
     fn get_info(&self) -> ServerInfo {
@@ -529,33 +492,63 @@ fn to_mcp_err(e: anyhow::Error) -> ErrorData {
     ErrorData::internal_error(format!("{e:#}"), None)
 }
 
-/// Resolve serve mode from env. Defaults to stdio (the only mode that
-/// currently has a working impl). HTTP mode parses cache dir + public base
-/// + token TTL but bails — the actual HTTP server isn't wired yet.
-fn build_file_mode() -> Result<FileServeMode> {
-    let cache_dir = default_cache_dir();
-    std::fs::create_dir_all(&cache_dir).ok();
+// ────────────────────────────────────────────────────────────────────────────
+// Bootstrap helpers
+// ────────────────────────────────────────────────────────────────────────────
 
-    match std::env::var("COOL_MCP_FILE_MODE")
-        .unwrap_or_else(|_| "stdio".into())
-        .as_str()
-    {
-        "stdio" => Ok(FileServeMode::Stdio { cache_dir }),
-        "http" => anyhow::bail!(
-            "COOL_MCP_FILE_MODE=http is not yet implemented; only stdio is wired"
-        ),
-        other => anyhow::bail!("unknown COOL_MCP_FILE_MODE={other}; expected stdio|http"),
-    }
-}
-
-fn default_cache_dir() -> PathBuf {
+/// Server-internal cache directory. Holds raw bytes downloaded from Canvas;
+/// never exposed in any URI returned to the client.
+fn server_cache_dir() -> PathBuf {
     let base = std::env::var("XDG_CACHE_HOME")
         .map(PathBuf::from)
         .unwrap_or_else(|_| {
             let home = std::env::var("HOME").expect("HOME not set");
             PathBuf::from(home).join(".cache")
         });
-    base.join("ntucool").join("files")
+    base.join("cool-mcp").join("cache")
+}
+
+/// stdio mode default output dir (where `files_fetch` puts a copy a client
+/// can read). Distinct from `server_cache_dir`. Override via `COOL_MCP_OUTPUT_DIR`.
+fn default_stdio_output_dir() -> PathBuf {
+    if let Ok(v) = std::env::var("COOL_MCP_OUTPUT_DIR") {
+        return PathBuf::from(v);
+    }
+    let base = std::env::var("XDG_DATA_HOME")
+        .map(PathBuf::from)
+        .unwrap_or_else(|_| {
+            let home = std::env::var("HOME").expect("HOME not set");
+            PathBuf::from(home).join(".local").join("share")
+        });
+    base.join("cool-mcp").join("files")
+}
+
+/// Build the publisher requested by env. Async because `HttpPublisher::start`
+/// has to bind a TCP socket.
+async fn build_file_server() -> Result<FileServer> {
+    let mode = std::env::var("COOL_MCP_FILE_MODE").unwrap_or_else(|_| "stdio".into());
+    match mode.as_str() {
+        "stdio" => {
+            let output = default_stdio_output_dir();
+            let publisher = StdioPublisher::new(output)?;
+            Ok(FileServer::Stdio(publisher))
+        }
+        "http" => {
+            let bind: SocketAddr = std::env::var("COOL_MCP_HTTP_BIND")
+                .unwrap_or_else(|_| "127.0.0.1:0".into())
+                .parse()
+                .context("COOL_MCP_HTTP_BIND must be a SocketAddr like 127.0.0.1:31337")?;
+            let public_base = std::env::var("COOL_MCP_HTTP_PUBLIC_BASE").ok();
+            let ttl_secs: u64 = std::env::var("COOL_MCP_HTTP_TTL_SECS")
+                .ok()
+                .and_then(|v| v.parse().ok())
+                .unwrap_or(3600);
+            let publisher =
+                HttpPublisher::start(bind, public_base, Duration::from_secs(ttl_secs)).await?;
+            Ok(FileServer::Http(publisher))
+        }
+        other => anyhow::bail!("unknown COOL_MCP_FILE_MODE={other}; expected stdio|http"),
+    }
 }
 
 fn json_result<T: serde::Serialize>(value: &T) -> Result<CallToolResult, ErrorData> {
@@ -578,10 +571,17 @@ async fn main() -> Result<()> {
     let client = CoolClient::from_default_session()
         .map_err(|e| anyhow::anyhow!("No valid session ({e}). Run `cool login` first."))?;
 
-    let file_mode = build_file_mode()?;
-    tracing::info!(?file_mode, "cool-mcp starting on stdio");
+    let cache_dir = server_cache_dir();
+    std::fs::create_dir_all(&cache_dir).ok();
 
-    let server = CoolServer::new(client, file_mode);
+    let file_server = build_file_server().await?;
+    tracing::info!(
+        cache_dir = %cache_dir.display(),
+        publisher = %file_server.describe(),
+        "cool-mcp starting on stdio"
+    );
+
+    let server = CoolServer::new(client, cache_dir, file_server);
     let running = server.serve(stdio()).await?;
     let reason = running.waiting().await?;
     tracing::info!(?reason, "cool-mcp exited");
