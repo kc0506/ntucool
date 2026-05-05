@@ -1,3 +1,3 @@
 [workspace]
-members = ["cool-api", "cool-cli", "cool-mcp", "cool-tools", "cool-tui"]
+members = ["cool-api", "cool-cli", "cool-mcp", "cool-tools", "cool-tui", "mcp-minimal"]
 resolver = "2"
