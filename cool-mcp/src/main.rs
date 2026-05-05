@@ -97,7 +97,9 @@ struct FilesDownloadArgs {
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
 struct AssignmentsListArgs {
     course_id: i64,
-    /// Canvas bucket: upcoming | past | overdue | undated | ungraded | unsubmitted | future
+    /// Canvas server-side state filter. Values: upcoming (next 7 days, unsubmitted),
+    /// future (>7 days out), overdue, past (submitted), undated, ungraded, unsubmitted.
+    /// Omit to return everything.
     #[serde(default)]
     bucket: Option<String>,
 }
@@ -290,8 +292,17 @@ impl CoolServer {
 
     // ── Tier 1: assignments ────────────────────────────────────────────────
 
-    #[tool(description = "List assignments for a course. Returns [AssignmentSummary]. bucket filters by Canvas \
-        bucket (upcoming/past/overdue/undated/ungraded/unsubmitted/future).")]
+    #[tool(description = "List assignments for a course. Returns [AssignmentSummary]. \
+        bucket is a Canvas server-side state filter:\n\
+        - upcoming: due in the next 7 days, not yet submitted\n\
+        - future: due more than 7 days out\n\
+        - overdue: past due_at, not submitted\n\
+        - past: already submitted\n\
+        - undated: no due_at set\n\
+        - ungraded: needs grading\n\
+        - unsubmitted: no submission yet (regardless of due date)\n\
+        Note the 7-day cutoff between `upcoming` and `future` — for \"what's due soon\" \
+        queries spanning >1 week, omit bucket entirely or query both.")]
     async fn assignments_list(
         &self,
         Parameters(args): Parameters<AssignmentsListArgs>,
