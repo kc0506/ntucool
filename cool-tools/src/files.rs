@@ -347,6 +347,69 @@ pub async fn download_global(
     })
 }
 
+// ────────────────────────────────────────────────────────────────────────────
+// Cache-aware fetch (used by cool-mcp's files_fetch)
+// ────────────────────────────────────────────────────────────────────────────
+
+/// Result of `cache_or_download`: a file present on local disk plus the
+/// metadata needed to wrap it in a transport-specific URI. Lives in a
+/// caller-provided `cache_dir`; never invented per-call.
+pub struct CachedFile {
+    pub file_id: i64,
+    pub display_name: String,
+    pub mime_type: Option<String>,
+    pub size_bytes: i64,
+    pub path: std::path::PathBuf,
+}
+
+/// Idempotent fetch: ensure the file is in `cache_dir` and return its path.
+///
+/// Cache key is `{file_id}-{updated_at_unix}.{ext}` so a Canvas re-upload
+/// (changed `updated_at`) lands at a new path; the old one stays until
+/// eviction (eviction is not implemented here — just disk-bounded).
+pub async fn cache_or_download(
+    client: &CoolClient,
+    file_id: i64,
+    cache_dir: &Path,
+) -> Result<CachedFile> {
+    let f: File = client
+        .get(&format!("/api/v1/files/{}", file_id), None::<&()>)
+        .await?;
+
+    let display_name = f
+        .display_name
+        .clone()
+        .or_else(|| f.filename.clone())
+        .unwrap_or_else(|| format!("file-{}", file_id));
+    let mime_type = f.content_type.clone();
+    let size_bytes = f.size.unwrap_or(0);
+
+    let updated_unix = f
+        .updated_at
+        .map(|t| t.timestamp())
+        .unwrap_or(0);
+    let ext = std::path::Path::new(&display_name)
+        .extension()
+        .and_then(|s| s.to_str())
+        .unwrap_or("bin");
+    let cached_path = cache_dir.join(format!("{file_id}-{updated_unix}.{ext}"));
+
+    if !cached_path.exists() {
+        if let Some(parent) = cached_path.parent() {
+            tokio::fs::create_dir_all(parent).await.ok();
+        }
+        download(client, &f, &cached_path).await?;
+    }
+
+    Ok(CachedFile {
+        file_id: f.id.unwrap_or(file_id),
+        display_name,
+        mime_type,
+        size_bytes,
+        path: cached_path,
+    })
+}
+
 /// Two-step upload: notify Canvas, then PUT the bytes.
 pub async fn upload_to_course(
     client: &CoolClient,

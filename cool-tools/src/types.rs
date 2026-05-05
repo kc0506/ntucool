@@ -115,6 +115,24 @@ pub struct DownloadResult {
     pub bytes_written: u64,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct FilesFetchResult {
+    pub file_id: i64,
+    pub display_name: String,
+    pub mime_type: Option<String>,
+    pub size_bytes: i64,
+    /// URI to access the file's bytes. Scheme depends on the cool-mcp
+    /// instance's serve mode:
+    ///   stdio mode → `file:///abs/path` to a server-internal cache file
+    ///   http mode  → `https://host/cache/<token>.ext` (not implemented yet)
+    /// Pass to user, or read via this URI directly. Cache-controlled — repeat
+    /// calls reuse the same URI while Canvas's `updated_at` is unchanged.
+    pub uri: String,
+    /// ISO-8601 expiry. `None` for `file://` (no per-URI expiry; subject
+    /// only to cache eviction). Always set for HTTP URIs.
+    pub expires_at: Option<String>,
+}
+
 // ────────────────────────────────────────────────────────────────────────────
 // Assignment
 // ────────────────────────────────────────────────────────────────────────────
