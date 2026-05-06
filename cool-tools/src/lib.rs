@@ -12,6 +12,7 @@ pub mod discussions;
 pub mod files;
 pub mod modules;
 pub mod pages;
+pub mod pdf;
 pub mod profile;
 pub mod text;
 pub mod types;

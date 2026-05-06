@@ -360,6 +360,9 @@ pub struct CachedFile {
     pub mime_type: Option<String>,
     pub size_bytes: i64,
     pub path: std::path::PathBuf,
+    /// Canvas's `updated_at` as unix seconds; the cache key. Sidecars (PDF
+    /// text extraction, etc.) reuse this to stay in lockstep with the bytes.
+    pub updated_at_unix: i64,
 }
 
 /// Idempotent fetch: ensure the file is in `cache_dir` and return its path.
@@ -407,6 +410,7 @@ pub async fn cache_or_download(
         mime_type,
         size_bytes,
         path: cached_path,
+        updated_at_unix: updated_unix,
     })
 }
 

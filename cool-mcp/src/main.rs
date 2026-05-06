@@ -38,6 +38,9 @@ struct CoolServer {
     /// Server-internal cache directory. Files are downloaded here on
     /// `files_fetch`; never exposed to the client.
     server_cache_dir: PathBuf,
+    /// Server-internal text cache for `pdf_extract` / `pdf_search`. JSON
+    /// sidecar per file, keyed identically to the bytes cache.
+    text_cache_dir: PathBuf,
     /// Public-facing publisher: turns a server-internal `CachedFile` into
     /// a URI the client can read.
     file_server: Arc<FileServer>,
@@ -177,16 +180,42 @@ struct PagesGetArgs {
     url: String,
 }
 
+#[derive(Debug, Deserialize, schemars::JsonSchema)]
+struct PdfExtractArgs {
+    file_id: i64,
+    /// Page selector. Forms: "all" (or omit), "5", "5-10". 1-indexed.
+    /// Omit only when you actually want every page — large textbooks can
+    /// blow the AI client's context budget.
+    #[serde(default)]
+    pages: Option<String>,
+}
+
+#[derive(Debug, Deserialize, schemars::JsonSchema)]
+struct PdfSearchArgs {
+    course_id: i64,
+    /// Case-insensitive substring. Whitespace is matched literally.
+    query: String,
+    /// Cap total hits across all PDFs. Defaults to 20.
+    #[serde(default)]
+    max_results: Option<usize>,
+}
+
 // ────────────────────────────────────────────────────────────────────────────
 // Tool router
 // ────────────────────────────────────────────────────────────────────────────
 
 #[tool_router]
 impl CoolServer {
-    fn new(client: CoolClient, server_cache_dir: PathBuf, file_server: FileServer) -> Self {
+    fn new(
+        client: CoolClient,
+        server_cache_dir: PathBuf,
+        text_cache_dir: PathBuf,
+        file_server: FileServer,
+    ) -> Self {
         Self {
             client: Arc::new(client),
             server_cache_dir,
+            text_cache_dir,
             file_server: Arc::new(file_server),
             tool_router: Self::tool_router(),
         }
@@ -476,6 +505,59 @@ impl CoolServer {
             .map_err(to_mcp_err)?;
         json_result(&detail)
     }
+
+    // ── Tier 2: PDF extract & content search ──────────────────────────────
+
+    #[tool(description = "Extract per-page text from a PDF in NTU COOL. Returns PdfExtractResult \
+        {file_id, display_name, page_count, pages: [{page_no, text}], empty}. \
+        `pages` arg selects a 1-indexed range: \"all\" (whole document), \"5\" (single page), \
+        \"5-10\" (range, inclusive). Omitting `pages` returns every page — fine for short docs, \
+        but cap with a range for textbooks. \
+        Text is extracted once via pdf-extract and cached on disk keyed by Canvas's updated_at, \
+        so repeat calls are sub-second. `empty=true` indicates an image-only or encrypted PDF.")]
+    async fn pdf_extract(
+        &self,
+        Parameters(args): Parameters<PdfExtractArgs>,
+    ) -> Result<CallToolResult, ErrorData> {
+        let range = match args.pages.as_deref() {
+            Some(s) => Some(cool_tools::pdf::PageRange::parse(s).map_err(to_mcp_err)?),
+            None => None,
+        };
+        let result = cool_tools::pdf::extract(
+            &self.client,
+            args.file_id,
+            range.as_ref(),
+            &self.server_cache_dir,
+            &self.text_cache_dir,
+        )
+        .await
+        .map_err(to_mcp_err)?;
+        json_result(&result)
+    }
+
+    #[tool(description = "Case-insensitive substring search across every PDF in a course. \
+        Returns [PdfSearchHit {file_id, display_name, page, snippet}]. \
+        First call against a course has to download + extract every PDF (slow — minutes for \
+        a 50-PDF course); subsequent calls reuse the on-disk text cache and complete in \
+        seconds. Limit results with max_results (default 20). To then read more context \
+        around a hit, call pdf_extract with the same file_id and pages=\"<page>-<page+2>\".")]
+    async fn pdf_search(
+        &self,
+        Parameters(args): Parameters<PdfSearchArgs>,
+    ) -> Result<CallToolResult, ErrorData> {
+        let max = args.max_results.unwrap_or(20);
+        let hits = cool_tools::pdf::search_in_course(
+            &self.client,
+            args.course_id,
+            &args.query,
+            max,
+            &self.server_cache_dir,
+            &self.text_cache_dir,
+        )
+        .await
+        .map_err(to_mcp_err)?;
+        json_result(&hits)
+    }
 }
 
 #[tool_handler]
@@ -496,16 +578,25 @@ fn to_mcp_err(e: anyhow::Error) -> ErrorData {
 // Bootstrap helpers
 // ────────────────────────────────────────────────────────────────────────────
 
-/// Server-internal cache directory. Holds raw bytes downloaded from Canvas;
-/// never exposed in any URI returned to the client.
-fn server_cache_dir() -> PathBuf {
-    let base = std::env::var("XDG_CACHE_HOME")
+fn xdg_cache_home() -> PathBuf {
+    std::env::var("XDG_CACHE_HOME")
         .map(PathBuf::from)
         .unwrap_or_else(|_| {
             let home = std::env::var("HOME").expect("HOME not set");
             PathBuf::from(home).join(".cache")
-        });
-    base.join("cool-mcp").join("cache")
+        })
+}
+
+/// Server-internal cache directory. Holds raw bytes downloaded from Canvas;
+/// never exposed in any URI returned to the client.
+fn server_cache_dir() -> PathBuf {
+    xdg_cache_home().join("cool-mcp").join("cache")
+}
+
+/// Server-internal cache for PDF text extraction. JSON sidecars keyed
+/// identically to the bytes cache.
+fn server_text_cache_dir() -> PathBuf {
+    xdg_cache_home().join("cool-mcp").join("text")
 }
 
 /// stdio mode default output dir (where `files_fetch` puts a copy a client
@@ -572,16 +663,19 @@ async fn main() -> Result<()> {
         .map_err(|e| anyhow::anyhow!("No valid session ({e}). Run `cool login` first."))?;
 
     let cache_dir = server_cache_dir();
+    let text_cache_dir = server_text_cache_dir();
     std::fs::create_dir_all(&cache_dir).ok();
+    std::fs::create_dir_all(&text_cache_dir).ok();
 
     let file_server = build_file_server().await?;
     tracing::info!(
         cache_dir = %cache_dir.display(),
+        text_cache_dir = %text_cache_dir.display(),
         publisher = %file_server.describe(),
         "cool-mcp starting on stdio"
     );
 
-    let server = CoolServer::new(client, cache_dir, file_server);
+    let server = CoolServer::new(client, cache_dir, text_cache_dir, file_server);
     let running = server.serve(stdio()).await?;
     let reason = running.waiting().await?;
     tracing::info!(?reason, "cool-mcp exited");

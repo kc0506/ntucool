@@ -281,6 +281,42 @@ pub struct DiscussionEntry {
 }
 
 // ────────────────────────────────────────────────────────────────────────────
+// PDF text extraction & content search
+// ────────────────────────────────────────────────────────────────────────────
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct PdfExtractResult {
+    pub file_id: i64,
+    pub display_name: String,
+    /// Total page count of the original document, even when only a subset is returned.
+    pub page_count: usize,
+    /// Per-page text in document order. May contain fewer entries than
+    /// `page_count` when caller scoped to a subrange.
+    pub pages: Vec<PdfPage>,
+    /// True when the extractor returned no text at all (likely an image-only or
+    /// encrypted PDF). Distinct from "pages exist but contain only whitespace".
+    pub empty: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct PdfPage {
+    /// 1-indexed page number from the original document.
+    pub page_no: usize,
+    pub text: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct PdfSearchHit {
+    pub file_id: i64,
+    pub display_name: String,
+    /// 1-indexed page where the match occurred.
+    pub page: usize,
+    /// Single-line excerpt around the match. Whitespace collapsed; ~80 chars
+    /// of context on each side of the matched span.
+    pub snippet: String,
+}
+
+// ────────────────────────────────────────────────────────────────────────────
 // Page (Canvas wiki)
 // ────────────────────────────────────────────────────────────────────────────
 
