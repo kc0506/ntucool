@@ -31,20 +31,53 @@ pub async fn run(opts: &super::GlobalOpts) -> Result<()> {
     };
 
     save_session(&session)?;
-    eprintln!("Login successful!");
+    eprintln!("Login successful! Session valid for ~24h.");
 
-    // Ask to save credentials
-    let save = dialoguer::Confirm::new()
-        .with_prompt("Save credentials for future use?")
-        .default(true)
-        .interact()
-        .unwrap_or(false);
-
-    if save {
-        save_credentials(&username)?;
-        eprintln!("Credentials saved.");
+    // Optionally save credentials for non-interactive re-login. We DON'T
+    // store the plaintext password — the user supplies a shell command
+    // which prints the password (e.g. `pass show ntucool`, `op read ...`,
+    // or even `cat ~/.secrets/ntucool` if they're OK with that). Pressing
+    // enter at the prompt skips credential saving entirely; previously the
+    // confirm-prompt wrote a TODO placeholder that pretended to work.
+    eprintln!();
+    eprintln!("Optional: save a password command so non-interactive re-logins work");
+    eprintln!("(needed when MCP tools detect an expired session). Examples:");
+    eprintln!("  pass show ntucool/password");
+    eprintln!("  op read 'op://Personal/NTU COOL/password'");
+    eprintln!("  cat ~/.secrets/ntu-cool");
+    eprintln!("Leave blank to skip — `cool login` will then always prompt.");
+    let pw_cmd: String = dialoguer::Input::new()
+        .with_prompt("password_cmd (blank to skip)")
+        .allow_empty(true)
+        .interact_text()
+        .unwrap_or_default();
+    let pw_cmd = pw_cmd.trim();
+    if pw_cmd.is_empty() {
+        eprintln!("(no credentials saved)");
+        return Ok(());
     }
 
+    // Verify the command actually works before persisting it. Prevents the
+    // user from saving a typo and discovering it next time their session
+    // expires.
+    let probe = std::process::Command::new("sh")
+        .arg("-c")
+        .arg(pw_cmd)
+        .output()
+        .context("password_cmd: failed to spawn shell")?;
+    if !probe.status.success() {
+        anyhow::bail!(
+            "password_cmd exited with {} (stderr: {})",
+            probe.status,
+            String::from_utf8_lossy(&probe.stderr).trim()
+        );
+    }
+    if probe.stdout.is_empty() {
+        anyhow::bail!("password_cmd succeeded but produced no output — refusing to save");
+    }
+
+    let creds_path = save_credentials(&username, pw_cmd)?;
+    eprintln!("Saved {} (mode 0600).", creds_path.display());
     Ok(())
 }
 
@@ -54,7 +87,7 @@ fn save_session(session: &Session) -> Result<()> {
     Ok(())
 }
 
-fn save_credentials(username: &str) -> Result<()> {
+fn save_credentials(username: &str, password_cmd: &str) -> Result<std::path::PathBuf> {
     let config_home = std::env::var("XDG_CONFIG_HOME")
         .map(std::path::PathBuf::from)
         .unwrap_or_else(|_| {
@@ -69,9 +102,8 @@ fn save_credentials(username: &str) -> Result<()> {
 
     let creds = serde_json::json!({
         "username": username,
-        "password_cmd": format!("echo 'TODO: replace with your password command'")
+        "password_cmd": password_cmd,
     });
-
     std::fs::write(&creds_path, serde_json::to_string_pretty(&creds)?)?;
 
     #[cfg(unix)]
@@ -80,10 +112,5 @@ fn save_credentials(username: &str) -> Result<()> {
         std::fs::set_permissions(&creds_path, std::fs::Permissions::from_mode(0o600))?;
     }
 
-    eprintln!(
-        "Saved to {}. Edit password_cmd to use a secure password manager.",
-        creds_path.display()
-    );
-
-    Ok(())
+    Ok(creds_path)
 }

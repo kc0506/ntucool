@@ -706,6 +706,23 @@ async fn main() -> Result<()> {
 
     let client = CoolClient::from_default_session()
         .map_err(|e| anyhow::anyhow!("No valid session ({e}). Run `cool login` first."))?;
+    {
+        // Surface a likely-expired session at startup. We don't fail — the
+        // session might still work — but an AI client otherwise sees nothing
+        // until a tool call 401s deep in the API. Empirical TTL is ~24h.
+        let path = cool_api::session::Session::default_path();
+        if let Ok(s) = cool_api::session::Session::load(&path) {
+            if s.is_likely_expired() {
+                tracing::warn!(
+                    age_hours = s.age_hours(),
+                    "Session likely expired (>24h since login). \
+                     Tools may 401 — re-run `cool login` to refresh."
+                );
+            } else {
+                tracing::info!(age_hours = s.age_hours(), "Session loaded");
+            }
+        }
+    }
 
     let cache_dir = server_cache_dir();
     let text_cache_dir = server_text_cache_dir();

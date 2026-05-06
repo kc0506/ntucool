@@ -3,10 +3,16 @@ use std::fs;
 use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
 
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Duration, Utc};
 use serde::{Deserialize, Serialize};
 
 use crate::error::Error;
+
+/// Empirical TTL for NTU COOL's session cookie. Canvas's `_normandy_session`
+/// (and `canvas_session`) is set with no `Max-Age`, but in practice ADFS
+/// SAML logins are valid for ~24 hours before re-auth is required. Past this
+/// boundary, calls 401 with the standard ADFS-redirect HTML body.
+pub const SESSION_HARD_TTL_HOURS: i64 = 24;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Session {
@@ -24,6 +30,22 @@ impl Session {
             base_url,
             cookies,
         }
+    }
+
+    /// Whole hours since this session was created. Useful for surfacing a
+    /// "your session is X hours old" hint without doing the math at every
+    /// call site.
+    pub fn age_hours(&self) -> i64 {
+        (Utc::now() - self.created_at).num_hours()
+    }
+
+    /// Heuristic: true if the session was created more than 24 hours ago.
+    /// We don't actually know the cookie's real expiry — Canvas doesn't
+    /// emit `Max-Age` — so this is best-effort. Past this point, callers
+    /// should expect a re-login and surface that to the user *before*
+    /// firing requests that 401 deep inside the API client.
+    pub fn is_likely_expired(&self) -> bool {
+        Utc::now() - self.created_at > Duration::hours(SESSION_HARD_TTL_HOURS)
     }
 
     /// Default session file path: $XDG_DATA_HOME/ntucool/session.json
