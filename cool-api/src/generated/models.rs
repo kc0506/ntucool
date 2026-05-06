@@ -3944,8 +3944,10 @@ pub struct RubricAssociation {
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct RubricCriteria {
+    // Canvas generator emits i64; Canvas the API returns float (e.g. 5.0).
+    // Patched to f64 to avoid decode failure on bucket-less assignments_list.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub points: Option<i64>,
+    pub points: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -3972,8 +3974,9 @@ pub struct RubricCriterion {
     pub description: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub long_description: Option<String>,
+    // See RubricCriteria.points: Canvas returns float despite generator emitting i64.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub points: Option<i64>,
+    pub points: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub criterion_use_range: Option<bool>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -3982,8 +3985,9 @@ pub struct RubricCriterion {
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct RubricRating {
+    // See RubricCriteria.points: Canvas returns float despite generator emitting i64.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub points: Option<i64>,
+    pub points: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -4042,18 +4046,19 @@ pub struct Score {
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ScoreStatistic {
+    // Canvas returns these as floats; generator emits i64. Same fix as RubricCriteria.points.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub min: Option<i64>,
+    pub min: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub max: Option<i64>,
+    pub max: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub mean: Option<i64>,
+    pub mean: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub upper_q: Option<i64>,
+    pub upper_q: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub median: Option<i64>,
+    pub median: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub lower_q: Option<i64>,
+    pub lower_q: Option<f64>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]

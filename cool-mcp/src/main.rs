@@ -142,6 +142,10 @@ struct AnnouncementsGetArgs {
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
 struct ModulesListArgs {
     course_id: i64,
+    /// When true, return each module's items inline so you don't have to call
+    /// `modules_get` per module just to find where a resource lives. Default false.
+    #[serde(default)]
+    with_items: bool,
 }
 
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
@@ -428,15 +432,26 @@ impl CoolServer {
 
     // ── Tier 1: modules ────────────────────────────────────────────────────
 
-    #[tool(description = "List a course's modules (no items). Returns [ModuleSummary]. Use modules_get to fetch items.")]
+    #[tool(description = "List a course's modules. with_items=false (default) returns [ModuleSummary] \
+        — id/name/position/items_count only. with_items=true returns [ModuleDetail] — same plus \
+        every module's items {id, title, item_type, content_id, url, position, indent} inline, \
+        in one paginated call. Prefer with_items=true when you'd otherwise iterate modules_get \
+        across the course.")]
     async fn modules_list(
         &self,
         Parameters(args): Parameters<ModulesListArgs>,
     ) -> Result<CallToolResult, ErrorData> {
-        let modules = cool_tools::modules::list_summaries(&self.client, args.course_id)
-            .await
-            .map_err(to_mcp_err)?;
-        json_result(&modules)
+        if args.with_items {
+            let tree = cool_tools::modules::list_tree(&self.client, args.course_id)
+                .await
+                .map_err(to_mcp_err)?;
+            json_result(&tree)
+        } else {
+            let modules = cool_tools::modules::list_summaries(&self.client, args.course_id)
+                .await
+                .map_err(to_mcp_err)?;
+            json_result(&modules)
+        }
     }
 
     #[tool(description = "Get one module with its items (type, content_id, url). Canvas requires course_id \

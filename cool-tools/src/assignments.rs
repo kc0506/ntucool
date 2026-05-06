@@ -118,7 +118,7 @@ pub async fn get_detail(
         .into_iter()
         .map(|c| ContractRubricCriterion {
             description: c.description.unwrap_or_default(),
-            points: c.points.unwrap_or(0) as f64,
+            points: c.points.unwrap_or(0.0),
             long_description: c.long_description,
         })
         .collect();

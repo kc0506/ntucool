@@ -10,6 +10,10 @@ use cool_api::CoolClient;
 
 use crate::types::{ModuleDetail, ModuleItem as ContractModuleItem, ModuleSummary};
 
+/// What `modules_list` returns when the caller asked for items inline. Same
+/// shape as `ModuleDetail` repeated across every module.
+pub use crate::types::ModuleDetail as ModuleTreeNode;
+
 /// Module with items as returned by `GET /courses/:id/modules?include[]=items`.
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct CanvasModule {
@@ -154,4 +158,32 @@ pub async fn get_detail(
             .filter_map(item_to_contract)
             .collect(),
     })
+}
+
+/// One-shot tree: every module + its items in one paginated call. Saves the
+/// caller from iterating `modules_get` per module just to discover where a
+/// resource lives.
+pub async fn list_tree(
+    client: &CoolClient,
+    course_id: i64,
+) -> Result<Vec<ModuleDetail>> {
+    let modules = list_with_items(client, course_id, &["items"]).await?;
+    Ok(modules
+        .into_iter()
+        .filter_map(|m| {
+            let id = m.id?;
+            Some(ModuleDetail {
+                id,
+                course_id,
+                name: m.name.unwrap_or_default(),
+                position: m.position,
+                items: m
+                    .items
+                    .unwrap_or_default()
+                    .iter()
+                    .filter_map(item_to_contract)
+                    .collect(),
+            })
+        })
+        .collect())
 }
