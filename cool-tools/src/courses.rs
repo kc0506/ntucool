@@ -307,6 +307,14 @@ pub async fn get_detail(client: &CoolClient, id: i64) -> Result<CourseDetail> {
         })
         .unwrap_or_default();
 
+    let str_field = |path: &[&str]| -> Option<String> {
+        let mut cur = &raw;
+        for k in path {
+            cur = cur.get(*k)?;
+        }
+        cur.as_str().map(String::from)
+    };
+
     Ok(CourseDetail {
         id: raw.get("id").and_then(|v| v.as_i64()).unwrap_or(id),
         name: raw
@@ -314,24 +322,16 @@ pub async fn get_detail(client: &CoolClient, id: i64) -> Result<CourseDetail> {
             .and_then(|v| v.as_str())
             .unwrap_or_default()
             .to_string(),
-        course_code: raw
-            .get("course_code")
-            .and_then(|v| v.as_str())
-            .map(String::from),
-        term: raw
-            .get("term")
-            .and_then(|t| t.get("name"))
-            .and_then(|v| v.as_str())
-            .map(String::from),
-        syllabus_html: raw
-            .get("syllabus_body")
-            .and_then(|v| v.as_str())
-            .map(String::from),
+        course_code: str_field(&["course_code"]),
+        term: str_field(&["term", "name"]),
+        start_at: str_field(&["start_at"]),
+        end_at: str_field(&["end_at"]),
+        term_start_at: str_field(&["term", "start_at"]),
+        term_end_at: str_field(&["term", "end_at"]),
+        time_zone: str_field(&["time_zone"]),
+        syllabus_html: str_field(&["syllabus_body"]),
         teachers,
-        default_view: raw
-            .get("default_view")
-            .and_then(|v| v.as_str())
-            .map(String::from),
+        default_view: str_field(&["default_view"]),
     })
 }
 

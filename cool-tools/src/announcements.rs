@@ -66,6 +66,7 @@ fn topic_to_summary(t: &DiscussionTopic, course_id: i64) -> Option<AnnouncementS
         course_id,
         title: t.title.clone().unwrap_or_default(),
         posted_at: t.posted_at.map(|t| t.to_rfc3339()),
+        author_name: t.user_name.clone(),
         html_url: t.html_url.clone(),
     })
 }
@@ -129,6 +130,7 @@ pub async fn get_detail(
         body_md,
         body_html,
         posted_at: t.posted_at.map(|t| t.to_rfc3339()),
+        author_name: t.user_name.clone(),
         html_url: t.html_url,
         references,
     })

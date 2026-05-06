@@ -55,6 +55,17 @@ pub struct CourseDetail {
     pub name: String,
     pub course_code: Option<String>,
     pub term: Option<String>,
+    /// Course-level window. Often null when the term itself bounds the course
+    /// (`term.start_at` / `term.end_at` apply); both surfaced when present.
+    pub start_at: Option<String>,
+    pub end_at: Option<String>,
+    pub term_start_at: Option<String>,
+    pub term_end_at: Option<String>,
+    /// IANA time zone string (e.g. "Asia/Taipei"). Useful when interpreting
+    /// `due_at` / `posted_at` for users outside the host TZ. Canvas does not
+    /// expose a per-course weekly meeting time, so callers wanting class
+    /// schedule should parse the syllabus.
+    pub time_zone: Option<String>,
     /// Canvas syllabus body (HTML). Caller decides whether to convert to text.
     pub syllabus_html: Option<String>,
     pub teachers: Vec<TeacherSummary>,
@@ -237,6 +248,9 @@ pub struct AnnouncementSummary {
     pub course_id: i64,
     pub title: String,
     pub posted_at: Option<String>,
+    /// Display name of whoever posted. Canvas exposes this on the topic
+    /// listing; previously only DiscussionSummary surfaced it.
+    pub author_name: Option<String>,
     pub html_url: Option<String>,
 }
 
@@ -251,6 +265,7 @@ pub struct AnnouncementDetail {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub body_html: Option<String>,
     pub posted_at: Option<String>,
+    pub author_name: Option<String>,
     pub html_url: Option<String>,
     /// Canvas-internal references mined from the announcement body HTML.
     pub references: Vec<CanvasRef>,
