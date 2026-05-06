@@ -120,6 +120,10 @@ struct AssignmentsListArgs {
 struct AssignmentsGetArgs {
     course_id: i64,
     assignment_id: i64,
+    /// When true, also return the raw Canvas HTML alongside the default
+    /// markdown rendering. Off by default to save tokens.
+    #[serde(default)]
+    with_html: bool,
 }
 
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
@@ -137,6 +141,9 @@ struct AnnouncementsGetArgs {
     course_id: i64,
     /// Discussion topic ID (announcements are stored as discussion topics in Canvas)
     topic_id: i64,
+    /// When true, also return the raw Canvas HTML alongside the default markdown body.
+    #[serde(default)]
+    with_html: bool,
 }
 
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
@@ -166,6 +173,9 @@ struct DiscussionsGetArgs {
     /// Include first-level entries (replies). Default true.
     #[serde(default = "default_true")]
     with_entries: bool,
+    /// When true, also return raw Canvas HTML alongside the default markdown.
+    #[serde(default)]
+    with_html: bool,
 }
 
 fn default_true() -> bool {
@@ -182,6 +192,9 @@ struct PagesGetArgs {
     course_id: i64,
     /// Canvas page URL slug — the primary key for pages within a course.
     url: String,
+    /// When true, also return raw Canvas HTML alongside the default markdown body.
+    #[serde(default)]
+    with_html: bool,
 }
 
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
@@ -379,9 +392,11 @@ impl CoolServer {
         json_result(&assignments)
     }
 
-    #[tool(description = "Get one assignment's full description (HTML→text), due date, points, submission types, \
-        rubric, and attachments (file refs mined from the description HTML). Canvas requires course_id \
-        because /api/v1/assignments/:id is not exposed (404).")]
+    #[tool(description = "Get one assignment's description (HTML→Markdown via htmd), due date, points, \
+        submission types, rubric, and `references` — Canvas-internal links mined from the description: \
+        files, pages, other assignments, discussions, modules. References are tagged-union by `kind`. \
+        Pass `with_html=true` to additionally receive the raw HTML in `description_html`. \
+        Canvas requires course_id because /api/v1/assignments/:id is not exposed (404).")]
     async fn assignments_get(
         &self,
         Parameters(args): Parameters<AssignmentsGetArgs>,
@@ -390,6 +405,7 @@ impl CoolServer {
             &self.client,
             args.course_id,
             args.assignment_id,
+            args.with_html,
         )
         .await
         .map_err(to_mcp_err)?;
@@ -414,8 +430,10 @@ impl CoolServer {
         json_result(&announcements)
     }
 
-    #[tool(description = "Get one announcement's body (HTML→text). Canvas requires course_id alongside \
-        topic_id because /api/v1/discussion_topics/:id is not exposed (404).")]
+    #[tool(description = "Get one announcement's body (HTML→Markdown via htmd) plus `references` \
+        (Canvas-internal links extracted from the body). Pass `with_html=true` to additionally \
+        receive the raw HTML in `body_html`. Canvas requires course_id alongside topic_id because \
+        /api/v1/discussion_topics/:id is not exposed (404).")]
     async fn announcements_get(
         &self,
         Parameters(args): Parameters<AnnouncementsGetArgs>,
@@ -424,6 +442,7 @@ impl CoolServer {
             &self.client,
             args.course_id,
             args.topic_id,
+            args.with_html,
         )
         .await
         .map_err(to_mcp_err)?;
@@ -480,8 +499,11 @@ impl CoolServer {
         json_result(&topics)
     }
 
-    #[tool(description = "Get one discussion topic. with_entries=true (default) also fetches first-level \
-        entries. Canvas requires course_id because /api/v1/discussion_topics/:id is not exposed (404).")]
+    #[tool(description = "Get one discussion topic with body in Markdown plus `references` \
+        (Canvas-internal links). with_entries=true (default) also fetches first-level entries, \
+        each with its own message_md / references. Pass `with_html=true` to additionally receive \
+        raw HTML on the topic and entries. Canvas requires course_id because \
+        /api/v1/discussion_topics/:id is not exposed (404).")]
     async fn discussions_get(
         &self,
         Parameters(args): Parameters<DiscussionsGetArgs>,
@@ -491,6 +513,7 @@ impl CoolServer {
             args.course_id,
             args.topic_id,
             args.with_entries,
+            args.with_html,
         )
         .await
         .map_err(to_mcp_err)?;
@@ -510,14 +533,21 @@ impl CoolServer {
         json_result(&pages)
     }
 
-    #[tool(description = "Get one wiki page by its URL slug. Returns PageDetail with body_text (HTML→text).")]
+    #[tool(description = "Get one wiki page by its URL slug. Returns PageDetail with body_md \
+        (HTML→Markdown via htmd) and `references` (Canvas-internal links). Pass `with_html=true` \
+        to additionally receive the raw HTML in `body_html`.")]
     async fn pages_get(
         &self,
         Parameters(args): Parameters<PagesGetArgs>,
     ) -> Result<CallToolResult, ErrorData> {
-        let detail = cool_tools::pages::get_detail(&self.client, args.course_id, &args.url)
-            .await
-            .map_err(to_mcp_err)?;
+        let detail = cool_tools::pages::get_detail(
+            &self.client,
+            args.course_id,
+            &args.url,
+            args.with_html,
+        )
+        .await
+        .map_err(to_mcp_err)?;
         json_result(&detail)
     }
 

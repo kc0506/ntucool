@@ -12,6 +12,7 @@ use cool_api::generated::models::Page as CanvasPage;
 use cool_api::generated::params::ListPagesCoursesParams;
 use cool_api::CoolClient;
 
+use crate::attachments;
 use crate::text;
 use crate::types::{PageDetail, PageSummary};
 
@@ -47,15 +48,22 @@ pub async fn get_detail(
     client: &CoolClient,
     course_id: i64,
     url_or_id: &str,
+    with_html: bool,
 ) -> Result<PageDetail> {
     let course_id_str = course_id.to_string();
     let page = endpoints::show_page_courses(client, &course_id_str, url_or_id).await?;
+    let raw_html = page.body.as_deref();
+    let body_md = raw_html.map(text::html_to_md).unwrap_or_default();
+    let body_html = if with_html { raw_html.map(str::to_string) } else { None };
+    let references = raw_html.map(attachments::extract_references).unwrap_or_default();
     Ok(PageDetail {
         course_id,
         url: page.url.unwrap_or_else(|| url_or_id.to_string()),
         title: page.title.unwrap_or_default(),
-        body_text: page.body.as_deref().map(text::html_to_text).unwrap_or_default(),
+        body_md,
+        body_html,
         updated_at: page.updated_at.map(|t| t.to_rfc3339()),
         html_url: None,
+        references,
     })
 }

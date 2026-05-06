@@ -107,6 +107,7 @@ pub async fn get_detail(
     client: &CoolClient,
     course_id: i64,
     assignment_id: i64,
+    with_html: bool,
 ) -> Result<ContractAssignmentDetail> {
     let course_id_str = course_id.to_string();
     let assignment_id_str = assignment_id.to_string();
@@ -123,23 +124,25 @@ pub async fn get_detail(
         })
         .collect();
 
-    let attachments = a
-        .description
-        .as_deref()
-        .map(attachments::extract_attachments)
+    let raw_html = a.description.as_deref();
+    let description_md = raw_html.map(text::html_to_md);
+    let description_html = if with_html { raw_html.map(str::to_string) } else { None };
+    let references = raw_html
+        .map(attachments::extract_references)
         .unwrap_or_default();
 
     Ok(ContractAssignmentDetail {
         id: a.id.unwrap_or(assignment_id),
         course_id: a.course_id.unwrap_or(course_id),
         name: a.name.unwrap_or_default(),
-        description_text: a.description.as_deref().map(text::html_to_text),
+        description_md,
+        description_html,
         due_at: a.due_at.map(|t| t.to_rfc3339()),
         points_possible: a.points_possible,
         submission_types: a.submission_types.unwrap_or_default(),
         html_url: a.html_url,
         rubric,
-        attachments,
+        references,
     })
 }
 

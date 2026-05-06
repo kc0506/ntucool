@@ -1,6 +1,15 @@
-//! HTML → plain text. Shared by assignments / announcements / discussions.
+//! HTML → plain text / markdown. Shared by assignments / announcements / discussions.
 
 use scraper::Html;
+
+/// Convert Canvas-rendered HTML to GitHub-flavored markdown via `htmd`. Used as
+/// the AI-facing default — fewer tokens than HTML, more structure than plain
+/// text. Falls back to the original HTML if conversion errors out (htmd
+/// occasionally trips on malformed fragments — better to surface raw than
+/// drop content).
+pub fn html_to_md(html: &str) -> String {
+    htmd::convert(html).unwrap_or_else(|_| html.to_string())
+}
 
 pub fn html_to_text(html: &str) -> String {
     let document = Html::parse_fragment(html);

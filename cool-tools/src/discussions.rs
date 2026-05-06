@@ -8,6 +8,7 @@ pub use cool_api::generated::models::DiscussionTopic;
 use cool_api::generated::params::ListDiscussionTopicsCoursesParams;
 use cool_api::CoolClient;
 
+use crate::attachments;
 use crate::text;
 use crate::types::{DiscussionDetail, DiscussionEntry, DiscussionSummary};
 
@@ -83,25 +84,35 @@ pub async fn get_detail(
     course_id: i64,
     topic_id: i64,
     with_entries: bool,
+    with_html: bool,
 ) -> Result<DiscussionDetail> {
     let topic_id_str = topic_id.to_string();
     let course_id_str = course_id.to_string();
     let t = show(client, &course_id_str, &topic_id_str).await?;
 
     let entries = if with_entries {
-        fetch_entries(client, course_id, topic_id).await.unwrap_or_default()
+        fetch_entries(client, course_id, topic_id, with_html)
+            .await
+            .unwrap_or_default()
     } else {
         Vec::new()
     };
+
+    let raw_html = t.message.as_deref();
+    let message_md = raw_html.map(text::html_to_md).unwrap_or_default();
+    let message_html = if with_html { raw_html.map(str::to_string) } else { None };
+    let references = raw_html.map(attachments::extract_references).unwrap_or_default();
 
     Ok(DiscussionDetail {
         id: t.id.unwrap_or(topic_id),
         course_id,
         title: t.title.unwrap_or_default(),
-        message_text: t.message.as_deref().map(text::html_to_text).unwrap_or_default(),
+        message_md,
+        message_html,
         posted_at: t.posted_at.map(|t| t.to_rfc3339()),
         author_name: t.user_name,
         html_url: t.html_url,
+        references,
         entries,
     })
 }
@@ -115,6 +126,7 @@ async fn fetch_entries(
     client: &CoolClient,
     course_id: i64,
     topic_id: i64,
+    with_html: bool,
 ) -> Result<Vec<DiscussionEntry>> {
     use cool_api::client::PaginatedResponse;
 
@@ -134,17 +146,15 @@ async fn fetch_entries(
             let Some(id) = raw.get("id").and_then(|v| v.as_i64()) else {
                 continue;
             };
+            let raw_msg = raw.get("message").and_then(|v| v.as_str());
             entries.push(DiscussionEntry {
                 id,
                 author_name: raw
                     .get("user_name")
                     .and_then(|v| v.as_str())
                     .map(String::from),
-                message_text: raw
-                    .get("message")
-                    .and_then(|v| v.as_str())
-                    .map(text::html_to_text)
-                    .unwrap_or_default(),
+                message_md: raw_msg.map(text::html_to_md).unwrap_or_default(),
+                message_html: if with_html { raw_msg.map(str::to_string) } else { None },
                 posted_at: raw
                     .get("created_at")
                     .and_then(|v| v.as_str())

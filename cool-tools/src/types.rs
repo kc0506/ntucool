@@ -154,28 +154,70 @@ pub struct AssignmentDetail {
     pub id: i64,
     pub course_id: i64,
     pub name: String,
-    /// Plain-text version of Canvas assignment description (HTML stripped).
-    pub description_text: Option<String>,
+    /// Markdown version of Canvas assignment description (HTML→Markdown via htmd).
+    /// `None` when Canvas returned no description at all (vs an empty string,
+    /// which means the description is intentionally blank).
+    pub description_md: Option<String>,
+    /// Raw Canvas description HTML, populated only when caller asked for it
+    /// (`with_html=true` on the MCP tool). Lets the AI see the original markup
+    /// when the markdown rendering loses something it cares about.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description_html: Option<String>,
     pub due_at: Option<String>,
     pub points_possible: Option<f64>,
     pub submission_types: Vec<String>,
     pub html_url: Option<String>,
     /// Rubric criteria when set. Empty Vec when no rubric.
     pub rubric: Vec<RubricCriterion>,
-    /// File references extracted from the assignment description's HTML
-    /// (`<a href=".../files/{id}">`). Canvas does not return a typed
-    /// `attachments` array on assignments. Use `files.get` with the `id`
-    /// to fetch full metadata (size, mime, signed URL).
-    pub attachments: Vec<AttachmentRef>,
+    /// Canvas-internal references mined from the description HTML — files,
+    /// pages, other assignments, discussions, modules. Each variant carries
+    /// the IDs needed to call the matching `*_get` / `files_fetch` tool.
+    pub references: Vec<CanvasRef>,
 }
 
+/// Canvas-internal link discovered in HTML content.
+///
+/// Tagged union so the AI can dispatch on `kind` without parsing URLs:
+/// File → `files_fetch` / `files_get_metadata`
+/// Page → `pages_get`
+/// Assignment → `assignments_get`
+/// DiscussionTopic → `discussions_get` / `announcements_get`
+/// Module → `modules_get`
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
-pub struct AttachmentRef {
-    pub id: i64,
-    /// Visible link text (usually the original filename).
-    pub name: String,
-    /// HTML `href` of the link.
-    pub url: String,
+#[serde(tag = "kind")]
+pub enum CanvasRef {
+    File {
+        id: i64,
+        /// Visible link text (usually the original filename).
+        name: String,
+        /// Original HTML `href`, kept for context — prefer `id` when calling tools.
+        href: String,
+    },
+    Page {
+        course_id: i64,
+        /// Canvas page URL slug (page primary key).
+        slug: String,
+        name: String,
+        href: String,
+    },
+    Assignment {
+        course_id: i64,
+        id: i64,
+        name: String,
+        href: String,
+    },
+    DiscussionTopic {
+        course_id: i64,
+        id: i64,
+        name: String,
+        href: String,
+    },
+    Module {
+        course_id: i64,
+        id: i64,
+        name: String,
+        href: String,
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
@@ -203,10 +245,15 @@ pub struct AnnouncementDetail {
     pub id: i64,
     pub course_id: i64,
     pub title: String,
-    /// Plain-text body (HTML stripped).
-    pub body_text: String,
+    /// Markdown body (HTML→Markdown via htmd).
+    pub body_md: String,
+    /// Raw Canvas HTML body, populated only when `with_html=true`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub body_html: Option<String>,
     pub posted_at: Option<String>,
     pub html_url: Option<String>,
+    /// Canvas-internal references mined from the announcement body HTML.
+    pub references: Vec<CanvasRef>,
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -263,10 +310,16 @@ pub struct DiscussionDetail {
     pub id: i64,
     pub course_id: i64,
     pub title: String,
-    pub message_text: String,
+    /// Markdown body (HTML→Markdown via htmd).
+    pub message_md: String,
+    /// Raw HTML body, populated only when `with_html=true`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub message_html: Option<String>,
     pub posted_at: Option<String>,
     pub author_name: Option<String>,
     pub html_url: Option<String>,
+    /// Canvas-internal references mined from the topic body HTML.
+    pub references: Vec<CanvasRef>,
     /// Top-level entries (first level of replies). Empty when caller did not
     /// request `with_entries`.
     pub entries: Vec<DiscussionEntry>,
@@ -276,7 +329,10 @@ pub struct DiscussionDetail {
 pub struct DiscussionEntry {
     pub id: i64,
     pub author_name: Option<String>,
-    pub message_text: String,
+    /// Markdown body for this entry.
+    pub message_md: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub message_html: Option<String>,
     pub posted_at: Option<String>,
 }
 
@@ -334,8 +390,13 @@ pub struct PageDetail {
     pub course_id: i64,
     pub url: String,
     pub title: String,
-    /// Plain-text body (HTML stripped).
-    pub body_text: String,
+    /// Markdown body (HTML→Markdown via htmd).
+    pub body_md: String,
+    /// Raw HTML body, populated only when `with_html=true`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub body_html: Option<String>,
     pub updated_at: Option<String>,
     pub html_url: Option<String>,
+    /// Canvas-internal references mined from the page body HTML.
+    pub references: Vec<CanvasRef>,
 }
