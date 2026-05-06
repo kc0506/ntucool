@@ -18,6 +18,8 @@ use cool_api::CoolClient;
 use crate::types::{CourseDetail, CourseSummary, ResolveMatch as ContractResolveMatch, TeacherSummary};
 
 const COURSE_CACHE_TTL_SECS: i64 = 3600;
+/// Past enrolments don't change, so cache them more aggressively.
+const ALL_ENROLMENTS_CACHE_TTL_SECS: i64 = 24 * 3600;
 
 /// One result from `resolve`.
 #[derive(Debug, Clone, Serialize)]
@@ -203,6 +205,12 @@ pub async fn list_summaries(
 
 /// Contract-shape resolver. Numeric IDs score 1.0; substring matches score
 /// `match_len / longer(name, code)` clamped to 0.6..0.95.
+///
+/// Searches active enrolments first (cached, fast). If nothing matches,
+/// falls back to ALL enrolments (active + completed) so past-semester
+/// courses don't become silently invisible — past matches are returned
+/// at the same scale but with `term` populated by the underlying listing
+/// when Canvas provided it.
 pub async fn resolve_with_score(
     client: &CoolClient,
     query: &str,
@@ -216,20 +224,35 @@ pub async fn resolve_with_score(
         }]);
     }
 
-    let courses = fetch_courses_cached(client).await?;
     let q = query.to_lowercase();
-    let q_len = q.chars().count() as f32;
 
-    let mut matches: Vec<ContractResolveMatch> = courses
-        .into_iter()
+    let active = fetch_courses_cached(client).await?;
+    let mut active_matches = score_matches(&active, &q);
+    active_matches.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
+    if !active_matches.is_empty() {
+        return Ok(active_matches);
+    }
+
+    // No active hit — surface past-semester enrolments. Cached separately
+    // with a longer TTL since the result rarely changes.
+    let all = fetch_all_enrolments_cached(client).await?;
+    let mut all_matches = score_matches(&all, &q);
+    all_matches.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
+    Ok(all_matches)
+}
+
+fn score_matches(courses: &[Course], q: &str) -> Vec<ContractResolveMatch> {
+    let q_len = q.chars().count() as f32;
+    courses
+        .iter()
         .filter_map(|c| {
             let id = c.id?;
-            let name = c.name.unwrap_or_default();
-            let code = c.course_code;
+            let name = c.name.clone().unwrap_or_default();
+            let code = c.course_code.clone();
             let name_l = name.to_lowercase();
             let code_l = code.as_deref().map(str::to_lowercase);
-            let name_hit = name_l.contains(&q);
-            let code_hit = code_l.as_deref().map(|c| c.contains(&q)).unwrap_or(false);
+            let name_hit = name_l.contains(q);
+            let code_hit = code_l.as_deref().map(|c| c.contains(q)).unwrap_or(false);
             if !(name_hit || code_hit) {
                 return None;
             }
@@ -247,9 +270,7 @@ pub async fn resolve_with_score(
                 score,
             })
         })
-        .collect();
-    matches.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
-    Ok(matches)
+        .collect()
 }
 
 /// Contract-shape course detail (syllabus + term + teachers).
@@ -385,6 +406,61 @@ async fn fetch_active_from_api(client: &CoolClient) -> Result<Vec<Course>> {
         enrollment_role: None,
         enrollment_role_id: None,
         enrollment_state: Some("active".to_string()),
+        exclude_blueprint_courses: None,
+        include: None,
+        state: None,
+    };
+
+    let mut courses: Vec<Course> = Vec::new();
+    let mut stream = std::pin::pin!(endpoints::list_your_courses(client, &params));
+    while let Some(item) = stream.next().await {
+        courses.push(item?);
+    }
+    Ok(courses)
+}
+
+fn all_enrolments_cache_path() -> PathBuf {
+    let cache_home = std::env::var("XDG_CACHE_HOME")
+        .map(PathBuf::from)
+        .unwrap_or_else(|_| {
+            let home = std::env::var("HOME").expect("HOME not set");
+            PathBuf::from(home).join(".cache")
+        });
+    cache_home.join("ntucool").join("courses-all.json")
+}
+
+async fn fetch_all_enrolments_cached(client: &CoolClient) -> Result<Vec<Course>> {
+    let path = all_enrolments_cache_path();
+    if let Ok(data) = tokio::fs::read_to_string(&path).await {
+        if let Ok(cache) = serde_json::from_str::<CourseCache>(&data) {
+            let age = chrono::Utc::now() - cache.fetched_at;
+            if age.num_seconds() < ALL_ENROLMENTS_CACHE_TTL_SECS {
+                return Ok(cache.courses);
+            }
+        }
+    }
+
+    let courses = fetch_all_enrolments_from_api(client).await?;
+    let cache = CourseCache {
+        fetched_at: chrono::Utc::now(),
+        courses: courses.clone(),
+    };
+    if let Ok(json) = serde_json::to_string(&cache) {
+        if let Some(parent) = path.parent() {
+            let _ = tokio::fs::create_dir_all(parent).await;
+        }
+        let _ = tokio::fs::write(&path, json).await;
+    }
+    Ok(courses)
+}
+
+async fn fetch_all_enrolments_from_api(client: &CoolClient) -> Result<Vec<Course>> {
+    // Omitting enrollment_state returns active + completed + invited.
+    let params = ListYourCoursesParams {
+        enrollment_type: None,
+        enrollment_role: None,
+        enrollment_role_id: None,
+        enrollment_state: None,
         exclude_blueprint_courses: None,
         include: None,
         state: None,
