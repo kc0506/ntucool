@@ -1,0 +1,20 @@
+# Rust build artifacts
+/target/
+**/target/
+
+# Backup file produced by `cargo update`
+Cargo.lock.bak
+
+# Editor / OS cruft
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
+
+# Local environment overrides
+.env
+.envrc
+
+# Generic backup / scratch
+*.bak
