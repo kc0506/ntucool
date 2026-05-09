@@ -357,13 +357,7 @@ pub async fn resolve_one(client: &CoolClient, query: &str) -> Result<i64> {
 // ---------- internal cache ----------
 
 fn cache_path() -> PathBuf {
-    let cache_home = std::env::var("XDG_CACHE_HOME")
-        .map(PathBuf::from)
-        .unwrap_or_else(|_| {
-            let home = std::env::var("HOME").expect("HOME not set");
-            PathBuf::from(home).join(".cache")
-        });
-    cache_home.join("ntucool").join("courses.json")
+    cool_api::paths::courses_cache_path()
 }
 
 #[derive(Serialize, Deserialize)]
@@ -420,13 +414,7 @@ async fn fetch_active_from_api(client: &CoolClient) -> Result<Vec<Course>> {
 }
 
 fn all_enrolments_cache_path() -> PathBuf {
-    let cache_home = std::env::var("XDG_CACHE_HOME")
-        .map(PathBuf::from)
-        .unwrap_or_else(|_| {
-            let home = std::env::var("HOME").expect("HOME not set");
-            PathBuf::from(home).join(".cache")
-        });
-    cache_home.join("ntucool").join("courses-all.json")
+    cool_api::paths::all_enrolments_cache_path()
 }
 
 async fn fetch_all_enrolments_cached(client: &CoolClient) -> Result<Vec<Course>> {

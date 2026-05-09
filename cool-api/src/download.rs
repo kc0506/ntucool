@@ -30,7 +30,10 @@ pub async fn download_file_with_progress(
         .as_ref()
         .ok_or_else(|| Error::Download("File has no download URL".into()))?;
 
-    let session = client.session().await;
+    let session = client
+        .session()
+        .await
+        .ok_or_else(|| Error::Download("No session — run `cool login` first".into()))?;
     let cookie_header: String = session
         .cookies
         .iter()

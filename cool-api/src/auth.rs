@@ -1,66 +1,13 @@
 use std::collections::HashMap;
-use std::fs;
-use std::path::PathBuf;
-use std::process::Command;
 
 use reqwest::redirect::Policy;
-use serde::Deserialize;
 
+use crate::credentials::Credentials;
 use crate::error::Error;
 use crate::session::Session;
 
 pub(crate) const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36";
 const BASE_URL: &str = "https://cool.ntu.edu.tw";
-
-#[derive(Debug, Deserialize)]
-struct Credentials {
-    username: String,
-    password: Option<String>,
-    password_cmd: Option<String>,
-}
-
-impl Credentials {
-    fn default_path() -> PathBuf {
-        let config_home = std::env::var("XDG_CONFIG_HOME")
-            .map(PathBuf::from)
-            .unwrap_or_else(|_| {
-                let home = std::env::var("HOME").expect("HOME not set");
-                PathBuf::from(home).join(".config")
-            });
-        config_home.join("ntucool").join("credentials.json")
-    }
-
-    fn load(path: &PathBuf) -> Result<Self, Error> {
-        let data = fs::read_to_string(path)
-            .map_err(|_| Error::NoCredentials(path.display().to_string()))?;
-        let creds: Credentials =
-            serde_json::from_str(&data).map_err(|e| Error::Auth(e.to_string()))?;
-        Ok(creds)
-    }
-
-    fn resolve_password(&self) -> Result<String, Error> {
-        if let Some(ref pw) = self.password {
-            return Ok(pw.clone());
-        }
-        if let Some(ref cmd) = self.password_cmd {
-            let output = Command::new("sh")
-                .arg("-c")
-                .arg(cmd)
-                .output()
-                .map_err(|e| Error::PasswordCmd(e.to_string()))?;
-            if !output.status.success() {
-                return Err(Error::PasswordCmd(format!(
-                    "command `{}` exited with {}",
-                    cmd, output.status
-                )));
-            }
-            return Ok(String::from_utf8_lossy(&output.stdout).trim().to_string());
-        }
-        Err(Error::Auth(
-            "credentials.json has neither password nor password_cmd".into(),
-        ))
-    }
-}
 
 /// Perform the full NTU ADFS SAML login flow and return a Session.
 pub async fn saml_login(username: &str, password: &str) -> Result<Session, Error> {
@@ -230,7 +177,7 @@ pub async fn login_with_saved_credentials_verbose(verbose: bool) -> Result<Sessi
 async fn login_with_saved_credentials_inner(verbose: bool) -> Result<Session, Error> {
     let creds_path = Credentials::default_path();
     if verbose { eprintln!("[debug] Credentials path: {}", creds_path.display()); }
-    let creds = Credentials::load(&creds_path)?;
+    let creds = Credentials::load_from(&creds_path)?;
     let password = creds.resolve_password()?;
     saml_login_inner(&creds.username, &password, verbose).await
 }

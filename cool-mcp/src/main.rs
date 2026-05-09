@@ -623,40 +623,14 @@ fn to_mcp_err(e: anyhow::Error) -> ErrorData {
 // Bootstrap helpers
 // ────────────────────────────────────────────────────────────────────────────
 
-fn xdg_cache_home() -> PathBuf {
-    std::env::var("XDG_CACHE_HOME")
-        .map(PathBuf::from)
-        .unwrap_or_else(|_| {
-            let home = std::env::var("HOME").expect("HOME not set");
-            PathBuf::from(home).join(".cache")
-        })
-}
-
-/// Server-internal cache directory. Holds raw bytes downloaded from Canvas;
-/// never exposed in any URI returned to the client.
-fn server_cache_dir() -> PathBuf {
-    xdg_cache_home().join("cool-mcp").join("cache")
-}
-
-/// Server-internal cache for PDF text extraction. JSON sidecars keyed
-/// identically to the bytes cache.
-fn server_text_cache_dir() -> PathBuf {
-    xdg_cache_home().join("cool-mcp").join("text")
-}
-
 /// stdio mode default output dir (where `files_fetch` puts a copy a client
-/// can read). Distinct from `server_cache_dir`. Override via `COOL_MCP_OUTPUT_DIR`.
+/// can read). Distinct from cool-mcp's internal cache. Override via
+/// `COOL_MCP_OUTPUT_DIR`.
 fn default_stdio_output_dir() -> PathBuf {
     if let Ok(v) = std::env::var("COOL_MCP_OUTPUT_DIR") {
         return PathBuf::from(v);
     }
-    let base = std::env::var("XDG_DATA_HOME")
-        .map(PathBuf::from)
-        .unwrap_or_else(|_| {
-            let home = std::env::var("HOME").expect("HOME not set");
-            PathBuf::from(home).join(".local").join("share")
-        });
-    base.join("cool-mcp").join("files")
+    cool_api::paths::mcp_publish_dir()
 }
 
 /// Build the publisher requested by env. Async because `HttpPublisher::start`
@@ -704,28 +678,27 @@ async fn main() -> Result<()> {
         )
         .init();
 
-    let client = CoolClient::from_default_session()
-        .map_err(|e| anyhow::anyhow!("No valid session ({e}). Run `cool login` first."))?;
+    // Lazy client: starts up cleanly even when no session.json exists yet.
+    // The first authenticated tool call drives the relogin chain (which
+    // requires credentials.json + password_cmd to succeed; otherwise the
+    // call surfaces a clear 'no credentials' error to the AI client).
+    let client = CoolClient::from_default_session_lazy();
     {
-        // Surface a likely-expired session at startup. We don't fail — the
-        // session might still work — but an AI client otherwise sees nothing
-        // until a tool call 401s deep in the API. Empirical TTL is ~24h.
         let path = cool_api::session::Session::default_path();
-        if let Ok(s) = cool_api::session::Session::load(&path) {
-            if s.is_likely_expired() {
-                tracing::warn!(
-                    age_hours = s.age_hours(),
-                    "Session likely expired (>24h since login). \
-                     Tools may 401 — re-run `cool login` to refresh."
-                );
-            } else {
-                tracing::info!(age_hours = s.age_hours(), "Session loaded");
-            }
+        match cool_api::session::Session::load(&path) {
+            Ok(s) if s.is_likely_expired() => tracing::warn!(
+                age_hours = s.age_hours(),
+                "Session likely expired (>24h since login); 401 retry will use saved credentials"
+            ),
+            Ok(s) => tracing::info!(age_hours = s.age_hours(), "Session loaded"),
+            Err(_) => tracing::warn!(
+                "No session.json found; will attempt login via saved credentials on first request"
+            ),
         }
     }
 
-    let cache_dir = server_cache_dir();
-    let text_cache_dir = server_text_cache_dir();
+    let cache_dir = cool_api::paths::mcp_files_cache_dir();
+    let text_cache_dir = cool_api::paths::mcp_text_cache_dir();
     std::fs::create_dir_all(&cache_dir).ok();
     std::fs::create_dir_all(&text_cache_dir).ok();
 

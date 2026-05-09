@@ -445,11 +445,11 @@ impl App {
                     self.login_loading = false;
                     return;
                 }
-                // Also save credentials
-                if let Err(e) = save_credentials(&self.login_username, &self.login_password) {
-                    // Non-fatal
-                    self.status_message = Some(format!("Warning: couldn't save credentials: {e}"));
-                }
+                // TUI doesn't currently support setting password_cmd; the
+                // session.json above is enough for the TUI itself. To enable
+                // non-interactive re-login (cool-mcp's 401 chain), users
+                // should run `cool login` from the terminal and supply a
+                // password_cmd there.
 
                 let client = Arc::new(CoolClient::new(session, path));
                 let data = Arc::new(DataService::new(client.clone()));
@@ -1388,20 +1388,3 @@ impl App {
     }
 }
 
-fn save_credentials(username: &str, _password: &str) -> anyhow::Result<()> {
-    let config_dir = dirs::config_dir()
-        .unwrap_or_default()
-        .join("ntucool");
-    std::fs::create_dir_all(&config_dir)?;
-    let cred_path = config_dir.join("credentials.json");
-    let creds = serde_json::json!({
-        "username": username,
-    });
-    std::fs::write(&cred_path, serde_json::to_string_pretty(&creds)?)?;
-    #[cfg(unix)]
-    {
-        use std::os::unix::fs::PermissionsExt;
-        std::fs::set_permissions(&cred_path, std::fs::Permissions::from_mode(0o600))?;
-    }
-    Ok(())
-}

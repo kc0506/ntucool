@@ -20,6 +20,7 @@ async fn run(cli: Cli) -> anyhow::Result<()> {
 
     match cli.command {
         Commands::Login => commands::login::run(opts).await,
+        Commands::Logout(args) => commands::logout::run(&args, opts).await,
         Commands::Whoami => commands::whoami::run(opts).await,
         Commands::Course(sub) => commands::course::run(sub, opts).await,
         Commands::Assignment(args) => commands::assignment::run(args, opts).await,

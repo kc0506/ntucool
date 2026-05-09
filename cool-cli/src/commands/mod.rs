@@ -4,6 +4,7 @@ pub mod course;
 pub mod discussion;
 pub mod file;
 pub mod login;
+pub mod logout;
 pub mod module;
 pub mod whoami;
 
@@ -36,6 +37,9 @@ pub enum Commands {
     /// Login to NTU COOL
     Login,
 
+    /// Remove saved session (and optionally credentials)
+    Logout(logout::LogoutArgs),
+
     /// Show current user info
     Whoami,
 
@@ -63,9 +67,10 @@ pub enum Commands {
     Module(module::ModuleCommand),
 }
 
-/// Create a CoolClient from the saved session, or bail with a helpful message.
+/// Construct a lazy `CoolClient`. If session.json is missing or expired
+/// AND credentials.json is set up, the first authenticated call triggers
+/// an automatic saml_login. If neither exists, the call surfaces a clear
+/// "No credentials found" error from the canonical path.
 pub fn get_client() -> anyhow::Result<cool_api::CoolClient> {
-    cool_api::CoolClient::from_default_session().map_err(|_| {
-        anyhow::anyhow!("No valid session found. Please run `cool login` first.")
-    })
+    Ok(cool_api::CoolClient::from_default_session_lazy())
 }

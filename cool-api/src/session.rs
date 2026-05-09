@@ -50,13 +50,16 @@ impl Session {
 
     /// Default session file path: $XDG_DATA_HOME/ntucool/session.json
     pub fn default_path() -> PathBuf {
-        let data_home = std::env::var("XDG_DATA_HOME")
-            .map(PathBuf::from)
-            .unwrap_or_else(|_| {
-                let home = std::env::var("HOME").expect("HOME not set");
-                PathBuf::from(home).join(".local/share")
-            });
-        data_home.join("ntucool").join("session.json")
+        crate::paths::session_path()
+    }
+
+    /// Remove session.json. Idempotent (NotFound is success). Used by `cool logout`.
+    pub fn delete_default() -> Result<(), Error> {
+        match fs::remove_file(Self::default_path()) {
+            Ok(_) => Ok(()),
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
+            Err(e) => Err(Error::SessionSave(e.to_string())),
+        }
     }
 
     pub fn load(path: &PathBuf) -> Result<Self, Error> {

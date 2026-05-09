@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use reqwest::header::{HeaderMap, HeaderValue};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-use tokio::sync::RwLock;
+use tokio::sync::{Mutex, RwLock};
 
 use crate::error::Error;
 use crate::session::Session;
@@ -17,15 +17,35 @@ pub struct PaginatedResponse<T> {
     pub next_url: Option<String>,
 }
 
-/// Canvas API client with automatic cookie injection, CSRF handling, and 401 auto-retry.
+/// Canvas API client with cookie injection, CSRF handling, and 401 auto-retry.
+///
+/// The session lives behind a `RwLock<SessionState>`. State carries a
+/// monotonically-increasing generation counter so concurrent 401 callers can
+/// tell whether someone else already re-logged-in (single-flight). The
+/// session is `Option` so the client can be constructed BEFORE any session
+/// exists — useful for long-running servers (cool-mcp) that want to start
+/// up cleanly on a fresh machine and recover via the 401 path on the first
+/// request.
 pub struct CoolClient {
     http: reqwest::Client,
-    session: RwLock<Session>,
+    state: RwLock<SessionState>,
     session_path: PathBuf,
+    relogin_lock: Mutex<()>,
+}
+
+struct SessionState {
+    session: Option<Session>,
+    /// Bumped on every successful re-login. Used to detect "someone else
+    /// already refreshed" inside `try_relogin_if_stale`.
+    gen: u64,
 }
 
 impl CoolClient {
     pub fn new(session: Session, session_path: PathBuf) -> Self {
+        Self::from_state(Some(session), session_path)
+    }
+
+    fn from_state(session: Option<Session>, session_path: PathBuf) -> Self {
         let http = reqwest::Client::builder()
             .user_agent("cool-api/0.1.0")
             .build()
@@ -33,8 +53,9 @@ impl CoolClient {
 
         Self {
             http,
-            session: RwLock::new(session),
+            state: RwLock::new(SessionState { session, gen: 0 }),
             session_path,
+            relogin_lock: Mutex::new(()),
         }
     }
 
@@ -46,6 +67,15 @@ impl CoolClient {
     pub fn from_default_session() -> Result<Self> {
         let path = Session::default_path();
         Self::from_session_path(path)
+    }
+
+    /// Tolerant constructor: succeeds even when no session.json exists.
+    /// The first authenticated request will trigger `login_with_saved_credentials`
+    /// (provided credentials.json is set up) via the 401 chain.
+    pub fn from_default_session_lazy() -> Self {
+        let path = Session::default_path();
+        let session = Session::load(&path).ok();
+        Self::from_state(session, path)
     }
 
     fn build_url(&self, session: &Session, path: &str) -> String {
@@ -95,12 +125,42 @@ impl CoolClient {
             .header("Cookie", Self::cookie_header(session))
     }
 
-    /// Attempt re-login with saved credentials and update internal session.
-    /// Returns Ok(()) if successful, or the original error if re-login fails.
-    async fn try_relogin(&self) -> Result<()> {
+    /// Snapshot the session for a single request. If no session exists yet,
+    /// triggers a relogin via the same single-flight path 401 uses.
+    async fn snapshot(&self) -> Result<(Session, u64)> {
+        {
+            let s = self.state.read().await;
+            if let Some(ref sess) = s.session {
+                return Ok((sess.clone(), s.gen));
+            }
+        }
+        // No session yet — treat as a "permanent 401" and run the recovery chain.
+        self.try_relogin_if_stale(0).await?;
+        let s = self.state.read().await;
+        let sess = s
+            .session
+            .clone()
+            .ok_or_else(|| Error::Auth("relogin succeeded but session is empty".into()))?;
+        Ok((sess, s.gen))
+    }
+
+    /// Re-login with saved credentials, but only if the current generation
+    /// is still `observed_gen`. Concurrent 401 callers will all attempt this
+    /// in series; the second-onward see a higher `gen` after the first
+    /// completes and return `Ok(())` without re-running saml_login.
+    async fn try_relogin_if_stale(&self, observed_gen: u64) -> Result<()> {
+        let _guard = self.relogin_lock.lock().await;
+        {
+            let s = self.state.read().await;
+            if s.gen > observed_gen && s.session.is_some() {
+                return Ok(());
+            }
+        }
         let new_session = crate::auth::login_with_saved_credentials().await?;
         new_session.save(&self.session_path)?;
-        *self.session.write().await = new_session;
+        let mut s = self.state.write().await;
+        s.session = Some(new_session);
+        s.gen = s.gen.saturating_add(1);
         Ok(())
     }
 
@@ -118,26 +178,25 @@ impl CoolClient {
         path: &str,
         query: Option<&Q>,
     ) -> Result<T> {
-        // First attempt
-        let result = {
-            let session = self.session.read().await;
+        let (session, gen) = self.snapshot().await?;
+        let result: Result<T> = async {
             let url = self.build_url(&session, path);
             let mut req = self.request_with_session(reqwest::Method::GET, &url, &session);
             if let Some(q) = query {
                 req = req.query(q);
             }
             let resp = req.send().await?.error_for_status()?;
-            resp.json().await.map_err(Error::from)
-        };
+            Ok(resp.json().await?)
+        }
+        .await;
 
         match result {
             Err(ref e) if Self::is_unauthorized(e) => {}
             other => return other,
         }
 
-        // 401 → retry after re-login
-        self.try_relogin().await?;
-        let session = self.session.read().await;
+        self.try_relogin_if_stale(gen).await?;
+        let (session, _) = self.snapshot().await?;
         let url = self.build_url(&session, path);
         let mut req = self.request_with_session(reqwest::Method::GET, &url, &session);
         if let Some(q) = query {
@@ -152,8 +211,8 @@ impl CoolClient {
         path: &str,
         body: &B,
     ) -> Result<T> {
-        let result = {
-            let session = self.session.read().await;
+        let (session, gen) = self.snapshot().await?;
+        let result: Result<T> = async {
             let url = self.build_url(&session, path);
             let resp = self
                 .request_with_session(reqwest::Method::POST, &url, &session)
@@ -161,16 +220,17 @@ impl CoolClient {
                 .send()
                 .await?
                 .error_for_status()?;
-            resp.json().await.map_err(Error::from)
-        };
+            Ok(resp.json().await?)
+        }
+        .await;
 
         match result {
             Err(ref e) if Self::is_unauthorized(e) => {}
             other => return other,
         }
 
-        self.try_relogin().await?;
-        let session = self.session.read().await;
+        self.try_relogin_if_stale(gen).await?;
+        let (session, _) = self.snapshot().await?;
         let url = self.build_url(&session, path);
         let resp = self
             .request_with_session(reqwest::Method::POST, &url, &session)
@@ -186,8 +246,8 @@ impl CoolClient {
         path: &str,
         body: &B,
     ) -> Result<T> {
-        let result = {
-            let session = self.session.read().await;
+        let (session, gen) = self.snapshot().await?;
+        let result: Result<T> = async {
             let url = self.build_url(&session, path);
             let resp = self
                 .request_with_session(reqwest::Method::PUT, &url, &session)
@@ -195,16 +255,17 @@ impl CoolClient {
                 .send()
                 .await?
                 .error_for_status()?;
-            resp.json().await.map_err(Error::from)
-        };
+            Ok(resp.json().await?)
+        }
+        .await;
 
         match result {
             Err(ref e) if Self::is_unauthorized(e) => {}
             other => return other,
         }
 
-        self.try_relogin().await?;
-        let session = self.session.read().await;
+        self.try_relogin_if_stale(gen).await?;
+        let (session, _) = self.snapshot().await?;
         let url = self.build_url(&session, path);
         let resp = self
             .request_with_session(reqwest::Method::PUT, &url, &session)
@@ -216,24 +277,25 @@ impl CoolClient {
     }
 
     pub async fn delete<T: DeserializeOwned>(&self, path: &str) -> Result<T> {
-        let result = {
-            let session = self.session.read().await;
+        let (session, gen) = self.snapshot().await?;
+        let result: Result<T> = async {
             let url = self.build_url(&session, path);
             let resp = self
                 .request_with_session(reqwest::Method::DELETE, &url, &session)
                 .send()
                 .await?
                 .error_for_status()?;
-            resp.json().await.map_err(Error::from)
-        };
+            Ok(resp.json().await?)
+        }
+        .await;
 
         match result {
             Err(ref e) if Self::is_unauthorized(e) => {}
             other => return other,
         }
 
-        self.try_relogin().await?;
-        let session = self.session.read().await;
+        self.try_relogin_if_stale(gen).await?;
+        let (session, _) = self.snapshot().await?;
         let url = self.build_url(&session, path);
         let resp = self
             .request_with_session(reqwest::Method::DELETE, &url, &session)
@@ -248,8 +310,8 @@ impl CoolClient {
         path: &str,
         body: &B,
     ) -> Result<T> {
-        let result = {
-            let session = self.session.read().await;
+        let (session, gen) = self.snapshot().await?;
+        let result: Result<T> = async {
             let url = self.build_url(&session, path);
             let resp = self
                 .request_with_session(reqwest::Method::PATCH, &url, &session)
@@ -257,16 +319,17 @@ impl CoolClient {
                 .send()
                 .await?
                 .error_for_status()?;
-            resp.json().await.map_err(Error::from)
-        };
+            Ok(resp.json().await?)
+        }
+        .await;
 
         match result {
             Err(ref e) if Self::is_unauthorized(e) => {}
             other => return other,
         }
 
-        self.try_relogin().await?;
-        let session = self.session.read().await;
+        self.try_relogin_if_stale(gen).await?;
+        let (session, _) = self.snapshot().await?;
         let url = self.build_url(&session, path);
         let resp = self
             .request_with_session(reqwest::Method::PATCH, &url, &session)
@@ -280,24 +343,24 @@ impl CoolClient {
     // ----- Void variants -----
 
     pub async fn get_void(&self, path: &str) -> Result<()> {
-        let result = {
-            let session = self.session.read().await;
+        let (session, gen) = self.snapshot().await?;
+        let result: Result<()> = async {
             let url = self.build_url(&session, path);
             self.request_with_session(reqwest::Method::GET, &url, &session)
                 .send()
                 .await?
-                .error_for_status()
-                .map(|_| ())
-                .map_err(Error::from)
-        };
+                .error_for_status()?;
+            Ok(())
+        }
+        .await;
 
         match result {
             Err(ref e) if Self::is_unauthorized(e) => {}
             other => return other,
         }
 
-        self.try_relogin().await?;
-        let session = self.session.read().await;
+        self.try_relogin_if_stale(gen).await?;
+        let (session, _) = self.snapshot().await?;
         let url = self.build_url(&session, path);
         self.request_with_session(reqwest::Method::GET, &url, &session)
             .send()
@@ -307,25 +370,25 @@ impl CoolClient {
     }
 
     pub async fn post_void<B: Serialize>(&self, path: &str, body: &B) -> Result<()> {
-        let result = {
-            let session = self.session.read().await;
+        let (session, gen) = self.snapshot().await?;
+        let result: Result<()> = async {
             let url = self.build_url(&session, path);
             self.request_with_session(reqwest::Method::POST, &url, &session)
                 .json(body)
                 .send()
                 .await?
-                .error_for_status()
-                .map(|_| ())
-                .map_err(Error::from)
-        };
+                .error_for_status()?;
+            Ok(())
+        }
+        .await;
 
         match result {
             Err(ref e) if Self::is_unauthorized(e) => {}
             other => return other,
         }
 
-        self.try_relogin().await?;
-        let session = self.session.read().await;
+        self.try_relogin_if_stale(gen).await?;
+        let (session, _) = self.snapshot().await?;
         let url = self.build_url(&session, path);
         self.request_with_session(reqwest::Method::POST, &url, &session)
             .json(body)
@@ -336,25 +399,25 @@ impl CoolClient {
     }
 
     pub async fn put_void<B: Serialize>(&self, path: &str, body: &B) -> Result<()> {
-        let result = {
-            let session = self.session.read().await;
+        let (session, gen) = self.snapshot().await?;
+        let result: Result<()> = async {
             let url = self.build_url(&session, path);
             self.request_with_session(reqwest::Method::PUT, &url, &session)
                 .json(body)
                 .send()
                 .await?
-                .error_for_status()
-                .map(|_| ())
-                .map_err(Error::from)
-        };
+                .error_for_status()?;
+            Ok(())
+        }
+        .await;
 
         match result {
             Err(ref e) if Self::is_unauthorized(e) => {}
             other => return other,
         }
 
-        self.try_relogin().await?;
-        let session = self.session.read().await;
+        self.try_relogin_if_stale(gen).await?;
+        let (session, _) = self.snapshot().await?;
         let url = self.build_url(&session, path);
         self.request_with_session(reqwest::Method::PUT, &url, &session)
             .json(body)
@@ -365,24 +428,24 @@ impl CoolClient {
     }
 
     pub async fn delete_void(&self, path: &str) -> Result<()> {
-        let result = {
-            let session = self.session.read().await;
+        let (session, gen) = self.snapshot().await?;
+        let result: Result<()> = async {
             let url = self.build_url(&session, path);
             self.request_with_session(reqwest::Method::DELETE, &url, &session)
                 .send()
                 .await?
-                .error_for_status()
-                .map(|_| ())
-                .map_err(Error::from)
-        };
+                .error_for_status()?;
+            Ok(())
+        }
+        .await;
 
         match result {
             Err(ref e) if Self::is_unauthorized(e) => {}
             other => return other,
         }
 
-        self.try_relogin().await?;
-        let session = self.session.read().await;
+        self.try_relogin_if_stale(gen).await?;
+        let (session, _) = self.snapshot().await?;
         let url = self.build_url(&session, path);
         self.request_with_session(reqwest::Method::DELETE, &url, &session)
             .send()
@@ -392,25 +455,25 @@ impl CoolClient {
     }
 
     pub async fn patch_void<B: Serialize>(&self, path: &str, body: &B) -> Result<()> {
-        let result = {
-            let session = self.session.read().await;
+        let (session, gen) = self.snapshot().await?;
+        let result: Result<()> = async {
             let url = self.build_url(&session, path);
             self.request_with_session(reqwest::Method::PATCH, &url, &session)
                 .json(body)
                 .send()
                 .await?
-                .error_for_status()
-                .map(|_| ())
-                .map_err(Error::from)
-        };
+                .error_for_status()?;
+            Ok(())
+        }
+        .await;
 
         match result {
             Err(ref e) if Self::is_unauthorized(e) => {}
             other => return other,
         }
 
-        self.try_relogin().await?;
-        let session = self.session.read().await;
+        self.try_relogin_if_stale(gen).await?;
+        let (session, _) = self.snapshot().await?;
         let url = self.build_url(&session, path);
         self.request_with_session(reqwest::Method::PATCH, &url, &session)
             .json(body)
@@ -428,8 +491,8 @@ impl CoolClient {
         path: &str,
         query: Option<&Q>,
     ) -> Result<PaginatedResponse<T>> {
+        let (session, gen) = self.snapshot().await?;
         let result: Result<PaginatedResponse<T>> = async {
-            let session = self.session.read().await;
             let url = self.build_url(&session, path);
             let mut req = self.request_with_session(reqwest::Method::GET, &url, &session);
             if let Some(q) = query {
@@ -447,8 +510,8 @@ impl CoolClient {
             other => return other,
         }
 
-        self.try_relogin().await?;
-        let session = self.session.read().await;
+        self.try_relogin_if_stale(gen).await?;
+        let (session, _) = self.snapshot().await?;
         let url = self.build_url(&session, path);
         let mut req = self.request_with_session(reqwest::Method::GET, &url, &session);
         if let Some(q) = query {
@@ -462,8 +525,12 @@ impl CoolClient {
 
     // ----- Session access -----
 
-    pub async fn session(&self) -> Session {
-        self.session.read().await.clone()
+    /// Returns the current session, if any. Used by call sites that need to
+    /// know e.g. age (`Session::age_hours`) for diagnostics. Returns `None`
+    /// when the client was constructed lazily and no request has yet
+    /// triggered a login.
+    pub async fn session(&self) -> Option<Session> {
+        self.state.read().await.session.clone()
     }
 }
 
