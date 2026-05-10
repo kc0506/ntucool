@@ -841,11 +841,15 @@ pub struct CanvasResult {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub passed: Option<bool>,
+    pub userId: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub assessed_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub resultScore: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub links: Option<ResultLinks>,
+    pub resultMaximum: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub comment: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub scoreOf: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -1938,9 +1942,9 @@ pub struct Grade {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub final_grade: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub current_score: Option<String>,
+    pub current_score: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub final_score: Option<String>,
+    pub final_score: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub current_points: Option<i64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1948,9 +1952,9 @@ pub struct Grade {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub unposted_final_grade: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub unposted_current_score: Option<String>,
+    pub unposted_current_score: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub unposted_final_score: Option<String>,
+    pub unposted_final_score: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub unposted_current_points: Option<i64>,
 }
@@ -2482,15 +2486,31 @@ pub struct Module {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<i64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub name: Option<String>,
+    pub workflow_state: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub position: Option<i64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub unlock_at: Option<chrono::DateTime<chrono::Utc>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub require_sequential_progress: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub prerequisite_module_ids: Option<Vec<i64>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub items_count: Option<i64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub items_url: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub items: Option<Vec<ModuleItem>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub context_id: Option<i64>,
+    pub state: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub context_type: Option<String>,
+    pub completed_at: Option<chrono::DateTime<chrono::Utc>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub publish_final_grade: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub published: Option<bool>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -2512,23 +2532,32 @@ pub struct ModuleItem {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<i64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub duration: Option<i64>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub course_pace_id: Option<i64>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub root_account_id: Option<i64>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub module_item_id: Option<i64>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub assignment_title: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub points_possible: Option<f64>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub assignment_link: Option<String>,
+    pub module_id: Option<i64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub position: Option<i64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub module_item_type: Option<String>,
+    pub title: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub indent: Option<i64>,
+    #[serde(rename = "type")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub r#type: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub content_id: Option<i64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub html_url: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub url: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub page_url: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub external_url: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub new_tab: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub completion_requirement: Option<CompletionRequirement>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub content_details: Option<ContentDetails>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub published: Option<bool>,
 }
@@ -2740,11 +2769,17 @@ pub struct Outcome {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct OutcomeAlignment {
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub id: Option<String>,
+    pub id: Option<i64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub name: Option<String>,
+    pub assignment_id: Option<i64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub html_url: Option<String>,
+    pub assessment_id: Option<i64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub submission_types: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub url: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -3944,8 +3979,6 @@ pub struct RubricAssociation {
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct RubricCriteria {
-    // Canvas generator emits i64; Canvas the API returns float (e.g. 5.0).
-    // Patched to f64 to avoid decode failure on bucket-less assignments_list.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub points: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -3974,7 +4007,6 @@ pub struct RubricCriterion {
     pub description: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub long_description: Option<String>,
-    // See RubricCriteria.points: Canvas returns float despite generator emitting i64.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub points: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -3985,15 +4017,16 @@ pub struct RubricCriterion {
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct RubricRating {
-    // See RubricCriteria.points: Canvas returns float despite generator emitting i64.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub points: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub criterion_id: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub long_description: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub points: Option<f64>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -4046,19 +4079,18 @@ pub struct Score {
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ScoreStatistic {
-    // Canvas returns these as floats; generator emits i64. Same fix as RubricCriteria.points.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub min: Option<f64>,
+    pub min: Option<i64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub max: Option<f64>,
+    pub max: Option<i64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub mean: Option<f64>,
+    pub mean: Option<i64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub upper_q: Option<f64>,
+    pub upper_q: Option<i64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub median: Option<f64>,
+    pub median: Option<i64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub lower_q: Option<f64>,
+    pub lower_q: Option<i64>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -4369,15 +4401,27 @@ pub struct StudentAttributes {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Submission {
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub lti_course_id: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub course_id: Option<i64>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub assignment_id: Option<i64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub assignment: Option<serde_json::Value>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub course: Option<Course>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub attempt: Option<i64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub body: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub grade: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub grade_matches_current_submission: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub html_url: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub preview_url: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub score: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub submission_comments: Option<Vec<SubmissionComment>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub submission_type: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -4387,11 +4431,37 @@ pub struct Submission {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub user_id: Option<i64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub eula_agreement_timestamp: Option<String>,
+    pub grader_id: Option<i64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub graded_at: Option<chrono::DateTime<chrono::Utc>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub user: Option<User>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub late: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub assignment_visible: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub excused: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub missing: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub late_policy_status: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub points_deducted: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub seconds_late: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub workflow_state: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub attachments: Option<std::path::PathBuf>,
+    pub extra_attempts: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub anonymous_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub posted_at: Option<chrono::DateTime<chrono::Utc>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub read_status: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub redo_request: Option<bool>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]

@@ -6,6 +6,64 @@
           "type": "object"
         }
       }
+    },
+    "Grade": {
+      "fields": {
+        "current_score": {
+          "type": "number"
+        },
+        "final_score": {
+          "type": "number"
+        },
+        "unposted_current_score": {
+          "type": "number"
+        },
+        "unposted_final_score": {
+          "type": "number"
+        }
+      }
+    },
+    "Submission": {
+      "fields": {
+        "assignment": {
+          "type": "object"
+        }
+      }
+    },
+    "RubricCriteria": {
+      "fields": {
+        "points": {
+          "type": "number"
+        }
+      }
+    },
+    "RubricCriterion": {
+      "fields": {
+        "points": {
+          "type": "number"
+        }
+      }
+    },
+    "RubricRating": {
+      "fields": {
+        "points": {
+          "type": "number"
+        }
+      }
+    }
+  },
+  "endpoints": {
+    "list_submissions_for_multiple_assignments_courses": {
+      "response": {
+        "type": "Submission",
+        "paginated": true
+      }
+    },
+    "list_submissions_for_multiple_assignments_sections": {
+      "response": {
+        "type": "Submission",
+        "paginated": true
+      }
     }
   }
 }

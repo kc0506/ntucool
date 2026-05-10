@@ -2,6 +2,10 @@
 /target/
 **/target/
 
+# Python (codegen) bytecode
+__pycache__/
+*.pyc
+
 # Backup file produced by `cargo update`
 Cargo.lock.bak
 

@@ -23903,7 +23903,7 @@
         "course_id"
       ],
       "response": {
-        "type": "void",
+        "type": "Submission",
         "paginated": true
       },
       "group": "submissions",
@@ -24004,7 +24004,7 @@
         "section_id"
       ],
       "response": {
-        "type": "void",
+        "type": "Submission",
         "paginated": true
       },
       "group": "submissions",
@@ -27333,10 +27333,10 @@
     },
     "RubricRating": {
       "fields": {
-        "points": {
-          "type": "integer"
-        },
         "id": {
+          "type": "string"
+        },
+        "criterion_id": {
           "type": "string"
         },
         "description": {
@@ -27344,13 +27344,16 @@
         },
         "long_description": {
           "type": "string"
+        },
+        "points": {
+          "type": "number"
         }
       }
     },
     "RubricCriteria": {
       "fields": {
         "points": {
-          "type": "integer"
+          "type": "number"
         },
         "id": {
           "type": "string"
@@ -28963,11 +28966,33 @@
         "id": {
           "type": "integer"
         },
-        "name": {
+        "workflow_state": {
           "type": "string"
         },
         "position": {
           "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "unlock_at": {
+          "type": "datetime",
+          "nullable": true
+        },
+        "require_sequential_progress": {
+          "type": "boolean"
+        },
+        "prerequisite_module_ids": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "items_count": {
+          "type": "integer"
+        },
+        "items_url": {
+          "type": "string"
         },
         "items": {
           "type": "array",
@@ -28975,11 +29000,18 @@
             "type": "ModuleItem"
           }
         },
-        "context_id": {
-          "type": "integer"
-        },
-        "context_type": {
+        "state": {
           "type": "string"
+        },
+        "completed_at": {
+          "type": "datetime",
+          "nullable": true
+        },
+        "publish_final_grade": {
+          "type": "boolean"
+        },
+        "published": {
+          "type": "boolean"
         }
       }
     },
@@ -28988,32 +29020,44 @@
         "id": {
           "type": "integer"
         },
-        "duration": {
+        "module_id": {
           "type": "integer"
-        },
-        "course_pace_id": {
-          "type": "integer"
-        },
-        "root_account_id": {
-          "type": "integer"
-        },
-        "module_item_id": {
-          "type": "integer"
-        },
-        "assignment_title": {
-          "type": "string"
-        },
-        "points_possible": {
-          "type": "number"
-        },
-        "assignment_link": {
-          "type": "string"
         },
         "position": {
           "type": "integer"
         },
-        "module_item_type": {
+        "title": {
           "type": "string"
+        },
+        "indent": {
+          "type": "integer"
+        },
+        "type": {
+          "type": "string"
+        },
+        "content_id": {
+          "type": "integer"
+        },
+        "html_url": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "page_url": {
+          "type": "string"
+        },
+        "external_url": {
+          "type": "string"
+        },
+        "new_tab": {
+          "type": "boolean"
+        },
+        "completion_requirement": {
+          "type": "CompletionRequirement"
+        },
+        "content_details": {
+          "type": "ContentDetails"
         },
         "published": {
           "type": "boolean"
@@ -29608,10 +29652,10 @@
           "type": "string"
         },
         "current_score": {
-          "type": "string"
+          "type": "number"
         },
         "final_score": {
-          "type": "string"
+          "type": "number"
         },
         "current_points": {
           "type": "integer"
@@ -29623,10 +29667,10 @@
           "type": "string"
         },
         "unposted_current_score": {
-          "type": "string"
+          "type": "number"
         },
         "unposted_final_score": {
-          "type": "string"
+          "type": "number"
         },
         "unposted_current_points": {
           "type": "integer"
@@ -30568,15 +30612,20 @@
         "id": {
           "type": "string"
         },
-        "passed": {
-          "type": "boolean"
+        "userId": {
+          "type": "string"
         },
-        "assessed_at": {
-          "type": "datetime",
-          "nullable": true
+        "resultScore": {
+          "type": "number"
         },
-        "links": {
-          "type": "ResultLinks"
+        "resultMaximum": {
+          "type": "number"
+        },
+        "comment": {
+          "type": "string"
+        },
+        "scoreOf": {
+          "type": "string"
         }
       }
     },
@@ -31425,12 +31474,21 @@
     "OutcomeAlignment": {
       "fields": {
         "id": {
+          "type": "integer"
+        },
+        "assignment_id": {
+          "type": "integer"
+        },
+        "assessment_id": {
+          "type": "integer"
+        },
+        "submission_types": {
           "type": "string"
         },
-        "name": {
+        "url": {
           "type": "string"
         },
-        "html_url": {
+        "title": {
           "type": "string"
         }
       }
@@ -31650,20 +31708,41 @@
     },
     "Submission": {
       "fields": {
-        "lti_course_id": {
-          "type": "string"
-        },
-        "course_id": {
-          "type": "integer"
-        },
         "assignment_id": {
           "type": "integer"
+        },
+        "assignment": {
+          "type": "object"
+        },
+        "course": {
+          "type": "Course"
         },
         "attempt": {
           "type": "integer"
         },
         "body": {
           "type": "string"
+        },
+        "grade": {
+          "type": "string"
+        },
+        "grade_matches_current_submission": {
+          "type": "boolean"
+        },
+        "html_url": {
+          "type": "string"
+        },
+        "preview_url": {
+          "type": "string"
+        },
+        "score": {
+          "type": "number"
+        },
+        "submission_comments": {
+          "type": "array",
+          "items": {
+            "type": "SubmissionComment"
+          }
         },
         "submission_type": {
           "type": "string"
@@ -31678,14 +31757,55 @@
         "user_id": {
           "type": "integer"
         },
-        "eula_agreement_timestamp": {
+        "grader_id": {
+          "type": "integer"
+        },
+        "graded_at": {
+          "type": "datetime",
+          "nullable": true
+        },
+        "user": {
+          "type": "User"
+        },
+        "late": {
+          "type": "boolean"
+        },
+        "assignment_visible": {
+          "type": "boolean"
+        },
+        "excused": {
+          "type": "boolean"
+        },
+        "missing": {
+          "type": "boolean"
+        },
+        "late_policy_status": {
           "type": "string"
+        },
+        "points_deducted": {
+          "type": "number"
+        },
+        "seconds_late": {
+          "type": "number"
         },
         "workflow_state": {
           "type": "string"
         },
-        "attachments": {
-          "type": "file"
+        "extra_attempts": {
+          "type": "number"
+        },
+        "anonymous_id": {
+          "type": "string"
+        },
+        "posted_at": {
+          "type": "datetime",
+          "nullable": true
+        },
+        "read_status": {
+          "type": "string"
+        },
+        "redo_request": {
+          "type": "boolean"
         }
       }
     },
@@ -32691,7 +32811,7 @@
           "type": "string"
         },
         "points": {
-          "type": "integer"
+          "type": "number"
         },
         "criterion_use_range": {
           "type": "boolean"

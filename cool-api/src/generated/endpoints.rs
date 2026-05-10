@@ -10205,25 +10205,85 @@ pub fn list_subgroups_global<'a>(
 }
 
 /// List submissions for multiple assignments
-pub async fn list_submissions_for_multiple_assignments_courses(
+pub async fn list_submissions_for_multiple_assignments_courses_page(
     client: &CoolClient,
     course_id: &str,
     query_params: &ListSubmissionsForMultipleAssignmentsCoursesParams,
-) -> Result<()> {
-    let mut path = "/api/v1/courses/:course_id/students/submissions".to_string();
-    path = path.replace(":course_id", course_id);
-    client.get_void(&path).await
+    next_url: Option<&str>,
+) -> Result<PaginatedResponse<Submission>> {
+    let url = next_url.map(String::from).unwrap_or_else(|| {
+        let mut path = "/api/v1/courses/:course_id/students/submissions".to_string();
+        path = path.replace(":course_id", course_id);
+        path
+    });
+    client.get_paginated(&url, Some(query_params)).await
+}
+
+/// List submissions for multiple assignments (auto-paginated stream)
+pub fn list_submissions_for_multiple_assignments_courses<'a>(
+    client: &'a CoolClient,
+    course_id: &'a str,
+    query_params: &'a ListSubmissionsForMultipleAssignmentsCoursesParams,
+) -> impl Stream<Item = Result<Submission>> + 'a {
+    futures::stream::unfold(Some(String::new()), move |state| async move {
+        let next_url = state?;
+        let url_ref = if next_url.is_empty() { None } else { Some(next_url.as_str()) };
+        match list_submissions_for_multiple_assignments_courses_page(
+            client,
+            course_id,
+            query_params,
+            url_ref,
+        ).await {
+            Ok(page) => {
+                let next = page.next_url.clone();
+                let items = page.items.into_iter().map(Ok).collect::<Vec<_>>();
+                Some((futures::stream::iter(items), next))
+            }
+            Err(e) => Some((futures::stream::iter(vec![Err(e)]), None)),
+        }
+    })
+    .flatten()
 }
 
 /// List submissions for multiple assignments
-pub async fn list_submissions_for_multiple_assignments_sections(
+pub async fn list_submissions_for_multiple_assignments_sections_page(
     client: &CoolClient,
     section_id: &str,
     query_params: &ListSubmissionsForMultipleAssignmentsSectionsParams,
-) -> Result<()> {
-    let mut path = "/api/v1/sections/:section_id/students/submissions".to_string();
-    path = path.replace(":section_id", section_id);
-    client.get_void(&path).await
+    next_url: Option<&str>,
+) -> Result<PaginatedResponse<Submission>> {
+    let url = next_url.map(String::from).unwrap_or_else(|| {
+        let mut path = "/api/v1/sections/:section_id/students/submissions".to_string();
+        path = path.replace(":section_id", section_id);
+        path
+    });
+    client.get_paginated(&url, Some(query_params)).await
+}
+
+/// List submissions for multiple assignments (auto-paginated stream)
+pub fn list_submissions_for_multiple_assignments_sections<'a>(
+    client: &'a CoolClient,
+    section_id: &'a str,
+    query_params: &'a ListSubmissionsForMultipleAssignmentsSectionsParams,
+) -> impl Stream<Item = Result<Submission>> + 'a {
+    futures::stream::unfold(Some(String::new()), move |state| async move {
+        let next_url = state?;
+        let url_ref = if next_url.is_empty() { None } else { Some(next_url.as_str()) };
+        match list_submissions_for_multiple_assignments_sections_page(
+            client,
+            section_id,
+            query_params,
+            url_ref,
+        ).await {
+            Ok(page) => {
+                let next = page.next_url.clone();
+                let items = page.items.into_iter().map(Ok).collect::<Vec<_>>();
+                Some((futures::stream::iter(items), next))
+            }
+            Err(e) => Some((futures::stream::iter(vec![Err(e)]), None)),
+        }
+    })
+    .flatten()
 }
 
 /// List temporary enrollment pairings

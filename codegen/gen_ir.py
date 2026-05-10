@@ -360,8 +360,21 @@ def _build_ir() -> IRSpec:
             # Avoid collision with Rust built-in types
             if safe_name in ("Result", "Error", "Option", "Box", "Vec", "String"):
                 safe_name = f"Canvas{safe_name}"
-            if safe_name not in models:
-                models[safe_name] = _extract_model(model_def)
+            # Canvas's Swagger 1.2 has the same model name across multiple
+            # schema files (Submission appears in submissions / plagiarism /
+            # what_if_grades; Module in modules / course_pace; etc.). The
+            # variants generally describe the same underlying object but
+            # one is richer than the others. Pick the variant with the most
+            # fields — gives the canonical surface its richest definition,
+            # while subsetted variants in unrelated schemas (e.g., LTI-only
+            # plagiarism Submission with 12 fields) yield to the canonical
+            # Submission with 31 fields. Audit: this fix recovers 37 fields
+            # across 6 models (Submission +19, Module +8, ModuleItem +4,
+            # OutcomeAlignment +3, Result +2, RubricRating +1).
+            extracted = _extract_model(model_def)
+            existing = models.get(safe_name)
+            if existing is None or len(extracted["fields"]) > len(existing["fields"]):
+                models[safe_name] = extracted
 
     # Post-process: map response types referencing unknown models to "void"
     model_names = set(models.keys())
