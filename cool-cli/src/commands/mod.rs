@@ -6,6 +6,7 @@ pub mod file;
 pub mod login;
 pub mod logout;
 pub mod module;
+pub mod user;
 pub mod whoami;
 
 use clap::{Parser, Subcommand};
@@ -65,6 +66,10 @@ pub enum Commands {
     /// Module operations
     #[command(subcommand)]
     Module(module::ModuleCommand),
+
+    /// User lookups (other than self — use `whoami` for the logged-in user)
+    #[command(subcommand)]
+    User(user::UserCommand),
 }
 
 /// Construct a lazy `CoolClient`. If session.json is missing or expired

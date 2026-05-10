@@ -28,5 +28,6 @@ async fn run(cli: Cli) -> anyhow::Result<()> {
         Commands::Announcement(sub) => commands::announcement::run(sub, opts).await,
         Commands::Discussion(sub) => commands::discussion::run(sub, opts).await,
         Commands::Module(sub) => commands::module::run(sub, opts).await,
+        Commands::User(sub) => commands::user::run(sub, opts).await,
     }
 }

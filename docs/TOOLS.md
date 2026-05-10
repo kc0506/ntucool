@@ -99,7 +99,7 @@ cool-mcp/      MCP server,tool schema + JSON adapter                 ← 薄殼
 | `submissions_mine(course?, status?)` | ❌ | 我交了沒/分數/缺什麼 |
 | `calendar_events(courses?, range)` | ❌ | |
 | `activity_recent(limit=20)` | ❌ | `/users/self/activity_stream` |
-| `users_get(user_id)` | ❌ | resolve user_id → name/avatar |
+| `users_get(user_id)` | ✅ | `/api/v1/users/:id` → `UserSummary {id, name, short_name, sortable_name, login_id?, email?, avatar_url?}`. **NTU 實測**: student 等級看任何人 (含 self) 都拿不到 `login_id` 和 `email` — Canvas 在 endpoint 層做隱私過濾, 不只是 user 層。要拿 self 完整資訊請用 `whoami`。 |
 
 ### Tier 3 — Write (尚未對 MCP 暴露)
 

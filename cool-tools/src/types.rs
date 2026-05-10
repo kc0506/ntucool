@@ -26,6 +26,30 @@ pub struct ProfileSummary {
 }
 
 // ────────────────────────────────────────────────────────────────────────────
+// User (any user, including non-self — for resolving teacher_id, classmates, etc.)
+// ────────────────────────────────────────────────────────────────────────────
+
+/// Public-ish view of a Canvas user fetched via `/api/v1/users/:id`.
+///
+/// `login_id` and `email` are typically `None` for non-self users at student
+/// privilege level — Canvas only exposes them to admins/teachers or the user
+/// themselves. Use `whoami` (returns `ProfileSummary`) for the richer self
+/// view, which goes through `/users/self/profile` and surfaces `primary_email`.
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct UserSummary {
+    pub id: i64,
+    pub name: String,
+    /// Short display name (often "first last" without honorifics). Useful for
+    /// rendering author lines.
+    pub short_name: Option<String>,
+    /// "last, first" format Canvas uses for sorting.
+    pub sortable_name: Option<String>,
+    pub login_id: Option<String>,
+    pub email: Option<String>,
+    pub avatar_url: Option<String>,
+}
+
+// ────────────────────────────────────────────────────────────────────────────
 // Course
 // ────────────────────────────────────────────────────────────────────────────
 

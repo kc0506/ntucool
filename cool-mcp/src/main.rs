@@ -77,6 +77,12 @@ struct CoursesGetArgs {
 }
 
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
+struct UsersGetArgs {
+    /// Canvas user ID. Use `whoami` for the logged-in user (richer fields).
+    user_id: i64,
+}
+
+#[derive(Debug, Deserialize, schemars::JsonSchema)]
 struct FilesListArgs {
     course_id: i64,
     /// Folder path within the course, "/"-separated. Defaults to course root.
@@ -246,6 +252,21 @@ impl CoolServer {
             .await
             .map_err(to_mcp_err)?;
         json_result(&profile)
+    }
+
+    #[tool(description = "Look up a user by Canvas user_id. Returns UserSummary \
+        {id, name, short_name, sortable_name, login_id?, email?, avatar_url?}. \
+        login_id and email are typically `null` for non-self users at student \
+        privilege — Canvas only exposes them to admins/teachers or the user \
+        themselves. For the logged-in user use `whoami` (returns richer ProfileSummary).")]
+    async fn users_get(
+        &self,
+        Parameters(args): Parameters<UsersGetArgs>,
+    ) -> Result<CallToolResult, ErrorData> {
+        let user = cool_tools::users::users_get(&self.client, args.user_id)
+            .await
+            .map_err(to_mcp_err)?;
+        json_result(&user)
     }
 
     #[tool(description = "List enrolled courses. Returns [CourseSummary {id, name, course_code, term}]. \

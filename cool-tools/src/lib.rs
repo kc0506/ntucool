@@ -16,5 +16,6 @@ pub mod pdf;
 pub mod profile;
 pub mod text;
 pub mod types;
+pub mod users;
 
 pub use cool_api::CoolClient;
