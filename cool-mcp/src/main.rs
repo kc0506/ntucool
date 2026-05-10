@@ -223,6 +223,25 @@ struct PdfSearchArgs {
     max_results: Option<usize>,
 }
 
+#[derive(Debug, Deserialize, schemars::JsonSchema)]
+struct SubmissionsMineArgs {
+    /// Optional course scope. Omit to fan out across every active enrolment
+    /// (sequential N+1 calls; expect ~1s per enrolled course).
+    #[serde(default)]
+    course_id: Option<i64>,
+    /// Canvas workflow_state filter: "submitted" / "unsubmitted" / "graded" / "pending_review".
+    /// Omit for everything (including unsubmitted assignments — useful for "what's still due").
+    #[serde(default)]
+    status: Option<String>,
+}
+
+#[derive(Debug, Deserialize, schemars::JsonSchema)]
+struct GradesGetArgs {
+    /// Optional course scope. Omit to return every active StudentEnrollment's grade row.
+    #[serde(default)]
+    course_id: Option<i64>,
+}
+
 // ────────────────────────────────────────────────────────────────────────────
 // Tool router
 // ────────────────────────────────────────────────────────────────────────────
@@ -623,6 +642,50 @@ impl CoolServer {
         .await
         .map_err(to_mcp_err)?;
         json_result(&hits)
+    }
+
+    // ── Tier 2: status (mine — submissions & grades) ───────────────────────
+
+    #[tool(description = "List the logged-in user's submissions. Returns \
+        [SubmissionMine {course_id, assignment_id, assignment_name?, points_possible?, \
+        score?, grade?, workflow_state?, submitted_at?, graded_at?, late?, missing?, excused?}]. \
+        course_id optional — omit to fan out across every active enrolment (one HTTP \
+        round-trip per course). status optional — Canvas workflow filter, one of \
+        \"submitted\" / \"unsubmitted\" / \"graded\" / \"pending_review\". Unfiltered listing \
+        includes unsubmitted entries (one per assignment), so you can see what's still due.")]
+    async fn submissions_mine(
+        &self,
+        Parameters(args): Parameters<SubmissionsMineArgs>,
+    ) -> Result<CallToolResult, ErrorData> {
+        let workflow = args
+            .status
+            .as_deref()
+            .and_then(cool_tools::submissions::WorkflowFilter::parse);
+        let subs = match args.course_id {
+            Some(cid) => {
+                cool_tools::submissions::submissions_mine_in_course(&self.client, cid, workflow)
+                    .await
+            }
+            None => cool_tools::submissions::submissions_mine_all(&self.client, workflow).await,
+        }
+        .map_err(to_mcp_err)?;
+        json_result(&subs)
+    }
+
+    #[tool(description = "Per-course grade summary. Returns \
+        [CourseGrade {course_id, course_name?, current_grade?, current_score?, final_grade?, \
+        final_score?, html_url?}] from /api/v1/users/self/enrollments. \
+        current_* reflects only graded assignments to date; final_* treats ungraded as zero. \
+        Both can be null when the course hides grades or no work is graded yet. \
+        course_id optional — when set, returns only that course's row.")]
+    async fn grades_get(
+        &self,
+        Parameters(args): Parameters<GradesGetArgs>,
+    ) -> Result<CallToolResult, ErrorData> {
+        let grades = cool_tools::grades::grades_get(&self.client, args.course_id)
+            .await
+            .map_err(to_mcp_err)?;
+        json_result(&grades)
     }
 }
 

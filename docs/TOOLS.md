@@ -91,12 +91,13 @@ cool-mcp/      MCP server,tool schema + JSON adapter                 ← 薄殼
 | `pdf_extract(file_id, pages?)` | ✅ | `pages` 接受 "all"(預設) / "5" / "5-10";per-page text 經 `pdf_extract::extract_text_by_pages`,結果 cache 在 `$XDG_CACHE_HOME/cool-mcp/text/<id>-<ts>.json` 與 bytes cache 一同失效 |
 | `pdf_search(course_id, query, max_results?=20)` | ✅ | 列課程 PDF (`content_types[]=application/pdf`),逐檔抽文(首呼叫慢、後續秒回);unparseable PDF 跳過不致命;回 `[PdfSearchHit {file_id, display_name, page, snippet}]` |
 
-### Tier 2 — Status (尚未做)
+### Tier 2 — Status
 
 | Tool | 狀態 | 備註 |
 |---|---|---|
 | `todo_upcoming(window=7d)` | ❌ | `/users/self/upcoming_events` + `/todo` |
-| `submissions_mine(course?, status?)` | ❌ | 我交了沒/分數/缺什麼 |
+| `submissions_mine(course_id?, status?)` | ✅ | `/api/v1/courses/:cid/students/submissions?student_ids[]=self&include[]=assignment` → `[SubmissionMine {course_id, assignment_id, assignment_name?, points_possible?, score?, grade?, workflow_state?, submitted_at?, graded_at?, late?, missing?, excused?}]`。`course_id` 省略時掃所有 active 課 (per-course N+1, sequential)。`status` 可選 `submitted`/`unsubmitted`/`graded`/`pending_review`。**Codegen workaround**: 該 endpoint 在 codegen 中 type 成 `Result<()>` (no response schema) — bypass 用自定義 `RawSubmission`。 |
+| `grades_get(course_id?)` | ✅ | `/api/v1/users/self/enrollments?type[]=StudentEnrollment&include[]=current_grade` → `[CourseGrade {course_id, course_name?, current_grade?, current_score?, final_grade?, final_score?, html_url?}]`。`current_*` 只算 graded 部分; `final_*` 把 ungraded 視為零 (NTU 大多顯示 X / 0.0)。**Codegen workaround #2**: codegen `Grade.current_score`/`final_score` type 成 `Option<String>` 但 NTU 實際回 float — 同 #21 bug 家族; bypass 用自定義 `RawEnrollment` + `Option<f64>`。 |
 | `calendar_events(courses?, range)` | ❌ | |
 | `activity_recent(limit=20)` | ❌ | `/users/self/activity_stream` |
 | `users_get(user_id)` | ✅ | `/api/v1/users/:id` → `UserSummary {id, name, short_name, sortable_name, login_id?, email?, avatar_url?}`. **NTU 實測**: student 等級看任何人 (含 self) 都拿不到 `login_id` 和 `email` — Canvas 在 endpoint 層做隱私過濾, 不只是 user 層。要拿 self 完整資訊請用 `whoami`。 |

@@ -412,6 +412,55 @@ pub struct PdfSearchHit {
 }
 
 // ────────────────────────────────────────────────────────────────────────────
+// Submissions (mine) & grades
+// ────────────────────────────────────────────────────────────────────────────
+
+/// One of the logged-in user's submissions for a single assignment. Returned by
+/// `submissions_mine`. Built from `/api/v1/courses/:cid/students/submissions`
+/// with `include[]=assignment` so `assignment_name` and `points_possible` come
+/// in the same request.
+///
+/// `score` is the numeric points earned; `grade` is the rendered grade
+/// (letter / pass-fail / percentage / numeric-as-string) — Canvas decides
+/// representation per assignment grading_type.
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct SubmissionMine {
+    pub course_id: i64,
+    pub assignment_id: i64,
+    pub assignment_name: Option<String>,
+    pub points_possible: Option<f64>,
+    pub score: Option<f64>,
+    pub grade: Option<String>,
+    /// `submitted` / `unsubmitted` / `graded` / `pending_review`.
+    pub workflow_state: Option<String>,
+    pub submitted_at: Option<String>,
+    pub graded_at: Option<String>,
+    pub late: Option<bool>,
+    pub missing: Option<bool>,
+    pub excused: Option<bool>,
+}
+
+/// Per-course grade summary. Returned by `grades_get`. Built from
+/// `/api/v1/users/self/enrollments` (StudentEnrollment rows) where
+/// `grades.current_*` and `grades.final_*` are Canvas's authoritative numbers.
+///
+/// `current_*` reflects only graded assignments to date; `final_*` treats
+/// ungraded assignments as zeros (i.e., projected final if you submit
+/// nothing else). Both can be `None` when the course hides grades or
+/// there are no graded assignments yet.
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct CourseGrade {
+    pub course_id: i64,
+    pub course_name: Option<String>,
+    pub current_grade: Option<String>,
+    pub current_score: Option<f64>,
+    pub final_grade: Option<String>,
+    pub final_score: Option<f64>,
+    /// Canvas link to the gradebook page. Open in a browser for the full breakdown.
+    pub html_url: Option<String>,
+}
+
+// ────────────────────────────────────────────────────────────────────────────
 // Page (Canvas wiki)
 // ────────────────────────────────────────────────────────────────────────────
 

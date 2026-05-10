@@ -3,9 +3,11 @@ pub mod assignment;
 pub mod course;
 pub mod discussion;
 pub mod file;
+pub mod grade;
 pub mod login;
 pub mod logout;
 pub mod module;
+pub mod submission;
 pub mod user;
 pub mod whoami;
 
@@ -70,6 +72,13 @@ pub enum Commands {
     /// User lookups (other than self — use `whoami` for the logged-in user)
     #[command(subcommand)]
     User(user::UserCommand),
+
+    /// Submission operations
+    #[command(subcommand)]
+    Submission(submission::SubmissionCommand),
+
+    /// Per-course grade summary
+    Grade(grade::GradeArgs),
 }
 
 /// Construct a lazy `CoolClient`. If session.json is missing or expired
