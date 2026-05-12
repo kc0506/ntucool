@@ -1,0 +1,19 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "ntucool",
+  "description": "NTU COOL (cool.ntu.edu.tw) — CLI + MCP server bundle with usage guidance for AI agents. NTU-only (ADFS SAML auth).",
+  "owner": {
+    "name": "kc0506",
+    "email": "kchong0506@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "ntucool",
+      "source": ".",
+      "description": "NTU COOL CLI + MCP server. Requires the `cool` and `ntucool-mcp` binaries on PATH — see https://github.com/kc0506/ntucool#install for prebuilt installers, or `cargo install ntucool ntucool-mcp`, then run `cool login`.",
+      "category": "productivity",
+      "tags": ["ntu", "canvas", "lms", "education", "taiwan"],
+      "homepage": "https://github.com/kc0506/ntucool"
+    }
+  ]
+}

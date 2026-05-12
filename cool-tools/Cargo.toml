@@ -15,7 +15,7 @@ name = "cool_tools"
 path = "src/lib.rs"
 
 [dependencies]
-cool-api = { path = "../cool-api", version = "0.1.0", package = "ntucool-api" }
+cool-api = { path = "../cool-api", version = "0.0.1", package = "ntucool-api" }
 anyhow = "1"
 thiserror = "2"
 serde = { version = "1", features = ["derive"] }

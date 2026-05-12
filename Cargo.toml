@@ -3,8 +3,13 @@ members = ["cool-api", "cool-cli", "cool-mcp", "cool-tools", "cool-tui", "mcp-mi
 resolver = "2"
 
 [workspace.package]
-version = "0.1.0"
+version = "0.0.1"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/kc0506/ntucool"
 authors = ["kc0506 <kchong0506@gmail.com>"]
+
+# The profile that 'dist' will build with
+[profile.dist]
+inherits = "release"
+lto = "thin"

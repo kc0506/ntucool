@@ -15,8 +15,8 @@ name = "cool"
 path = "src/main.rs"
 
 [dependencies]
-cool-api = { path = "../cool-api", version = "0.1.0", package = "ntucool-api" }
-cool-tools = { path = "../cool-tools", version = "0.1.0", package = "ntucool-tools" }
+cool-api = { path = "../cool-api", version = "0.0.1", package = "ntucool-api" }
+cool-tools = { path = "../cool-tools", version = "0.0.1", package = "ntucool-tools" }
 anyhow = "1"
 clap = { version = "4", features = ["derive"] }
 comfy-table = "7"
