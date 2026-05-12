@@ -1,14 +1,16 @@
 [package]
 name = "cool-tui"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
 
 [[bin]]
 name = "cool-tui"
 path = "src/main.rs"
 
 [dependencies]
-cool-api = { path = "../cool-api" }
+cool-api = { path = "../cool-api", version = "0.1.0", package = "ntucool-api" }
 
 # TUI
 ratatui = { version = "0.29", features = ["crossterm"] }

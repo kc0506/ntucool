@@ -417,97 +417,17 @@ dependencies = [
 ]
 
 [[package]]
-name = "cool-api"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "futures",
- "reqwest",
- "scraper",
- "serde",
- "serde_json",
- "thiserror 2.0.18",
- "tokio",
- "tokio-util",
- "urlencoding",
-]
-
-[[package]]
-name = "cool-cli"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "chrono",
- "clap",
- "comfy-table",
- "cool-api",
- "cool-tools",
- "crossterm 0.28.1",
- "dialoguer",
- "ego-tree",
- "futures",
- "indicatif",
- "ratatui",
- "reqwest",
- "rpassword",
- "scraper",
- "serde",
- "serde_json",
- "tokio",
- "tokio-util",
-]
-
-[[package]]
-name = "cool-mcp"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum",
- "chrono",
- "cool-api",
- "cool-tools",
- "rand 0.8.5",
- "rmcp",
- "schemars",
- "serde",
- "serde_json",
- "tokio",
- "tokio-util",
- "tracing",
- "tracing-subscriber",
-]
-
-[[package]]
-name = "cool-tools"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "chrono",
- "cool-api",
- "ego-tree",
- "futures",
- "htmd",
- "pdf-extract",
- "schemars",
- "scraper",
- "serde",
- "serde_json",
- "thiserror 2.0.18",
- "tokio",
-]
-
-[[package]]
 name = "cool-tui"
 version = "0.1.0"
 dependencies = [
  "anyhow",
  "chrono",
- "cool-api",
  "crossterm 0.28.1",
  "dirs",
  "futures",
  "fuzzy-matcher",
  "html-escape",
+ "ntucool-api",
  "open",
  "ratatui",
  "regex",
@@ -1852,6 +1772,86 @@ dependencies = [
  "bytecount",
  "memchr",
  "nom",
+]
+
+[[package]]
+name = "ntucool"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "clap",
+ "comfy-table",
+ "crossterm 0.28.1",
+ "dialoguer",
+ "ego-tree",
+ "futures",
+ "indicatif",
+ "ntucool-api",
+ "ntucool-tools",
+ "ratatui",
+ "reqwest",
+ "rpassword",
+ "scraper",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tokio-util",
+]
+
+[[package]]
+name = "ntucool-api"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "futures",
+ "reqwest",
+ "scraper",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "tokio",
+ "tokio-util",
+ "urlencoding",
+]
+
+[[package]]
+name = "ntucool-mcp"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "chrono",
+ "ntucool-api",
+ "ntucool-tools",
+ "rand 0.8.5",
+ "rmcp",
+ "schemars",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tokio-util",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
+name = "ntucool-tools"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "ego-tree",
+ "futures",
+ "htmd",
+ "ntucool-api",
+ "pdf-extract",
+ "schemars",
+ "scraper",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "tokio",
 ]
 
 [[package]]

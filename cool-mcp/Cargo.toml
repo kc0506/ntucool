@@ -1,16 +1,22 @@
 [package]
-name = "cool-mcp"
-version = "0.1.0"
-edition = "2021"
-description = "MCP server exposing NTU COOL tools to AI assistants"
+name = "ntucool-mcp"
+description = "MCP (Model Context Protocol) server exposing NTU COOL tools to AI assistants. NTU-only. Installs the `ntucool-mcp` binary."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+readme = "../README.md"
+keywords = ["ntu", "canvas", "lms", "mcp", "ai"]
+categories = ["command-line-utilities"]
 
 [[bin]]
-name = "cool-mcp"
+name = "ntucool-mcp"
 path = "src/main.rs"
 
 [dependencies]
-cool-api = { path = "../cool-api" }
-cool-tools = { path = "../cool-tools" }
+cool-api = { path = "../cool-api", version = "0.1.0", package = "ntucool-api" }
+cool-tools = { path = "../cool-tools", version = "0.1.0", package = "ntucool-tools" }
 rmcp = { version = "0.8", features = [
     "server",
     "macros",

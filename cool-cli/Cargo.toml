@@ -1,16 +1,22 @@
 [package]
-name = "cool-cli"
-version = "0.1.0"
-edition = "2021"
-description = "CLI for NTU COOL"
+name = "ntucool"
+description = "NTU COOL command-line client. NTU-only — login goes through NTU's ADFS SAML flow. Installs the `cool` binary."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+readme = "../README.md"
+keywords = ["ntu", "canvas", "lms", "cool"]
+categories = ["command-line-utilities"]
 
 [[bin]]
 name = "cool"
 path = "src/main.rs"
 
 [dependencies]
-cool-api = { path = "../cool-api" }
-cool-tools = { path = "../cool-tools" }
+cool-api = { path = "../cool-api", version = "0.1.0", package = "ntucool-api" }
+cool-tools = { path = "../cool-tools", version = "0.1.0", package = "ntucool-tools" }
 anyhow = "1"
 clap = { version = "4", features = ["derive"] }
 comfy-table = "7"

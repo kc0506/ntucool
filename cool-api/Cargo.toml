@@ -1,8 +1,18 @@
 [package]
-name = "cool-api"
-version = "0.1.0"
-edition = "2021"
-description = "NTU COOL Canvas API client for Rust"
+name = "ntucool-api"
+description = "NTU COOL (cool.ntu.edu.tw) Canvas-LMS HTTP client. NTU-only — login goes through NTU's ADFS SAML flow."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+readme = "../README.md"
+keywords = ["ntu", "canvas", "lms", "cool"]
+categories = ["api-bindings"]
+
+[lib]
+name = "cool_api"
+path = "src/lib.rs"
 
 [dependencies]
 reqwest = { version = "0.12", features = ["cookies", "json", "multipart", "stream"] }

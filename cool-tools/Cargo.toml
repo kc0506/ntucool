@@ -1,11 +1,21 @@
 [package]
-name = "cool-tools"
-version = "0.1.0"
-edition = "2021"
-description = "Reusable NTU COOL tool surface (used by both CLI and MCP frontends)"
+name = "ntucool-tools"
+description = "Reusable NTU COOL tool surface (contract shapes used by both CLI and MCP frontends)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+readme = "../README.md"
+keywords = ["ntu", "canvas", "lms", "mcp"]
+categories = ["api-bindings"]
+
+[lib]
+name = "cool_tools"
+path = "src/lib.rs"
 
 [dependencies]
-cool-api = { path = "../cool-api" }
+cool-api = { path = "../cool-api", version = "0.1.0", package = "ntucool-api" }
 anyhow = "1"
 thiserror = "2"
 serde = { version = "1", features = ["derive"] }
