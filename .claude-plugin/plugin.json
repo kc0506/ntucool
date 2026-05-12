@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "ntucool",
+  "version": "0.1.0",
+  "description": "NTU COOL (cool.ntu.edu.tw) — CLI + MCP server bundle with usage guidance for AI agents. NTU-only (ADFS SAML auth).",
+  "author": {
+    "name": "kc0506",
+    "email": "kchong0506@gmail.com",
+    "url": "https://github.com/kc0506"
+  },
+  "homepage": "https://github.com/kc0506/ntucool",
+  "repository": "https://github.com/kc0506/ntucool",
+  "license": "MIT",
+  "keywords": ["ntu", "canvas", "lms", "cool"]
+}

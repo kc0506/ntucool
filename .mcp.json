@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "ntucool": {
+      "command": "ntucool-mcp"
+    }
+  }
+}
