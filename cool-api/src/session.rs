@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::fs;
+#[cfg(unix)]
 use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
 
@@ -78,9 +79,13 @@ impl Session {
             serde_json::to_string_pretty(self).map_err(|e| Error::SessionSave(e.to_string()))?;
         fs::write(path, &data).map_err(|e| Error::SessionSave(e.to_string()))?;
 
-        // Set file permissions to 0600
-        let perms = fs::Permissions::from_mode(0o600);
-        fs::set_permissions(path, perms).map_err(|e| Error::SessionSave(e.to_string()))?;
+        // 0600 on Unix; Windows relies on the user-profile ACL of the
+        // parent dir, which is already user-private under $APPDATA.
+        #[cfg(unix)]
+        {
+            let perms = fs::Permissions::from_mode(0o600);
+            fs::set_permissions(path, perms).map_err(|e| Error::SessionSave(e.to_string()))?;
+        }
 
         Ok(())
     }

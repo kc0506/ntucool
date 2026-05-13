@@ -12,6 +12,7 @@
 //! when `cool login` wrote `echo 'TODO: ...'` as a default).
 
 use std::fs;
+#[cfg(unix)]
 use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -60,6 +61,7 @@ impl Credentials {
         let tmp = path.with_extension("json.tmp");
         let data = serde_json::to_string_pretty(self).map_err(Error::Json)?;
         fs::write(&tmp, &data).map_err(|e| Error::Io(e.to_string()))?;
+        #[cfg(unix)]
         fs::set_permissions(&tmp, fs::Permissions::from_mode(0o600))
             .map_err(|e| Error::Io(e.to_string()))?;
         fs::rename(&tmp, &path).map_err(|e| Error::Io(e.to_string()))?;

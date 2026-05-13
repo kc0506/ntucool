@@ -15,7 +15,7 @@ name = "cool_api"
 path = "src/lib.rs"
 
 [dependencies]
-reqwest = { version = "0.12", features = ["cookies", "json", "multipart", "stream"] }
+reqwest = { version = "0.12", default-features = false, features = ["cookies", "json", "multipart", "stream", "rustls-tls", "charset", "http2"] }
 tokio-util = { version = "0.7", features = ["io"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
