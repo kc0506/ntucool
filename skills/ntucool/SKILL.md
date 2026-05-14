@@ -13,7 +13,7 @@ NTU COOL is National Taiwan University's Canvas LMS instance at `https://cool.nt
 
 Skip this section if `cool` and `ntucool-mcp` are already on PATH and a session exists.
 
-Install the binaries (prebuilt — no Rust toolchain needed). The CLI and the MCP server are separate crates, so each ships its own installer:
+Install the binaries. The CLI and the MCP server are separate crates, so each ships its own installer. **Linux / Windows** get prebuilt binaries:
 
 ```sh
 curl --proto '=https' --tlsv1.2 -LsSf https://github.com/kc0506/ntucool/releases/latest/download/ntucool-installer.sh | sh
@@ -27,7 +27,11 @@ powershell -ExecutionPolicy ByPass -c "irm https://github.com/kc0506/ntucool/rel
 powershell -ExecutionPolicy ByPass -c "irm https://github.com/kc0506/ntucool/releases/latest/download/ntucool-mcp-installer.ps1 | iex"
 ```
 
-Or from source if Rust is available: `cargo install ntucool ntucool-mcp`.
+**macOS users (or any platform from source)** install via cargo — macOS prebuilt binaries are pending while GitHub's runner queue is investigated:
+
+```sh
+cargo install ntucool ntucool-mcp
+```
 
 Then log in once:
 

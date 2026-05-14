@@ -10,10 +10,11 @@ ci = "github"
 # The installers to generate for each app
 installers = ["shell", "powershell"]
 # Target platforms to build apps for (Rust target-triple syntax)
-# musl variant ships a statically linked binary that works across glibc versions
+# macOS (aarch64/x86_64-apple-darwin) is temporarily disabled — GitHub's
+# free-tier macOS runner queue was sitting on these jobs for 12h+ without
+# being assigned. macOS users should `cargo install ntucool ntucool-mcp`
+# for now. Restore once we understand the runner-queue situation.
 targets = [
-    "aarch64-apple-darwin",
-    "x86_64-apple-darwin",
     "x86_64-unknown-linux-gnu",
     "x86_64-unknown-linux-musl",
     "x86_64-pc-windows-msvc",

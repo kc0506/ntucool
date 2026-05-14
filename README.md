@@ -6,7 +6,7 @@ NTU-only: login is NTU's ADFS SAML flow. Non-NTU Canvas instances aren't support
 
 ## Install
 
-Prebuilt binaries (Linux / macOS / Windows — no Rust needed):
+Prebuilt binaries (Linux / Windows — no Rust needed):
 
 ```sh
 curl --proto '=https' --tlsv1.2 -LsSf https://github.com/kc0506/ntucool/releases/latest/download/ntucool-installer.sh | sh
@@ -20,11 +20,13 @@ powershell -ExecutionPolicy ByPass -c "irm https://github.com/kc0506/ntucool/rel
 powershell -ExecutionPolicy ByPass -c "irm https://github.com/kc0506/ntucool/releases/latest/download/ntucool-mcp-installer.ps1 | iex"
 ```
 
-Or from source:
+macOS, or any platform from source:
 
 ```sh
 cargo install ntucool ntucool-mcp
 ```
+
+(macOS prebuilt binaries are pending — GitHub's free-tier macOS runner queue is currently sitting on jobs without picking them up. Tracking for a future release.)
 
 Then:
 
