@@ -9,47 +9,29 @@ NTU COOL is National Taiwan University's Canvas LMS instance at `https://cool.nt
 
 **Scope**: NTU students working with their own enrolments — list/search courses, find PDFs, read assignments, check grades and submissions. Not for admins. Not for non-NTU Canvas instances (login is hardcoded to NTU's ADFS SAML SSO).
 
-## Quickstart (one-time setup)
+## Setup gate — run BEFORE the first ntucool tool call
 
-Skip this section if `cool` and `ntucool-mcp` are already on PATH and a session exists.
+The plugin manifest can't install binaries or prompt for a password, so the first interaction in any session must verify setup. Do this *once* per conversation, before any ntucool tool/CLI call:
 
-Install the binaries. The CLI and the MCP server are separate crates, so each ships its own installer. **Linux / Windows** get prebuilt binaries:
-
-```sh
-curl --proto '=https' --tlsv1.2 -LsSf https://github.com/kc0506/ntucool/releases/latest/download/ntucool-installer.sh | sh
-curl --proto '=https' --tlsv1.2 -LsSf https://github.com/kc0506/ntucool/releases/latest/download/ntucool-mcp-installer.sh | sh
+```bash
+which cool ntucool-mcp 2>/dev/null && cool whoami 2>&1 | head -1
 ```
 
-Windows PowerShell:
+- All three lines present and `whoami` returns user info → setup OK, proceed.
+- Anything missing or `whoami` errors with 401 / "not logged in" / "command not found" → setup is incomplete. Drive the user through it before answering their original question.
 
-```powershell
-powershell -ExecutionPolicy ByPass -c "irm https://github.com/kc0506/ntucool/releases/latest/download/ntucool-installer.ps1 | iex"
-powershell -ExecutionPolicy ByPass -c "irm https://github.com/kc0506/ntucool/releases/latest/download/ntucool-mcp-installer.ps1 | iex"
-```
+The full setup procedure (install via prebuilt installer + `cool login`) is in the `/ntucool:setup` slash command. Either:
 
-**macOS users (or any platform from source)** install via cargo — macOS prebuilt binaries are pending while GitHub's runner queue is investigated:
+- Tell the user to run `/ntucool:setup` and wait, OR
+- Run the install step yourself (it's a single `curl … | sh` per binary, see `commands/setup.md`), then have the user type `! cool login` (interactive — Bash tool can't drive the password prompt).
 
-```sh
-cargo install ntucool ntucool-mcp
-```
+After setup completes, resume the user's original task without making them re-ask.
 
-Then log in once:
+### Why the gate matters
 
-```sh
-cool login                            # writes session.json under $XDG_DATA_HOME/ntucool/
-```
+The MCP server reads `session.json` + `credentials.json` written by `cool login`; there is **no MCP login flow**. If the session expires (cookies last ~24h), both CLI and MCP transparently re-login from saved credentials. If saved credentials are absent or stale, calls 401 deep inside the API client and surface as opaque tool errors. The gate catches that before you make the user wait through a failed tool call.
 
-`cool login` prompts NTU credentials and asks how to save them for non-interactive re-login (plaintext-in-credentials.json / password-cmd / never-save).
-
-The MCP server reads the session/credentials written by `cool login`; there is **no MCP login flow**. If the session expires (cookies last ~24h), both CLI and MCP transparently re-login from saved credentials. If re-login fails, run `cool login` again.
-
-### First-run failure modes
-
-The plugin manifest cannot install binaries — if setup is incomplete, failure surfaces as a tool-call error rather than a setup wizard. Map errors back to the fix:
-
-- **MCP server fails to start** / `ntucool-mcp: command not found` → binary not on PATH. Show the install one-liner above and stop; the agent cannot proceed without it.
-- **Tool returns `not_logged_in` / 401 / "session expired and re-login failed"** → tell the user to run `cool login` in a terminal. MCP cannot prompt for credentials.
-- **`cool login` succeeded but MCP still 401s** → confirm Claude Code is running as the same user that ran `cool login` (`$HOME` mismatch is the usual cause when running inside a sandbox / different shell session).
+`$HOME` / sandbox mismatch is the rare third failure mode: `cool login` writes to the user's `$HOME`, but if Claude Code is running under a different user (sandbox, container), MCP won't see the session file. Confirm `cool whoami` works in the same shell environment the MCP server runs in.
 
 ## When to use CLI vs MCP
 

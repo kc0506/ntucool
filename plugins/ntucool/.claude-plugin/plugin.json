@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "ntucool",
   "version": "0.0.1",
-  "description": "NTU COOL (cool.ntu.edu.tw) — CLI + MCP server bundle with usage guidance for AI agents. NTU-only (ADFS SAML auth).",
+  "description": "NTU COOL (cool.ntu.edu.tw) — CLI + MCP server bundle with usage guidance for AI agents. NTU-only (ADFS SAML auth). After install: run /ntucool:setup to install the `cool` and `ntucool-mcp` binaries and log in.",
   "author": {
     "name": "kc0506",
     "email": "kchong0506@gmail.com",

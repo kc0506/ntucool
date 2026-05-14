@@ -10,7 +10,7 @@
     {
       "name": "ntucool",
       "source": "./plugins/ntucool",
-      "description": "NTU COOL CLI + MCP server. Requires the `cool` and `ntucool-mcp` binaries on PATH — see https://github.com/kc0506/ntucool#install for prebuilt installers, or `cargo install ntucool ntucool-mcp`, then run `cool login`.",
+      "description": "NTU COOL CLI + MCP server. After installing this plugin, run /ntucool:setup — it installs the `cool` and `ntucool-mcp` binaries (prebuilt for linux/windows, cargo install for macOS) and walks you through `cool login`.",
       "category": "productivity",
       "tags": ["ntu", "canvas", "lms", "education", "taiwan"],
       "homepage": "https://github.com/kc0506/ntucool"
