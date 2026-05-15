@@ -264,7 +264,7 @@ pub async fn submit(
     // Every other level runs preflight and applies the gate.
     if level != WriteLevel::Unguarded {
         let pf = preflight(client, course_id, assignment_id, content).await?;
-        enforce_gate(&pf, level, opts.i_understand)?;
+        enforce_gate(&pf.risks, level, opts.i_understand)?;
     }
 
     // Build the nested `submission` object Canvas expects (see module note).
@@ -473,9 +473,9 @@ fn assess(
 ///   Safe    — any risk aborts; `i_understand` is powerless.
 ///   Guarded — "will-fail" (Hard) risks abort; "danger" (Soft) risks abort
 ///             unless `i_understand` is set.
-fn enforce_gate(pf: &SubmitPreflight, level: WriteLevel, i_understand: bool) -> Result<()> {
+fn enforce_gate(risks: &[SubmitRisk], level: WriteLevel, i_understand: bool) -> Result<()> {
     let bullets = |sev: RiskSeverity| -> Vec<String> {
-        pf.risks
+        risks
             .iter()
             .filter(|r| r.severity == sev)
             .map(|r| format!("  - [{}] {}", r.code, r.message))
@@ -548,4 +548,177 @@ async fn upload_files(
         ids.push(id);
     }
     Ok(ids)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    // ── enforce_gate: the write_level × risk-severity safety matrix ──────────
+
+    fn risk(code: &str, severity: RiskSeverity) -> SubmitRisk {
+        SubmitRisk {
+            code: code.into(),
+            severity,
+            message: String::new(),
+        }
+    }
+
+    #[test]
+    fn gate_clean_submission_passes() {
+        // No risks → through at both safe and guarded, with or without i_understand.
+        for level in [WriteLevel::Safe, WriteLevel::Guarded] {
+            assert!(enforce_gate(&[], level, false).is_ok());
+            assert!(enforce_gate(&[], level, true).is_ok());
+        }
+    }
+
+    #[test]
+    fn gate_hard_risk_always_aborts() {
+        let risks = [risk("type_mismatch", RiskSeverity::Hard)];
+        for level in [WriteLevel::Safe, WriteLevel::Guarded] {
+            for i_understand in [false, true] {
+                assert!(
+                    enforce_gate(&risks, level, i_understand).is_err(),
+                    "hard risk must abort at {level:?} i_understand={i_understand}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn gate_safe_blocks_soft_risk_even_with_i_understand() {
+        let risks = [risk("past_due", RiskSeverity::Soft)];
+        assert!(enforce_gate(&risks, WriteLevel::Safe, false).is_err());
+        assert!(
+            enforce_gate(&risks, WriteLevel::Safe, true).is_err(),
+            "`safe` must ignore i_understand for soft risks"
+        );
+    }
+
+    #[test]
+    fn gate_guarded_soft_risk_needs_i_understand() {
+        let risks = [risk("overwrites_existing", RiskSeverity::Soft)];
+        assert!(enforce_gate(&risks, WriteLevel::Guarded, false).is_err());
+        assert!(enforce_gate(&risks, WriteLevel::Guarded, true).is_ok());
+    }
+
+    // ── assess: risk detection from a fetched Assignment ─────────────────────
+
+    fn assignment(value: serde_json::Value) -> Assignment {
+        serde_json::from_value(value).expect("test assignment must deserialize")
+    }
+
+    fn one_pdf() -> SubmitContent {
+        SubmitContent::Files(vec![PathBuf::from("x.pdf")])
+    }
+
+    fn has(pf: &SubmitPreflight, code: &str, severity: RiskSeverity) -> bool {
+        pf.risks
+            .iter()
+            .any(|r| r.code == code && r.severity == severity)
+    }
+
+    #[test]
+    fn assess_type_mismatch_when_content_type_unaccepted() {
+        let a = assignment(json!({ "submission_types": ["online_upload"] }));
+        // text body against an upload-only assignment
+        let pf = assess(1, 2, &SubmitContent::Text("hi".into()), &a);
+        assert!(has(&pf, "type_mismatch", RiskSeverity::Hard));
+        // ...but a file upload is accepted — no type_mismatch
+        let pf = assess(1, 2, &one_pdf(), &a);
+        assert!(!pf.risks.iter().any(|r| r.code == "type_mismatch"));
+    }
+
+    #[test]
+    fn assess_flags_locked_assignment() {
+        let a = assignment(json!({
+            "submission_types": ["online_upload"],
+            "locked_for_user": true,
+        }));
+        assert!(has(&assess(1, 2, &one_pdf(), &a), "locked", RiskSeverity::Hard));
+    }
+
+    #[test]
+    fn assess_past_due_is_soft_future_due_is_clean() {
+        let past = assignment(json!({
+            "submission_types": ["online_upload"],
+            "due_at": "2000-01-01T00:00:00Z",
+        }));
+        assert!(has(&assess(1, 2, &one_pdf(), &past), "past_due", RiskSeverity::Soft));
+
+        let future = assignment(json!({
+            "submission_types": ["online_upload"],
+            "due_at": "2099-01-01T00:00:00Z",
+        }));
+        let pf = assess(1, 2, &one_pdf(), &future);
+        assert!(pf.risks.is_empty(), "clean future-dated assignment: {:?}", pf.risks);
+    }
+
+    #[test]
+    fn assess_flags_past_lock_date() {
+        let a = assignment(json!({
+            "submission_types": ["online_upload"],
+            "lock_at": "2000-01-01T00:00:00Z",
+        }));
+        assert!(has(
+            &assess(1, 2, &one_pdf(), &a),
+            "past_lock_date",
+            RiskSeverity::Hard
+        ));
+    }
+
+    #[test]
+    fn assess_flags_existing_submission_as_soft() {
+        let a = assignment(json!({
+            "submission_types": ["online_upload"],
+            "submission": { "workflow_state": "submitted", "attempt": 1 },
+        }));
+        let pf = assess(1, 2, &one_pdf(), &a);
+        assert!(pf.has_existing_submission);
+        assert!(has(&pf, "overwrites_existing", RiskSeverity::Soft));
+    }
+
+    #[test]
+    fn assess_flags_disallowed_extension() {
+        let a = assignment(json!({
+            "submission_types": ["online_upload"],
+            "allowed_extensions": ["pdf"],
+        }));
+        let docx = SubmitContent::Files(vec![PathBuf::from("essay.docx")]);
+        assert!(has(
+            &assess(1, 2, &docx, &a),
+            "disallowed_extension",
+            RiskSeverity::Hard
+        ));
+        // an allowed extension does not flag
+        assert!(!assess(1, 2, &one_pdf(), &a)
+            .risks
+            .iter()
+            .any(|r| r.code == "disallowed_extension"));
+    }
+
+    #[test]
+    fn assess_flags_attempts_exhausted() {
+        let a = assignment(json!({
+            "submission_types": ["online_upload"],
+            "allowed_attempts": 2,
+            "submission": { "workflow_state": "submitted", "attempt": 2 },
+        }));
+        assert!(has(
+            &assess(1, 2, &one_pdf(), &a),
+            "attempts_exhausted",
+            RiskSeverity::Hard
+        ));
+    }
+
+    #[test]
+    fn submit_content_maps_to_canvas_type() {
+        assert_eq!(SubmitContent::Files(vec![]).submission_type(), "online_upload");
+        assert_eq!(
+            SubmitContent::Text(String::new()).submission_type(),
+            "online_text_entry"
+        );
+    }
 }

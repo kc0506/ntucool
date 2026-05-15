@@ -121,3 +121,76 @@ pub fn write_level() -> WriteLevel {
     }
     load().write_level
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_accepts_valid_forms() {
+        // canonical names
+        assert_eq!(WriteLevel::parse("none"), Some(WriteLevel::None));
+        assert_eq!(WriteLevel::parse("safe"), Some(WriteLevel::Safe));
+        assert_eq!(WriteLevel::parse("guarded"), Some(WriteLevel::Guarded));
+        assert_eq!(WriteLevel::parse("unguarded"), Some(WriteLevel::Unguarded));
+        // ordinal aliases
+        assert_eq!(WriteLevel::parse("0"), Some(WriteLevel::None));
+        assert_eq!(WriteLevel::parse("3"), Some(WriteLevel::Unguarded));
+        // case- and whitespace-insensitive
+        assert_eq!(WriteLevel::parse("  GUARDED "), Some(WriteLevel::Guarded));
+        assert_eq!(WriteLevel::parse("Safe"), Some(WriteLevel::Safe));
+    }
+
+    #[test]
+    fn parse_rejects_garbage() {
+        for bad in ["", "yes", "true", "4", "-1", "writeable"] {
+            assert_eq!(WriteLevel::parse(bad), None, "{bad:?} should not parse");
+        }
+    }
+
+    #[test]
+    fn default_is_none() {
+        // The safe default — anything that loses the config must fail closed.
+        assert_eq!(WriteLevel::default(), WriteLevel::None);
+        assert_eq!(Config::default().write_level, WriteLevel::None);
+    }
+
+    #[test]
+    fn config_deserializes() {
+        let explicit: Config = serde_json::from_str(r#"{"write_level":"guarded"}"#).unwrap();
+        assert_eq!(explicit.write_level, WriteLevel::Guarded);
+
+        // empty object → default
+        let empty: Config = serde_json::from_str("{}").unwrap();
+        assert_eq!(empty.write_level, WriteLevel::None);
+
+        // unknown keys are ignored — forward-compat for future config sections
+        let extra: Config =
+            serde_json::from_str(r#"{"write_level":"safe","future_key":42}"#).unwrap();
+        assert_eq!(extra.write_level, WriteLevel::Safe);
+    }
+
+    #[test]
+    fn config_rejects_invalid_level() {
+        // A typo'd level must be a hard parse error — `load()` is what decides
+        // the safe fallback, deserialization itself must not silently coerce.
+        assert!(serde_json::from_str::<Config>(r#"{"write_level":"bogus"}"#).is_err());
+    }
+
+    #[test]
+    fn find_config_file_walks_up_to_nearest() {
+        // <tmp>/proj/.ntucool.json  with a nested  <tmp>/proj/a/b
+        let base = std::env::temp_dir().join(format!("ntucool-cfgtest-{}", std::process::id()));
+        let nested = base.join("proj/a/b");
+        std::fs::create_dir_all(&nested).unwrap();
+        let cfg = base.join("proj").join(CONFIG_FILENAME);
+        std::fs::write(&cfg, r#"{"write_level":"safe"}"#).unwrap();
+
+        // walks up from a deep subdir to the project's config
+        assert_eq!(find_config_file(&nested).as_deref(), Some(cfg.as_path()));
+        // does not descend: from above `proj`, that config is not found
+        assert_ne!(find_config_file(&base), Some(cfg.clone()));
+
+        std::fs::remove_dir_all(&base).ok();
+    }
+}
