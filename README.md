@@ -22,7 +22,7 @@ This repo contains a Claude Code plugin — a usage skill for AI agents, the `/n
 /plugin install ntucool@ntucool
 ```
 
-Then run `/ntucool:setup` — it installs the `cool` and `ntucool-mcp` binaries and walks you through login. After that the MCP tools and the `cool` CLI both work; you can skip the rest of this section.
+Then run `/ntucool:setup`. It installs the `cool` and `ntucool-mcp` binaries and walks you through login. After that the MCP tools and the `cool` CLI both work; you can skip the rest of this section.
 
 ### CLI, or another MCP client
 
