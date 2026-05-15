@@ -52,7 +52,7 @@ Same tool surface, two access paths. Both read the same session/credentials.
 | Identity | `whoami`, `users_get` |
 | Courses | `courses_list`, `courses_resolve`, `courses_get` |
 | Files | `files_list`, `files_search`, `files_get_metadata`, `files_fetch` |
-| Assignments | `assignments_list`, `assignments_get` |
+| Assignments | `assignments_list`, `assignments_get`, `assignments_submit` |
 | Announcements | `announcements_list`, `announcements_get` |
 | Modules | `modules_list`, `modules_get` |
 | Discussions | `discussions_list`, `discussions_get` |
@@ -60,7 +60,7 @@ Same tool surface, two access paths. Both read the same session/credentials.
 | PDFs | `pdf_search`, `pdf_extract` |
 | Self grading | `submissions_mine`, `grades_get` |
 
-23 tools. Parameter shapes live in `docs/TOOLS.md`. The subsections below cover *why and when* — judgement that doesn't fit in a JSON schema.
+24 tools — 23 read-only plus `assignments_submit` (the only write tool). Parameter shapes live in `docs/TOOLS.md`. The subsections below cover *why and when* — judgement that doesn't fit in a JSON schema.
 
 ### Resolving courses
 
@@ -102,6 +102,18 @@ Don't regex the URLs. They're there as a fallback for humans.
 - `current_*` reflects only graded work to date — the right field mid-semester.
 - `final_*` treats every ungraded assignment as **zero**. NTU therefore shows most active courses as `final_score: 0.0`, `final_grade: "X"`. **Ignore `final_*` until the semester is actually over**, or you'll mislead the user that they're failing.
 
+### Submitting an assignment — the only write tool
+
+`assignments_submit` turns work in. It is the one tool that changes the user's record, so it is gated harder than anything else:
+
+- **Gated by `write_level`.** A single ordinal — `none` (default, refuses every submit) / `safe` (only risk-free submissions) / `guarded` (`i_understand` clears soft risks) / `unguarded` (no checks). Resolved from env `NTUCOOL_WRITE_LEVEL`, else the nearest `.ntucool.json` walking up from cwd, else `none`. When a submit is refused the error states how to raise the level — relay that to the user; don't change `write_level` yourself.
+- **Two-stage.** Call with `confirm=false` first (the default) — it returns a `SubmitPreflight` (what would be submitted + every risk) and submits *nothing*. `confirm=false` previews work at any level, including `none`. Show it to the user. Only call `confirm=true` after they explicitly say to submit.
+- **Never auto-confirm.** Do not set `confirm` or `i_understand` on your own initiative — both require the user's explicit go-ahead in the conversation.
+
+Risks come back with severity `hard` or `soft`. Hard (wrong submission type, locked, past lock date, disallowed file extension) abort at `safe`/`guarded` — Canvas would reject them anyway. Soft (`past_due` → late, `overwrites_existing` → new attempt) abort unless `write_level` is `guarded` and you pass `i_understand=true`.
+
+Provide either `files` (paths on the machine running cool-mcp → `online_upload`) or `text` (→ `online_text_entry`), never both. Per the non-goals: don't generate the answer content yourself — submit only what the user gives you.
+
 ### Files: metadata vs bytes
 
 - `files_get_metadata(file_id)` returns Canvas's internal `url` field — this needs a logged-in browser, not usable from an MCP context.
@@ -118,7 +130,8 @@ Don't regex the URLs. They're there as a fallback for humans.
 | `cool whoami` | Self profile (includes `login_id` + `primary_email`). |
 | `cool course list [--all] [--term <id>]` | List enrolments. |
 | `cool course show <course_id>` | Course detail (syllabus, term, teachers). |
-| `cool assignment ...` | Assignment list/show (see `cool assignment --help`). |
+| `cool assignment list/info` | Assignment list / detail (see `cool assignment --help`). |
+| `cool assignment submit <files…\|--text> -c <course> -a <id>` | Submit an assignment. Prints a preflight + risk summary; confirms interactively (`--i-understand` skips). **Irreversible — creates a graded attempt.** |
 | `cool announcement list/show` | Announcements per course. |
 | `cool discussion list/show` | Discussion topics. |
 | `cool module list/show` | Modules; `list` returns items inline. |

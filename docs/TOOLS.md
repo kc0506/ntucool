@@ -102,16 +102,49 @@ cool-mcp/      MCP server,tool schema + JSON adapter                 ← 薄殼
 | `activity_recent(limit=20)` | ❌ | `/users/self/activity_stream` |
 | `users_get(user_id)` | ✅ | `/api/v1/users/:id` → `UserSummary {id, name, short_name, sortable_name, login_id?, email?, avatar_url?}`. **NTU 實測**: student 等級看任何人 (含 self) 都拿不到 `login_id` 和 `email` — Canvas 在 endpoint 層做隱私過濾, 不只是 user 層。要拿 self 完整資訊請用 `whoami`。 |
 
-### Tier 3 — Write (尚未對 MCP 暴露)
+### Tier 3 — Write
 
 | Tool | 狀態 | 風險 | 備註 |
 |---|---|---|---|
-| `files_upload(course, path, dest?)` | CLI only | 中 | |
-| `assignments_submit(id, files\|text, comment?)` | CLI only MUT | **高** | dry-run + 二次確認 |
+| `assignments_submit(course_id, assignment_id, files\|text, comment?)` | ✅ CLI + MCP | **高** | 見下方「Submit 風險閘」 |
+| `files_upload(course, path, dest?)` | ❌ | 中 | |
 | `discussions_reply(topic_id, body)` | ❌ | **高** | 預設拒絕 |
 | `announcements_mark_read(id)` | ❌ | 低 | |
 
-MCP server 啟動時須白名單啟用 write tools(尚未實作);CLI 模式由人類 gatekeep。
+#### 權限模型:`write_level`
+
+寫入由單一 ordinal `write_level` 控制,CLI 與 MCP **共用同一份設定**:
+
+| `write_level` | 乾淨提交 | Soft 風險 | Hard 風險 |
+|---|---|---|---|
+| `none`(預設) | ✗ 全擋 | ✗ | ✗ |
+| `safe` | ✓ | ✗(`i_understand` 無效) | ✗ |
+| `guarded` | ✓ | 需 `i_understand` | ✗ |
+| `unguarded` | ✓ 跳過 preflight | ✓ | ✓(直接送,Canvas 自己拒) |
+
+設定來源(優先序高→低):
+
+1. 環境變數 `NTUCOOL_WRITE_LEVEL`(值 `none`/`safe`/`guarded`/`unguarded`,或 `0`–`3`)— 給一次性 CLI 用,不必先建檔
+2. `.ntucool.json` — 從 cwd 往上找最近一份,`{ "write_level": "guarded" }`;固有 project / MCP 啟動通用
+3. 內建預設 `none`
+
+解析在 `cool_api::config`。注意這是**便利 / 安全網,不是 security boundary** — 能改檔案或設環境變數的 agent 一樣能改它;要真正擋住請用 Claude Code 自身的工具權限層。
+
+#### Submit 風險閘
+
+`assignments_submit` 不直接送出 — `none`/`unguarded` 以外都先跑 `preflight` 驗風險:
+
+- **Hard 風險(`safe`/`guarded` 永遠 abort)**:`type_mismatch`(assignment 不收這個 submission type)、`locked`(`locked_for_user`)、`not_yet_unlocked`(`unlock_at` 未到)、`past_lock_date`(`lock_at` 已過)、`disallowed_extension`(副檔名不在 `allowed_extensions`)、`attempts_exhausted`(用完 `allowed_attempts`)。Canvas 一定會拒的提交。
+- **Soft 風險**:`past_due`(過 `due_at`,會記 late)、`overwrites_existing`(已有提交,會新增一次 attempt)。`safe` 一律擋、`guarded` 帶 `i_understand` 放行。
+
+前端如何取得同意:
+
+- **CLI** (`cool assignment submit`):印出 preflight 摘要 + `write_level` + 風險清單;`none` 在 preflight 前就早擋;`safe` 遇任何風險直接 abort;`guarded` 跳互動確認(預設 No,非 TTY 視為 No),`--i-understand` 跳過確認;`unguarded` 不確認直接送。
+- **MCP** (`assignments_submit`):`confirm=false`(預設)只回 `SubmitPreflight` 預覽、永遠可跑(連 `none` 也能預覽);`confirm=true` 才送,Soft 風險需另帶 `i_understand=true`。AI 不得在使用者未明示下自行帶 `confirm`/`i_understand`。被擋時錯誤訊息會說明怎麼調 `write_level`。
+
+成功回 `SubmissionReceipt {course_id, assignment_id, workflow_state?, submission_type?, submitted_at?, attempt?, late?, preview_url?}`。
+
+**Codegen workaround #3**:codegen 的 `SubmitAssignmentCoursesParams` 把 `submission[submission_type]` 之類欄位 serde-rename 成點號扁平 key(`"submission.submission_type"`),Rails 不會還原成巢狀 → `endpoints::submit_assignment_courses` 不可用。`cool-tools::assignments::submit` bypass codegen,手建巢狀 JSON `{"submission":{…},"comment":{…}}` 並用 `client.post` 取回 `Submission`。
 
 ### Tier 4 — Local 維運(🔒 只 CLI)
 
@@ -165,7 +198,7 @@ Session TTL 經驗值 ~24 小時(NTU 走 ADFS SAML,cookie 沒有 Max-Age)。`Ses
 - Concurrency cap:read 4、download 2(已有 module download 在用)
 - 429 處理:讀 `Retry-After`,沒給就 1→2→4→8s exponential + jitter,上限 30s
 - 中文 query length guard:< 3 byte 不送請求(server 拒絕)
-- Tier 3 寫工具 dry-run + confirmation 流程定義稍後
+- Tier 3 寫工具:`write_level` 權限模型(`none`/`safe`/`guarded`/`unguarded`)+ preflight 風險閘,見「Tier 3 — Write」
 
 ## 非目標(明確不做)
 
