@@ -1,28 +1,35 @@
 # ntucool
 
-> warning: This is an **unoffical** project. Use at your own risk and with responsibility.
+> [!WARNING]
+> This is an **unofficial** project. Use it at your own risk, and responsibly.
 
 NTU COOL (cool.ntu.edu.tw) CLI + MCP server.
 
-Also comes with NTU COOL SDK. Currently supported languages:
-- Rust
-In the future, followings may be supported:  
-- Python
-- JavaScript / TypeScript
+It also includes an NTU COOL SDK — currently Rust only, with Python and JavaScript / TypeScript planned.
 
-NTU-only: login is NTU's ADFS SAML flow. Interfaces inherit from Canvas LMS but are adapted to NTU Canvas instance.
+NTU-only: login goes through NTU's ADFS SAML flow. The interfaces follow Canvas LMS but are adapted to NTU's Canvas instance.
 
 ## Install
 
-### Claude Code
+ntucool is two binaries — `cool` (CLI) and `ntucool-mcp` (MCP server). The Claude Code plugin is a thin layer that installs and drives them; if you use Claude Code, that's the only section you need.
 
-> TODO: claude code plugin installation
+### Claude Code Quickstart
 
-### CLI
+This repo contains a Claude Code plugin — a usage skill for AI agents, the `/ntucool:setup` command, and the MCP server config.
 
-> TODO: make these collapsable
+```
+/plugin marketplace add kc0506/ntucool
+/plugin install ntucool@ntucool
+```
 
-Prebuilt binaries (Linux / Windows — no Rust needed):
+Then run `/ntucool:setup` — it installs the `cool` and `ntucool-mcp` binaries and walks you through login. After that the MCP tools and the `cool` CLI both work; you can skip the rest of this section.
+
+### CLI, or another MCP client
+
+For a plain terminal CLI, or to wire `ntucool-mcp` into Claude Desktop / Cursor, install the binaries directly:
+
+<details>
+<summary>Linux / Windows — prebuilt binaries (no Rust needed)</summary>
 
 ```sh
 curl --proto '=https' --tlsv1.2 -LsSf https://github.com/kc0506/ntucool/releases/latest/download/ntucool-installer.sh | sh
@@ -35,16 +42,19 @@ Windows PowerShell:
 powershell -ExecutionPolicy ByPass -c "irm https://github.com/kc0506/ntucool/releases/latest/download/ntucool-installer.ps1 | iex"
 powershell -ExecutionPolicy ByPass -c "irm https://github.com/kc0506/ntucool/releases/latest/download/ntucool-mcp-installer.ps1 | iex"
 ```
+</details>
 
-macOS, or any platform from source:
+<details>
+<summary>macOS, or building from source</summary>
 
 ```sh
 cargo install ntucool ntucool-mcp
 ```
 
-(macOS prebuilt binaries are pending — GitHub's free-tier macOS runner queue is currently sitting on jobs without picking them up. Tracking for a future release.)
+macOS prebuilt binaries aren't available yet — install from source with `cargo` for now.
+</details>
 
-Then:
+Then log in once:
 
 ```sh
 cool login
@@ -60,15 +70,15 @@ cool submission mine --status graded
 cool file list --course 57439 --path /
 ```
 
-
-TUI (WIP)
-<details>
-There are also TUI supported for some commands, e.g. `cool assignment`. 
-</details>
-
 `cool --help` for the full command surface.
 
-### Summary of supported CLI commands
+<details>
+<summary>TUI (work in progress)</summary>
+
+Some commands also ship an interactive TUI — e.g. `cool assignment`.
+</details>
+
+### Supported CLI commands
 
 | Command | Purpose |
 |---|---|
@@ -87,7 +97,6 @@ There are also TUI supported for some commands, e.g. `cool assignment`.
 | `cool user get <user_id>` | Look up another user (name + avatar; no email at student privilege). |
 | `cool submission mine [--course] [--status]` | Self submissions across one / all active courses. |
 | `cool grade [--course <id>]` | Per-course grade summary. |
-
 
 ## MCP
 
@@ -118,38 +127,30 @@ There are also TUI supported for some commands, e.g. `cool assignment`.
 | PDFs | `pdf_search`, `pdf_extract` |
 | Self grading | `submissions_mine`, `grades_get` |
 
-
 ## Reference
 
-Check `docs/TOOLS.md` and `plugins/ntucool/skills/ntucool/SKILL.md` for more comprehensive (yet might be more unreadable and noisy) descriptions.
+`docs/TOOLS.md` and `plugins/ntucool/skills/ntucool/SKILL.md` carry the full per-tool contract — more comprehensive than this page, but noisier.
 
-## Security issues
+## Security
 
-1. Credentials
-
-2. Write operations
-
-3. Abuses
-Please don't abuse the tools this project provides.
+- **Credentials.** `cool login` saves a session cookie under `$XDG_DATA_HOME/ntucool/` and, if you opt in, credentials under `$XDG_CONFIG_HOME/ntucool/credentials.json` (mode `0600`). You choose how the password is stored — plaintext, a `password_cmd` (`pass`, `op`, ...), or not saved at all. Nothing is sent anywhere except NTU COOL itself.
+- **Write operations.** Most tools are read-only. The exceptions — `assignment submit` and `file upload` — change state on NTU COOL. `submit` is irreversible (it creates a graded attempt) and prints a preflight summary before proceeding.
+- **Abuse.** Please don't abuse the tools this project provides.
 
 ## NTU COOL SDK
 
-Under development. Check `codegen/` for current pipeline and `cool-api/` for the Rust client generated.
+Under development. See `codegen/` for the current pipeline and `cool-api/` for the generated Rust client.
 
 ## How it works
 
-- NTU COOL is based on Canvas LMS, an open source platform.
-- We collect Canvas LMS API schemas from offical resources.
-- Transform into per-language SDK via `codegen/`.
-- Both CLI and MCP use generated Rust client for API requests.
+- NTU COOL is built on Canvas LMS, an open-source platform.
+- We collect Canvas LMS API schemas from official sources.
+- `codegen/` transforms them into a per-language SDK.
+- Both the CLI and the MCP server use the generated Rust client for API requests.
 
-### Auth procedure
+### Authentication
 
-NTU COOL does not support original Canvas auth token. 
-Therefore, we have to manually emulate the NTU SAML login and extract the cookies. Doing so currently requires typing student account and password in terminal with `cool login`.
-The cookies is saved in `TODO`, and is attached in every API requests.
-The cookies automatically expire after 24 hrs on NTU COOL's side.
-
+NTU COOL does not support Canvas's native API tokens. We therefore emulate NTU's SAML login and extract the session cookies — which currently means typing your student account and password into `cool login`. The cookies are saved to `$XDG_DATA_HOME/ntucool/session.json` and attached to every API request. They expire after ~24h on NTU COOL's side; the next call then transparently re-logs in from saved credentials, or prompts if none were saved.
 
 ## License
 
