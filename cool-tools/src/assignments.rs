@@ -1,19 +1,23 @@
 //! Assignments — list, show, submit.
 
-use std::path::Path;
+use std::path::PathBuf;
 
 use anyhow::Result;
+use chrono::Utc;
 use futures::StreamExt;
+use serde::Deserialize;
 
+use cool_api::config::WriteLevel;
 use cool_api::generated::endpoints;
 pub use cool_api::generated::models::Assignment;
-use cool_api::generated::params::{ListAssignmentsAssignmentsParams, SubmitAssignmentCoursesParams};
+use cool_api::generated::params::ListAssignmentsAssignmentsParams;
 use cool_api::CoolClient;
 
 use crate::attachments;
 use crate::text;
 use crate::types::{
-    AssignmentDetail as ContractAssignmentDetail, AssignmentSummary, RubricCriterion as ContractRubricCriterion,
+    AssignmentDetail as ContractAssignmentDetail, AssignmentSummary, RiskSeverity,
+    RubricCriterion as ContractRubricCriterion, SubmissionReceipt, SubmitPreflight, SubmitRisk,
 };
 
 /// Optional filters for `list`. All `None` = unfiltered.
@@ -146,59 +150,402 @@ pub async fn get_detail(
     })
 }
 
-/// Submit a single file as an `online_upload` submission.
-///
-/// Multi-step Canvas flow:
-///   1. POST /courses/.../assignments/<id>/submissions/self/files → upload token
-///   2. PUT bytes to S3-style upload URL
-///   3. POST /courses/.../assignments/<id>/submissions with the file_id
-pub async fn submit_file(
+// ────────────────────────────────────────────────────────────────────────────
+// Submission (write path)
+// ────────────────────────────────────────────────────────────────────────────
+//
+// Canvas's submit endpoint wants the submission fields nested — form params
+// `submission[submission_type]=…` or JSON `{"submission": {…}}`. The codegen'd
+// `SubmitAssignmentCoursesParams` serialises them as DOT-flattened keys
+// (`"submission.submission_type"`) which Rails never reassembles, so codegen's
+// `submit_assignment_courses` cannot work. We bypass codegen here and hand-build
+// the nested JSON — the same workaround `submissions.rs` uses for its read path.
+
+/// What the user wants to turn in. The variant fixes the Canvas
+/// `submission_type`: `Files` → `online_upload`, `Text` → `online_text_entry`.
+#[derive(Debug, Clone)]
+pub enum SubmitContent {
+    /// One or more local files, uploaded then attached as `online_upload`.
+    Files(Vec<PathBuf>),
+    /// An HTML / plain-text body submitted as `online_text_entry`.
+    Text(String),
+}
+
+impl SubmitContent {
+    /// The Canvas `submission_type` string this content maps to.
+    pub fn submission_type(&self) -> &'static str {
+        match self {
+            Self::Files(_) => "online_upload",
+            Self::Text(_) => "online_text_entry",
+        }
+    }
+}
+
+/// What we deserialize from Canvas's `POST .../submissions` response. The
+/// codegen `Submission` model can't be used here: it types nested fields like
+/// `submission_comments[].author` as `String` while Canvas returns objects, so
+/// the full model fails to decode. Same bypass rationale as `submissions.rs`.
+#[derive(Debug, Deserialize)]
+struct RawSubmitResponse {
+    workflow_state: Option<String>,
+    submission_type: Option<String>,
+    submitted_at: Option<String>,
+    attempt: Option<i64>,
+    late: Option<bool>,
+    preview_url: Option<String>,
+}
+
+/// Knobs for `submit` beyond the content itself.
+#[derive(Debug, Clone, Default)]
+pub struct SubmitOptions {
+    /// Optional comment delivered to the grader alongside the submission.
+    pub comment: Option<String>,
+    /// Acknowledge every `Soft` risk surfaced by preflight. `Hard` risks abort
+    /// regardless. Without this, a soft risk makes `submit` refuse.
+    pub i_understand: bool,
+}
+
+/// Fetch the assignment (with the caller's current submission included) and
+/// assess every risk of submitting `content` to it — submitting nothing.
+pub async fn preflight(
     client: &CoolClient,
-    course_id: &str,
-    assignment_id: &str,
-    local_path: &Path,
-) -> Result<()> {
-    if !local_path.exists() {
-        anyhow::bail!("File not found: {}", local_path.display());
+    course_id: i64,
+    assignment_id: i64,
+    content: &SubmitContent,
+) -> Result<SubmitPreflight> {
+    let assignment = show_with_submission(client, course_id, assignment_id).await?;
+    Ok(assess(course_id, assignment_id, content, &assignment))
+}
+
+/// Submit `content` to an assignment, gated by a preflight safety check.
+///
+/// Aborts on any `Hard` risk. Aborts on `Soft` risks too unless
+/// `opts.i_understand` is set. On success returns a `SubmissionReceipt` built
+/// from Canvas's response (workflow_state, attempt, late, …).
+pub async fn submit(
+    client: &CoolClient,
+    course_id: i64,
+    assignment_id: i64,
+    content: &SubmitContent,
+    opts: &SubmitOptions,
+) -> Result<SubmissionReceipt> {
+    // Cheap local validation before any network write.
+    match content {
+        SubmitContent::Files(paths) => {
+            if paths.is_empty() {
+                anyhow::bail!("No files given to submit.");
+            }
+            for p in paths {
+                if !p.exists() {
+                    anyhow::bail!("File not found: {}", p.display());
+                }
+            }
+        }
+        SubmitContent::Text(body) => {
+            if body.trim().is_empty() {
+                anyhow::bail!("Refusing to submit an empty text body.");
+            }
+        }
     }
 
-    let file_name = local_path
-        .file_name()
-        .and_then(|n| n.to_str())
-        .unwrap_or("file");
-    let file_size = std::fs::metadata(local_path)?.len();
+    // Resolve the write policy (env NTUCOOL_WRITE_LEVEL > .ntucool.json > `none`).
+    let level = cool_api::config::write_level();
+    if level == WriteLevel::None {
+        anyhow::bail!(
+            "Writes are disabled (write_level = none). Enable submission by either:\n  \
+             - set env NTUCOOL_WRITE_LEVEL=guarded   (one-off)\n  \
+             - add {{\"write_level\": \"guarded\"}} to .ntucool.json in your project\n\
+             Levels: safe (clean submissions only) | guarded (risky ones need \
+             i_understand) | unguarded (no checks)."
+        );
+    }
 
-    let step1_body = serde_json::json!({ "name": file_name, "size": file_size });
+    // `unguarded` skips preflight entirely — Canvas is the sole authority.
+    // Every other level runs preflight and applies the gate.
+    if level != WriteLevel::Unguarded {
+        let pf = preflight(client, course_id, assignment_id, content).await?;
+        enforce_gate(&pf, level, opts.i_understand)?;
+    }
 
-    let upload_token: cool_api::upload::UploadToken = client
-        .post(
-            &format!(
-                "/api/v1/courses/{}/assignments/{}/submissions/self/files",
-                course_id, assignment_id
-            ),
-            &step1_body,
-        )
+    // Build the nested `submission` object Canvas expects (see module note).
+    let mut submission = serde_json::Map::new();
+    submission.insert(
+        "submission_type".into(),
+        serde_json::Value::String(content.submission_type().into()),
+    );
+    match content {
+        SubmitContent::Files(paths) => {
+            let file_ids = upload_files(client, course_id, assignment_id, paths).await?;
+            submission.insert("file_ids".into(), serde_json::json!(file_ids));
+        }
+        SubmitContent::Text(body) => {
+            submission.insert("body".into(), serde_json::Value::String(body.clone()));
+        }
+    }
+
+    let mut payload = serde_json::Map::new();
+    payload.insert("submission".into(), serde_json::Value::Object(submission));
+    if let Some(comment) = opts.comment.as_deref().filter(|c| !c.trim().is_empty()) {
+        payload.insert("comment".into(), serde_json::json!({ "text_comment": comment }));
+    }
+
+    let path = format!("/api/v1/courses/{course_id}/assignments/{assignment_id}/submissions");
+    let created: RawSubmitResponse = client
+        .post(&path, &serde_json::Value::Object(payload))
         .await?;
 
-    let file_obj = cool_api::upload::execute_upload(client, &upload_token, local_path).await?;
-    let file_id = file_obj
-        .id
-        .ok_or_else(|| anyhow::anyhow!("Upload succeeded but no file ID returned"))?;
+    Ok(SubmissionReceipt {
+        course_id,
+        assignment_id,
+        workflow_state: created.workflow_state,
+        submission_type: created.submission_type,
+        submitted_at: created.submitted_at,
+        attempt: created.attempt,
+        late: created.late,
+        preview_url: created.preview_url,
+    })
+}
 
-    let submit_params = SubmitAssignmentCoursesParams {
-        comment_text_comment: None,
-        submission_group_comment: None,
-        submission_submission_type: Some("online_upload".to_string()),
-        submission_body: None,
-        submission_url: None,
-        submission_file_ids: Some(vec![file_id]),
-        submission_media_comment_id: None,
-        submission_media_comment_type: None,
-        submission_user_id: None,
-        submission_annotatable_attachment_id: None,
-        submission_submitted_at: None,
+/// GET one assignment with `include[]=submission` so preflight can see whether
+/// the user already has a submission.
+async fn show_with_submission(
+    client: &CoolClient,
+    course_id: i64,
+    assignment_id: i64,
+) -> Result<Assignment> {
+    let path = format!("/api/v1/courses/{course_id}/assignments/{assignment_id}");
+    let query = [("include[]", "submission")];
+    Ok(client.get(&path, Some(&query)).await?)
+}
+
+/// Pure risk assessment: given a fetched assignment and the intended content,
+/// enumerate every condition that should block or warn the submission.
+fn assess(
+    course_id: i64,
+    assignment_id: i64,
+    content: &SubmitContent,
+    a: &Assignment,
+) -> SubmitPreflight {
+    let want = content.submission_type();
+    let now = Utc::now();
+    let mut risks = Vec::new();
+
+    // Hard: the assignment doesn't accept this submission type.
+    let accepted = a.submission_types.clone().unwrap_or_default();
+    if !accepted.iter().any(|t| t == want) {
+        risks.push(SubmitRisk {
+            code: "type_mismatch".into(),
+            severity: RiskSeverity::Hard,
+            message: format!(
+                "Assignment accepts {accepted:?}, not `{want}` — Canvas will reject this submission."
+            ),
+        });
+    }
+
+    // Hard: locked for this user.
+    if a.locked_for_user == Some(true) {
+        let why = a
+            .lock_explanation
+            .clone()
+            .unwrap_or_else(|| "assignment is locked".into());
+        risks.push(SubmitRisk {
+            code: "locked".into(),
+            severity: RiskSeverity::Hard,
+            message: format!("Assignment is locked for you: {why}"),
+        });
+    }
+
+    // Hard: not yet open.
+    if let Some(unlock) = a.unlock_at {
+        if unlock > now {
+            risks.push(SubmitRisk {
+                code: "not_yet_unlocked".into(),
+                severity: RiskSeverity::Hard,
+                message: format!(
+                    "Assignment unlocks at {} — submissions aren't open yet.",
+                    unlock.to_rfc3339()
+                ),
+            });
+        }
+    }
+
+    // Hard: past the lock date — Canvas refuses submissions after `lock_at`.
+    if let Some(lock) = a.lock_at {
+        if lock < now {
+            risks.push(SubmitRisk {
+                code: "past_lock_date".into(),
+                severity: RiskSeverity::Hard,
+                message: format!("Submissions closed at {} (lock date passed).", lock.to_rfc3339()),
+            });
+        }
+    }
+
+    // Hard: file extension(s) Canvas is configured to reject.
+    if let SubmitContent::Files(paths) = content {
+        let allowed = a.allowed_extensions.clone().unwrap_or_default();
+        if !allowed.is_empty() {
+            for p in paths {
+                let ext = p.extension().and_then(|e| e.to_str());
+                let ok = ext
+                    .map(|e| allowed.iter().any(|a| a.eq_ignore_ascii_case(e)))
+                    .unwrap_or(false);
+                if !ok {
+                    risks.push(SubmitRisk {
+                        code: "disallowed_extension".into(),
+                        severity: RiskSeverity::Hard,
+                        message: format!(
+                            "`{}` has an extension Canvas won't accept here (allowed: {allowed:?}).",
+                            p.display()
+                        ),
+                    });
+                }
+            }
+        }
+    }
+
+    // Existing-submission state — drives the `overwrites_existing` soft risk
+    // and the `attempts_exhausted` hard risk.
+    let existing = a.submission.as_ref();
+    let has_existing = existing
+        .map(|s| {
+            s.submitted_at.is_some()
+                || s.workflow_state.as_deref().is_some_and(|w| w != "unsubmitted")
+        })
+        .unwrap_or(false);
+
+    // Hard: attempts exhausted (`allowed_attempts = -1` means unlimited).
+    if let Some(max) = a.allowed_attempts {
+        if max > 0 {
+            let used = existing.and_then(|s| s.attempt).unwrap_or(0);
+            if used >= max {
+                risks.push(SubmitRisk {
+                    code: "attempts_exhausted".into(),
+                    severity: RiskSeverity::Hard,
+                    message: format!("All {max} allowed attempt(s) already used."),
+                });
+            }
+        }
+    }
+
+    // Soft: past due — still submittable, but Canvas flags it late.
+    if let Some(due) = a.due_at {
+        if due < now {
+            risks.push(SubmitRisk {
+                code: "past_due".into(),
+                severity: RiskSeverity::Soft,
+                message: format!(
+                    "Past due ({}) — the submission will be marked late.",
+                    due.to_rfc3339()
+                ),
+            });
+        }
+    }
+
+    // Soft: re-submitting over an existing submission.
+    if has_existing {
+        let attempt = existing.and_then(|s| s.attempt).unwrap_or(0);
+        risks.push(SubmitRisk {
+            code: "overwrites_existing".into(),
+            severity: RiskSeverity::Soft,
+            message: format!(
+                "You already submitted (attempt {attempt}). This adds a new attempt; the \
+                 previous one stays in Canvas's history but is no longer the active submission."
+            ),
+        });
+    }
+
+    SubmitPreflight {
+        course_id,
+        assignment_id,
+        assignment_name: a.name.clone().unwrap_or_default(),
+        submission_type: want.to_string(),
+        due_at: a.due_at.map(|t| t.to_rfc3339()),
+        lock_at: a.lock_at.map(|t| t.to_rfc3339()),
+        has_existing_submission: has_existing,
+        risks,
+    }
+}
+
+/// Apply the `write_level` policy to the preflight risks. Callers handle
+/// `None` (refused before preflight) and `Unguarded` (preflight skipped), so
+/// `level` here is always `Safe` or `Guarded`:
+///
+///   Safe    — any risk aborts; `i_understand` is powerless.
+///   Guarded — "will-fail" (Hard) risks abort; "danger" (Soft) risks abort
+///             unless `i_understand` is set.
+fn enforce_gate(pf: &SubmitPreflight, level: WriteLevel, i_understand: bool) -> Result<()> {
+    let bullets = |sev: RiskSeverity| -> Vec<String> {
+        pf.risks
+            .iter()
+            .filter(|r| r.severity == sev)
+            .map(|r| format!("  - [{}] {}", r.code, r.message))
+            .collect()
     };
 
-    endpoints::submit_assignment_courses(client, course_id, assignment_id, &submit_params).await?;
+    // "Will-fail" risks — Canvas would reject these. Abort at both safe and guarded.
+    let hard = bullets(RiskSeverity::Hard);
+    if !hard.is_empty() {
+        anyhow::bail!(
+            "Submission refused — {} blocking issue(s) Canvas would reject:\n{}",
+            hard.len(),
+            hard.join("\n")
+        );
+    }
+
+    // "Danger" risks — would succeed, but risky. Cleared only at `guarded` + i_understand.
+    let soft = bullets(RiskSeverity::Soft);
+    if !soft.is_empty() {
+        let cleared = level == WriteLevel::Guarded && i_understand;
+        if !cleared {
+            let hint = if level == WriteLevel::Safe {
+                "write_level is `safe`, which blocks every risky submission — \
+                 raise it to `guarded` and pass i_understand to proceed"
+            } else {
+                "pass i_understand to proceed"
+            };
+            anyhow::bail!(
+                "Submission held — {} risk(s) ({hint}):\n{}",
+                soft.len(),
+                soft.join("\n")
+            );
+        }
+    }
     Ok(())
+}
+
+/// Run the Canvas file-upload protocol for each path, returning the file IDs
+/// in submission order:
+///   1. POST .../submissions/self/files → upload token
+///   2. PUT the bytes to the S3-style upload URL (via `execute_upload`)
+async fn upload_files(
+    client: &CoolClient,
+    course_id: i64,
+    assignment_id: i64,
+    paths: &[PathBuf],
+) -> Result<Vec<i64>> {
+    let mut ids = Vec::with_capacity(paths.len());
+    for path in paths {
+        let file_name = path.file_name().and_then(|n| n.to_str()).unwrap_or("file");
+        let file_size = std::fs::metadata(path)?.len();
+        let step1 = serde_json::json!({ "name": file_name, "size": file_size });
+
+        let token: cool_api::upload::UploadToken = client
+            .post(
+                &format!(
+                    "/api/v1/courses/{course_id}/assignments/{assignment_id}/submissions/self/files"
+                ),
+                &step1,
+            )
+            .await?;
+
+        let file = cool_api::upload::execute_upload(client, &token, path).await?;
+        let id = file.id.ok_or_else(|| {
+            anyhow::anyhow!(
+                "Upload of {} succeeded but Canvas returned no file ID",
+                path.display()
+            )
+        })?;
+        ids.push(id);
+    }
+    Ok(ids)
 }

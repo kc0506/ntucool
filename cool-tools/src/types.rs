@@ -461,6 +461,70 @@ pub struct CourseGrade {
 }
 
 // ────────────────────────────────────────────────────────────────────────────
+// Assignment submission (write path)
+// ────────────────────────────────────────────────────────────────────────────
+
+/// Severity of a pre-submit risk. `Hard` risks abort the submission outright;
+/// `Soft` risks proceed only when the caller explicitly acknowledges them
+/// (`i_understand` in cool-tools / cool-mcp, the interactive prompt in the CLI).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum RiskSeverity {
+    Hard,
+    Soft,
+}
+
+/// One condition flagged by the pre-submit safety check (`assignments::preflight`).
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct SubmitRisk {
+    /// Stable machine code so callers can branch without parsing `message`:
+    /// `type_mismatch`, `locked`, `not_yet_unlocked`, `past_lock_date`,
+    /// `disallowed_extension`, `attempts_exhausted` (all `Hard`);
+    /// `past_due`, `overwrites_existing` (`Soft`).
+    pub code: String,
+    pub severity: RiskSeverity,
+    /// Human-readable explanation, safe to show the user verbatim.
+    pub message: String,
+}
+
+/// Result of `assignments::preflight` — what a submission *would* look like and
+/// every risk attached to it, computed without submitting anything.
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct SubmitPreflight {
+    pub course_id: i64,
+    pub assignment_id: i64,
+    pub assignment_name: String,
+    /// Canvas `submission_type` that would be used: `online_upload` (files) or
+    /// `online_text_entry` (text).
+    pub submission_type: String,
+    pub due_at: Option<String>,
+    pub lock_at: Option<String>,
+    /// Whether the user already has a submission. Re-submitting adds a new
+    /// attempt; the previous one stays in Canvas's history.
+    pub has_existing_submission: bool,
+    /// Every flagged risk. Empty = clean. Any `Hard` entry means `submit` refuses.
+    pub risks: Vec<SubmitRisk>,
+}
+
+/// Receipt for a completed submission, built from the `Submission` object
+/// Canvas returns from `POST .../submissions`.
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct SubmissionReceipt {
+    pub course_id: i64,
+    pub assignment_id: i64,
+    /// `submitted` / `pending_review` / `graded` / …
+    pub workflow_state: Option<String>,
+    pub submission_type: Option<String>,
+    pub submitted_at: Option<String>,
+    /// Attempt number Canvas recorded — re-submissions increment this.
+    pub attempt: Option<i64>,
+    /// True when Canvas marked the submission late (turned in past `due_at`).
+    pub late: Option<bool>,
+    /// Canvas URL to view the submission in a browser.
+    pub preview_url: Option<String>,
+}
+
+// ────────────────────────────────────────────────────────────────────────────
 // Page (Canvas wiki)
 // ────────────────────────────────────────────────────────────────────────────
 

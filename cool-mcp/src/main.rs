@@ -242,6 +242,33 @@ struct GradesGetArgs {
     course_id: Option<i64>,
 }
 
+#[derive(Debug, Deserialize, schemars::JsonSchema)]
+struct AssignmentsSubmitArgs {
+    course_id: i64,
+    assignment_id: i64,
+    /// Local file path(s) on the machine running cool-mcp, uploaded as an
+    /// `online_upload` submission. Mutually exclusive with `text`.
+    #[serde(default)]
+    files: Vec<String>,
+    /// Text / HTML body submitted as `online_text_entry`. Mutually exclusive with `files`.
+    #[serde(default)]
+    text: Option<String>,
+    /// Optional comment delivered to the grader.
+    #[serde(default)]
+    comment: Option<String>,
+    /// Must be `true` to actually submit. When `false` (default) the tool
+    /// returns a preflight preview (what would be submitted + risks) and
+    /// submits nothing — show that to the user before committing.
+    #[serde(default)]
+    confirm: bool,
+    /// Acknowledge every `soft` risk (past due → late, re-submitting over an
+    /// existing submission). `hard` risks (wrong submission type, locked, past
+    /// lock date, disallowed extension) abort regardless. Only set this with
+    /// the user's explicit go-ahead.
+    #[serde(default)]
+    i_understand: bool,
+}
+
 // ────────────────────────────────────────────────────────────────────────────
 // Tool router
 // ────────────────────────────────────────────────────────────────────────────
@@ -686,6 +713,78 @@ impl CoolServer {
             .await
             .map_err(to_mcp_err)?;
         json_result(&grades)
+    }
+
+    // ── Tier 3: write (assignment submission) ──────────────────────────────
+
+    #[tool(description = "Submit an assignment — a WRITE operation that creates a graded \
+        attempt on the user's record. Provide either `files` (online_upload) or `text` \
+        (online_text_entry), never both. Two-stage by design:\n\
+        - confirm=false (default): returns SubmitPreflight {assignment_name, submission_type, \
+          due_at?, lock_at?, has_existing_submission, risks[]} and submits NOTHING. Always \
+          do this first and show the user.\n\
+        - confirm=true: performs the submission, returns SubmissionReceipt {workflow_state?, \
+          submission_type?, submitted_at?, attempt?, late?, preview_url?}.\n\
+        Each risk has severity hard|soft. Hard risks (wrong submission type, assignment \
+        locked, past lock date, disallowed file extension) ALWAYS abort. Soft risks \
+        (past due → marked late, overwriting an existing submission) abort unless \
+        i_understand=true. Never set confirm or i_understand without the user's explicit \
+        instruction to submit.\n\
+        Gated by write_level (env NTUCOOL_WRITE_LEVEL, else .ntucool.json): `none` \
+        (default) refuses every submit; `safe` allows only risk-free ones; `guarded` \
+        lets i_understand clear soft risks; `unguarded` skips all checks. confirm=false \
+        previews work at any level — if a submit is refused, the error says how to raise \
+        the level.")]
+    async fn assignments_submit(
+        &self,
+        Parameters(args): Parameters<AssignmentsSubmitArgs>,
+    ) -> Result<CallToolResult, ErrorData> {
+        let content = match (args.text.as_ref(), args.files.is_empty()) {
+            (Some(t), true) => cool_tools::assignments::SubmitContent::Text(t.clone()),
+            (Some(_), false) => {
+                return Err(ErrorData::invalid_params(
+                    "Pass either `files` or `text`, not both.".to_string(),
+                    None,
+                ))
+            }
+            (None, false) => cool_tools::assignments::SubmitContent::Files(
+                args.files.iter().map(std::path::PathBuf::from).collect(),
+            ),
+            (None, true) => {
+                return Err(ErrorData::invalid_params(
+                    "Nothing to submit — provide `files` or `text`.".to_string(),
+                    None,
+                ))
+            }
+        };
+
+        // confirm=false → preflight preview only, submit nothing.
+        if !args.confirm {
+            let pf = cool_tools::assignments::preflight(
+                &self.client,
+                args.course_id,
+                args.assignment_id,
+                &content,
+            )
+            .await
+            .map_err(to_mcp_err)?;
+            return json_result(&pf);
+        }
+
+        let opts = cool_tools::assignments::SubmitOptions {
+            comment: args.comment.clone(),
+            i_understand: args.i_understand,
+        };
+        let receipt = cool_tools::assignments::submit(
+            &self.client,
+            args.course_id,
+            args.assignment_id,
+            &content,
+            &opts,
+        )
+        .await
+        .map_err(to_mcp_err)?;
+        json_result(&receipt)
     }
 }
 
