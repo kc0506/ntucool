@@ -60,6 +60,10 @@ Then log in once:
 cool login
 ```
 
+### Other AI Agents
+
+The core of `ntucool` — the two binaries — is agent-framework-agnostic. Any AI agent with shell access and an MCP client can set it up the same way Claude Code does; the usage skill at `plugins/ntucool/skills/ntucool/SKILL.md` works as plain guidance you can hand to any agent.
+
 ## CLI
 
 ```sh
